@@ -38,20 +38,19 @@ The installer creates `.opencode/` in your project and copies all configuration 
 crewai-platform/
 ├── opencode/                   # Content to be installed as .opencode/
 │   │   ├── agent/
-│   │   ├── crewai/                  # CrewAI orchestrator and specialized subagents
-│   │   │   ├── crewai-orchestrator.md     # Primary orchestrator agent
-│   │   │   └── subagents/
-│   │   │       ├── agent-designer.md        # Create/configure agents
-│   │   │       ├── crew-architect.md       # Design crew architectures
-│   │   │       ├── crewai-documenter.md    # Generate documentation
-│   │   │       ├── debugger.md             # Debug execution issues
-│   │   │       ├── flow-engineer.md        # Create flows and state management
-│   │   │       ├── llm-optimizer.md       # Optimize LLM configurations
-│   │   │       ├── migration-specialist.md # Migrate/refactor projects
-│   │   │       ├── performance-analyst.md  # Analyze performance metrics
-│   │   │       ├── task-designer.md       # Design/configure tasks
-│   │   │       └── tool-specialist.md     # Create/integrate tools
-│   │   └── subagents/                 # General-purpose subagents
+│   │   ├── crewai-orchestrator.md    # Primary orchestrator agent (moved to root)
+│   │   └── subagents/              # General-purpose subagents
+│   │       ├── crewai/                # CrewAI specialized subagents
+│   │       │   ├── agent-designer.md        # Create/configure agents
+│   │       │   ├── crew-architect.md       # Design crew architectures
+│   │       │   ├── crewai-documenter.md    # Generate documentation
+│   │       │   ├── debugger.md             # Debug execution issues
+│   │       │   ├── flow-engineer.md        # Create flows and state management
+│   │       │   ├── llm-optimizer.md       # Optimize LLM configurations
+│   │       │   ├── migration-specialist.md # Migrate/refactor projects
+│   │       │   ├── performance-analyst.md  # Analyze performance metrics
+│   │       │   ├── task-designer.md       # Design/configure tasks
+│   │       │   └── tool-specialist.md     # Create/integrate tools
 │   │       ├── code/                   # Code execution subagents
 │   │       │   ├── coder-agent.md       # Execute coding tasks
 │   │       │   ├── reviewer.md          # Code review
@@ -59,70 +58,6 @@ crewai-platform/
 │   │       │   └── build-agent.md      # Build validation
 │   │       └── core/                  # Core utilities
 │   │           └── contextscout.md     # Context discovery
-│   │
-│   ├── command/
-│   │   └── crew/                      # CrewAI command-line interfaces
-│   │       ├── create.md               # Create new crews
-│   │       ├── analyze.md              # Analyze crew architecture
-│   │       ├── debug.md                # Debug crew execution
-│   │       ├── diagram.md              # Generate architecture diagrams
-│   │       ├── docs.md                 # Generate documentation
-│   │       ├── migrate.md              # Migrate crews/projects
-│   │       ├── optimize.md             # Optimize crew performance
-│   │       └── review.md              # Review crew architecture
-│   │
-│   ├── context/
-│   │   ├── crewai/                    # CrewAI documentation
-│   │   │   ├── domain/concepts/        # Core concepts
-│   │   │   │   ├── agents.md         # Agent concepts
-│   │   │   │   ├── crews.md          # Crew concepts
-│   │   │   │   ├── flows.md          # Flow concepts
-│   │   │   │   ├── tasks.md          # Task concepts
-│   │   │   │   ├── tools.md          # Tool concepts
-│   │   │   │   ├── llms.md           # LLM configuration
-│   │   │   │   ├── memory.md         # Memory systems
-│   │   │   │   ├── processes.md      # Process types
-│   │   │   │   └── cli.md           # CLI concepts
-│   │   │   ├── processes/             # Operational workflows
-│   │   │   │   ├── crew-creation.md  # Create crews
-│   │   │   │   ├── debugging.md      # Debug workflows
-│   │   │   │   ├── migration.md      # Migration procedures
-│   │   │   │   └── optimization.md  # Optimization strategies
-│   │   │   ├── standards/             # Best practices
-│   │   │   │   ├── code-quality.md   # Code standards
-│   │   │   │   ├── project-structure.md # Project organization
-│   │   │   │   └── navigation.md    # Navigation standards
-│   │   │   ├── templates/            # Code templates
-│   │   │   │   ├── agent-yaml.md    # Agent YAML template
-│   │   │   │   ├── task-yaml.md    # Task YAML template
-│   │   │   │   └── flow-class.md    # Flow class template
-│   │   │   ├── navigation.md          # Context navigation
-│   │   │   └── domain/navigation.md   # Domain navigation
-│   │   │
-│   │   └── core/task-management/      # Task management system
-│   │       ├── navigation.md          # Task management overview
-│   │       ├── guides/
-│   │       │   ├── managing-tasks.md # Task tracking guide
-│   │       │   └── splitting-tasks.md # Task breakdown guide
-│   │       ├── lookup/
-│   │       │   └── task-commands.md  # Command reference
-│   │       └── standards/
-│   │           └── task-schema.md    # JSON schema standards
-│   │
-│   ├── workflows/crewai/             # Predefined workflows
-│   │   ├── create-crew.md           # Crew creation workflow
-│   │   ├── create-flow.md           # Flow creation workflow
-│   │   ├── debug-crew.md            # Debugging workflow
-│   │   ├── migrate-project.md       # Migration workflow
-│   │   ├── optimize-crew.md         # Optimization workflow
-│   │   └── navigation.md           # Workflow navigation
-│   │
-│   └── skill/task-management/        # Task management CLI
-│       ├── SKILL.md                # Skill documentation
-│       └── scripts/               # CLI scripts
-├── install_config.py              # Installation script
-├── requirements.txt               # Python dependencies
-└── README.md                      # This file
 ```
 
 ## Quick Start
