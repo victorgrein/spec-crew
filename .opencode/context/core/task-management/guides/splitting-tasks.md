@@ -1,113 +1,56 @@
-# Guide: Splitting Features into Tasks
+# Splitting Tasks
 
-**Purpose**: How to decompose features into atomic subtasks
+This guide explains how to break down features into atomic subtasks.
 
-**Last Updated**: 2026-01-11
+## Principles
 
----
+### Atomicity
+Each subtask should:
+- Be completable in 1-2 hours
+- Have a single, clear objective
+- Be independently verifiable
+- Not depend on multiple other tasks
 
-## Prerequisites
+### Dependency Management
+- **Sequential**: Task B depends on Task A completing
+- **Parallel**: Tasks can run simultaneously with no dependencies
+- **Independent**: Task doesn't affect or depend on others
 
-- Feature request understood
-- Context bundle loaded (project standards, patterns)
+## Breaking Down Features
 
----
+### Step 1: Identify Core Components
+Break the feature into logical components:
+- Data structures
+- API endpoints
+- UI components
+- Business logic
 
-## Steps
+### Step 2: Define Natural Boundaries
+Group related work into tasks:
+- One file/module per task when possible
+- Related tests together
+- Configuration separate from code
 
-### 1. Identify Atomic Boundaries
+### Step 3: Establish Dependencies
+Map what must come first:
+- Data structures before APIs
+- APIs before UI
+- Core logic before edge cases
 
-Break feature into tasks that are:
-- Completable in 1-2 hours
-- Have single, clear outcome
-- Testable independently
-- Don't overlap with other tasks
+### Step 4: Mark Parallel Tasks
+Identify independent work:
+- Different modules can be built in parallel
+- Tests can be written alongside code
+- Documentation can be created independently
 
-**Bad**: "Implement authentication" (too big)
-**Good**: "Create password hashing utility" (atomic)
+## Example
 
----
+Bad breakdown:
+1. Build entire feature (too large)
 
-### 2. Map Dependencies
-
-For each task, ask:
-- What must exist before this can start?
-- What files/APIs does this need?
-
-```
-01 → no deps (can start immediately)
-02 → depends_on: ["01"]
-03 → depends_on: ["01", "02"]
-```
-
----
-
-### 3. Identify Parallel Tasks
-
-Mark `parallel: true` when:
-- Task doesn't modify shared files
-- Task doesn't depend on runtime state from other tasks
-- Multiple agents could work simultaneously
-
-Example parallel tasks:
-- Writing independent unit tests
-- Creating isolated utility functions
-- Documentation for separate features
-
----
-
-### 4. Define Acceptance Criteria
-
-Binary pass/fail conditions only:
-- "JWT tokens signed with RS256" ✓
-- "Tests pass" ✓
-- "Code is clean" ✗ (subjective)
-
----
-
-### 5. Specify Deliverables
-
-Concrete files/endpoints:
-- `src/auth/hash.ts`
-- `POST /api/login`
-- `tests/auth.test.ts`
-
----
-
-### 6. Reference Context Files
-
-Don't embed descriptions. Reference paths:
-```json
-"context_files": [
-  ".opencode/context/development/backend/auth/jwt-patterns.md"
-]
-```
-
----
-
-## Verification Checklist
-
-- [ ] Each task completable in 1-2 hours?
-- [ ] Dependencies create valid execution order?
-- [ ] Parallel tasks correctly identified?
-- [ ] Acceptance criteria are binary?
-- [ ] Deliverables are concrete files/endpoints?
-
----
-
-## Common Mistakes
-
-| Mistake | Fix |
-|---------|-----|
-| Task too big | Split into 2-3 smaller tasks |
-| Circular deps | Re-order or merge tasks |
-| Missing deps | Run `task-cli.ts validate` |
-| Vague criteria | Make binary pass/fail |
-
----
-
-## Related
-
-- `../standards/task-schema.md` - JSON field reference
-- `managing-tasks.md` - Lifecycle workflow
-- `../lookup/task-commands.md` - CLI reference
+Good breakdown:
+1. Create data models (independent)
+2. Implement API endpoints [parallel]
+3. Build UI components [parallel]
+4. Integrate API with UI (depends on 2,3)
+5. Write tests (depends on 1-4)
