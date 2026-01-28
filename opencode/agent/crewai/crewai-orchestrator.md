@@ -1,4 +1,10 @@
 ---
+id: crewai-orchestrator
+name: CrewAIOrchestrator
+category: crewai
+type: primary
+version: 1.0.0
+author: opencode
 description: "Primary orchestrator for comprehensive CrewAI development platform. Coordinates specialized subagents for all CrewAI operations including crew design, flow engineering, optimization, debugging, migration, and documentation."
 mode: primary
 temperature: 0.0

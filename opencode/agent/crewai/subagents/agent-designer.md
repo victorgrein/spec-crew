@@ -1,4 +1,10 @@
 ---
+id: agent-designer
+name: AgentDesigner
+category: subagents/crewai
+type: subagent
+version: 1.0.0
+author: opencode
 description: "Specialized subagent for designing and configuring CrewAI agents. Expert in agent attributes, prompt engineering for roles/goals/backstories, tool assignment, and agent behavior configuration."
 mode: subagent
 temperature: 1.0

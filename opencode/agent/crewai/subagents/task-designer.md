@@ -1,4 +1,10 @@
 ---
+id: task-designer
+name: TaskDesigner
+category: subagents/crewai
+type: subagent
+version: 1.0.0
+author: opencode
 description: "Specialized subagent for designing and configuring CrewAI tasks. Expert in task descriptions, expected outputs, context passing, and task execution patterns."
 mode: subagent
 temperature: 1.0

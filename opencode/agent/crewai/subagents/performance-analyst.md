@@ -1,4 +1,10 @@
 ---
+id: performance-analyst
+name: PerformanceAnalyst
+category: subagents/crewai
+type: subagent
+version: 1.0.0
+author: opencode
 description: "Specialized subagent for analyzing CrewAI performance and identifying bottlenecks. Expert in trace analysis, token usage optimization, execution time profiling, and performance metrics interpretation."
 mode: subagent
 temperature: 1.0

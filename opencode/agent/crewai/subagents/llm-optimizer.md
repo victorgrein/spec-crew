@@ -1,4 +1,10 @@
 ---
+id: llm-optimizer
+name: LLMOptimizer
+category: subagents/crewai
+type: subagent
+version: 1.0.0
+author: opencode
 description: "Specialized subagent for optimizing LLM configurations in CrewAI. Expert in model selection, cost optimization, latency reduction, and quality tuning across OpenAI and Anthropic providers."
 mode: subagent
 temperature: 1.0

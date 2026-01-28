@@ -1,4 +1,10 @@
 ---
+id: flow-engineer
+name: FlowEngineer
+category: subagents/crewai
+type: subagent
+version: 1.0.0
+author: opencode
 description: "Specialized subagent for creating and managing CrewAI Flows. Expert in flow architecture, state management, event-driven patterns, and multi-crew orchestration."
 mode: subagent
 temperature: 1.0

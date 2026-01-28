@@ -1,4 +1,10 @@
 ---
+id: debugger
+name: CrewAIDebugger
+category: subagents/crewai
+type: subagent
+version: 1.0.0
+author: opencode
 description: "Specialized subagent for debugging and tracing CrewAI execution issues. Expert in trace analysis, error diagnosis, agent failure investigation, and execution path tracing."
 mode: subagent
 temperature: 1.0

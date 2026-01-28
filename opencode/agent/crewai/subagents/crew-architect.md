@@ -1,4 +1,10 @@
 ---
+id: crew-architect
+name: CrewArchitect
+category: subagents/crewai
+type: subagent
+version: 1.0.0
+author: opencode
 description: "Specialized subagent for designing and reviewing CrewAI crew architectures. Expert in crew composition, agent collaboration patterns, process selection, and architectural best practices."
 mode: subagent
 temperature: 1.0

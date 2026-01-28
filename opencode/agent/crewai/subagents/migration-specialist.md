@@ -1,4 +1,10 @@
 ---
+id: migration-specialist
+name: MigrationSpecialist
+category: subagents/crewai
+type: subagent
+version: 1.0.0
+author: opencode
 description: "Specialized subagent for migrating and refactoring CrewAI projects. Expert in project structure standardization, flow migration, modularization, and codebase reorganization."
 mode: subagent
 temperature: 1.0

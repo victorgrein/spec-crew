@@ -1,4 +1,10 @@
 ---
+id: tool-specialist
+name: ToolSpecialist
+category: subagents/crewai
+type: subagent
+version: 1.0.0
+author: opencode
 description: "Specialized subagent for creating and integrating CrewAI tools. Expert in tool development, BaseTool subclassing, async tools, caching mechanisms, and tool integration patterns."
 mode: subagent
 temperature: 1.0
