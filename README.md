@@ -1,563 +1,301 @@
 # CrewAI Development Platform
 
-<div align="center">
-
-### AI-powered system for CrewAI development, optimization, debugging, migration, and documentation
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-**Features:** Crew Creation • Flow Engineering • Performance Optimization • Debugging • Migration • Documentation
-
-</div>
-
----
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Quick Start](#quick-start)
-- [Architecture](#architecture)
-- [Commands](#commands)
-- [Context Files](#context-files)
-- [Workflows](#workflows)
-- [Integrations](#integrations)
-- [Testing](#testing)
-- [Common Questions](#common-questions)
-- [Support](#support)
-
----
+A comprehensive development platform for CrewAI projects with specialized agents, commands, and workflows.
 
 ## Overview
 
-The CrewAI Development Platform provides expert-level assistance for all CrewAI operations through a main orchestrator and 10 specialized subagents, backed by comprehensive context files extracted from official CrewAI documentation.
+This platform provides a complete suite of tools for building, debugging, optimizing, and maintaining CrewAI projects. It includes specialized subagents, contextual documentation, and command-line interfaces for all CrewAI operations.
 
-### What It Does
+## Setup
 
-- **Create Crews**: Design complete crew architectures from natural language specifications
-- **Build Flows**: Create and manage CrewAI Flows with advanced state management
-- **Optimize Performance**: Analyze and optimize for cost, latency, or quality
-- **Debug Issues**: Trace execution and identify root causes of problems
-- **Migrate Projects**: Refactor and standardize project structures
-- **Generate Documentation**: Auto-generate comprehensive documentation and diagrams
+### Prerequisites
 
----
-
-## Quick Start
+- Python 3.7+
+- pip
 
 ### Installation
 
-The CrewAI platform is included in your `.opencode` directory structure. Ensure you have:
-
+1. Install dependencies:
 ```bash
-# Verify CrewAI platform files exist
-ls -la .opencode/agent/crewai/
-ls -la .opencode/context/crewai/
-ls -la .opencode/command/crew/
+pip install -r requirements.txt
 ```
 
-### Basic Commands
-
+2. Run the installer:
 ```bash
-# Create a new crew from specification
-/crew create "A research crew that analyzes market trends"
-
-# Review an existing crew
-/crew review ./my_crew
-
-# Optimize for cost
-/crew optimize ./my_crew --target="cost"
-
-# Debug issues
-/crew debug ./my_crew
-
-# Generate documentation
-/crew docs ./my_crew
-
-# Create a flow
-/crew generate-flow "A customer support flow with triage and resolution"
+python install_config.py /path/to/your/project
 ```
 
-### Example Workflow
-
+Or run interactively:
 ```bash
-# Create a research crew
-/crew create "A research crew with web search and analysis capabilities"
-
-# The system will:
-# 1. Analyze your specification
-# 2. Design appropriate agents and tasks
-# 3. Ask for LLM preference (OpenAI or Anthropic)
-# 4. Generate YAML configuration and Python code
-# 5. Request permission before creating files
-# 6. Create the crew structure in your project
+python install_config.py
 ```
 
----
+The installer creates `.opencode/` in your project and copies all configuration files with a summary of what was installed.
 
-## Architecture
+## Repository Structure
 
-### Main Orchestrator
+```
+crewai-platform/
+├── opencode/                   # Content to be installed as .opencode/
+│   │   ├── agent/
+│   │   ├── crewai/                  # CrewAI orchestrator and specialized subagents
+│   │   │   ├── crewai-orchestrator.md     # Primary orchestrator agent
+│   │   │   └── subagents/
+│   │   │       ├── agent-designer.md        # Create/configure agents
+│   │   │       ├── crew-architect.md       # Design crew architectures
+│   │   │       ├── crewai-documenter.md    # Generate documentation
+│   │   │       ├── debugger.md             # Debug execution issues
+│   │   │       ├── flow-engineer.md        # Create flows and state management
+│   │   │       ├── llm-optimizer.md       # Optimize LLM configurations
+│   │   │       ├── migration-specialist.md # Migrate/refactor projects
+│   │   │       ├── performance-analyst.md  # Analyze performance metrics
+│   │   │       ├── task-designer.md       # Design/configure tasks
+│   │   │       └── tool-specialist.md     # Create/integrate tools
+│   │   └── subagents/                 # General-purpose subagents
+│   │       ├── code/                   # Code execution subagents
+│   │       │   ├── coder-agent.md       # Execute coding tasks
+│   │       │   ├── reviewer.md          # Code review
+│   │       │   ├── tester.md           # Test authoring
+│   │       │   └── build-agent.md      # Build validation
+│   │       └── core/                  # Core utilities
+│   │           └── contextscout.md     # Context discovery
+│   │
+│   ├── command/
+│   │   └── crew/                      # CrewAI command-line interfaces
+│   │       ├── create.md               # Create new crews
+│   │       ├── analyze.md              # Analyze crew architecture
+│   │       ├── debug.md                # Debug crew execution
+│   │       ├── diagram.md              # Generate architecture diagrams
+│   │       ├── docs.md                 # Generate documentation
+│   │       ├── migrate.md              # Migrate crews/projects
+│   │       ├── optimize.md             # Optimize crew performance
+│   │       └── review.md              # Review crew architecture
+│   │
+│   ├── context/
+│   │   ├── crewai/                    # CrewAI documentation
+│   │   │   ├── domain/concepts/        # Core concepts
+│   │   │   │   ├── agents.md         # Agent concepts
+│   │   │   │   ├── crews.md          # Crew concepts
+│   │   │   │   ├── flows.md          # Flow concepts
+│   │   │   │   ├── tasks.md          # Task concepts
+│   │   │   │   ├── tools.md          # Tool concepts
+│   │   │   │   ├── llms.md           # LLM configuration
+│   │   │   │   ├── memory.md         # Memory systems
+│   │   │   │   ├── processes.md      # Process types
+│   │   │   │   └── cli.md           # CLI concepts
+│   │   │   ├── processes/             # Operational workflows
+│   │   │   │   ├── crew-creation.md  # Create crews
+│   │   │   │   ├── debugging.md      # Debug workflows
+│   │   │   │   ├── migration.md      # Migration procedures
+│   │   │   │   └── optimization.md  # Optimization strategies
+│   │   │   ├── standards/             # Best practices
+│   │   │   │   ├── code-quality.md   # Code standards
+│   │   │   │   ├── project-structure.md # Project organization
+│   │   │   │   └── navigation.md    # Navigation standards
+│   │   │   ├── templates/            # Code templates
+│   │   │   │   ├── agent-yaml.md    # Agent YAML template
+│   │   │   │   ├── task-yaml.md    # Task YAML template
+│   │   │   │   └── flow-class.md    # Flow class template
+│   │   │   ├── navigation.md          # Context navigation
+│   │   │   └── domain/navigation.md   # Domain navigation
+│   │   │
+│   │   └── core/task-management/      # Task management system
+│   │       ├── navigation.md          # Task management overview
+│   │       ├── guides/
+│   │       │   ├── managing-tasks.md # Task tracking guide
+│   │       │   └── splitting-tasks.md # Task breakdown guide
+│   │       ├── lookup/
+│   │       │   └── task-commands.md  # Command reference
+│   │       └── standards/
+│   │           └── task-schema.md    # JSON schema standards
+│   │
+│   ├── workflows/crewai/             # Predefined workflows
+│   │   ├── create-crew.md           # Crew creation workflow
+│   │   ├── create-flow.md           # Flow creation workflow
+│   │   ├── debug-crew.md            # Debugging workflow
+│   │   ├── migrate-project.md       # Migration workflow
+│   │   ├── optimize-crew.md         # Optimization workflow
+│   │   └── navigation.md           # Workflow navigation
+│   │
+│   └── skill/task-management/        # Task management CLI
+│       ├── SKILL.md                # Skill documentation
+│       └── scripts/               # CLI scripts
+├── install_config.py              # Installation script
+├── requirements.txt               # Python dependencies
+└── README.md                      # This file
+```
 
-**`crewai-orchestrator`** - Coordinates all CrewAI operations
+## Quick Start
 
-- Analyzes request complexity and determines appropriate subagents
-- Routes to specialized subagents based on task requirements
-- Manages context allocation (80% Level 1, 20% Level 2)
-- Integrates with code generation agents for implementation
-- Ensures quality and best practices throughout
+### Create a New Crew
+
+```bash
+/crew create "A research crew that analyzes AI trends and writes reports"
+```
+
+The orchestrator will:
+1. Analyze your specification
+2. Design crew architecture
+3. Generate YAML configurations
+4. Create Python code
+5. Ask for LLM preferences
+6. Request permission before creating files
+
+### Available Commands
+
+| Command | Description |
+|---------|-------------|
+| `/crew create` | Create new crew from specification |
+| `/crew analyze` | Analyze crew architecture |
+| `/crew debug` | Debug crew execution issues |
+| `/crew diagram` | Generate architecture diagrams |
+| `/crew docs` | Generate documentation |
+| `/crew migrate` | Migrate/refactor projects |
+| `/crew optimize` | Optimize crew performance |
+| `/crew review` | Review crew architecture |
+
+## Core Components
+
+### CrewAI Orchestrator
+
+The primary agent that coordinates all CrewAI operations:
+- **Routes requests** to appropriate specialists
+- **Loads context** from documentation
+- **Delegates tasks** to specialized subagents
+- **Validates outputs** against best practices
+- **Synthesizes results** for presentation
 
 ### Specialized Subagents
 
-| Agent | Purpose |
-|-------|---------|
-| `crew-architect` | Design and review crew architectures |
-| `flow-engineer` | Create and manage CrewAI Flows |
-| `agent-designer` | Design and configure agents |
-| `task-designer` | Design and configure tasks |
-| `tool-specialist` | Create and integrate tools |
-| `llm-optimizer` | Optimize LLM configurations |
-| `debugger` | Debug and trace execution issues |
-| `migration-specialist` | Migrate and refactor projects |
-| `performance-analyst` | Analyze performance and bottlenecks |
-| `crewai-documenter` | Generate documentation and diagrams |
+#### Architecture & Design
+- **@crew-architect** - Design crew architectures and review composition
+- **@agent-designer** - Create and configure agents
+- **@task-designer** - Design tasks with expected outputs
+- **@tool-specialist** - Create and integrate tools
 
-### Directory Structure
+#### Implementation
+- **@coder-agent** - Execute coding tasks
+- **@reviewer** - Code review and quality assurance
+- **@tester** - Test authoring and TDD
+- **@build-agent** - Build validation
 
-```
-.opencode/
-├── agent/crewai/
-│   ├── crewai-orchestrator.md
-│   └── subagents/
-│       ├── crew-architect.md
-│       ├── flow-engineer.md
-│       ├── agent-designer.md
-│       ├── task-designer.md
-│       ├── tool-specialist.md
-│       ├── llm-optimizer.md
-│       ├── debugger.md
-│       ├── migration-specialist.md
-│       ├── performance-analyst.md
-│       └── crewai-documenter.md
-├── context/crewai/
-│   ├── domain/concepts/      # Core CrewAI concepts
-│   ├── processes/            # Best practices and workflows
-│   ├── standards/            # Code quality and structure
-│   └── templates/            # YAML and Python templates
-├── workflows/crewai/         # Predefined workflows
-├── command/crew/             # Slash commands
-└── CREWAI-TESTING.md        # Testing guide
-```
+#### Operations
+- **@flow-engineer** - Create flows and manage state
+- **@debugger** - Analyze and fix execution issues
+- **@performance-analyst** - Analyze performance metrics
+- **@llm-optimizer** - Optimize LLM configurations
+- **@migration-specialist** - Migrate and refactor projects
 
----
+#### Documentation
+- **@crewai-documenter** - Generate documentation and diagrams
 
-## Commands
+#### Utilities
+- **@contextscout** - Discover and retrieve context files
 
-| Operation | Command | Description |
-|-----------|---------|-------------|
-| Create crew | `/crew create "{spec}"` | Create new crew from specification |
-| Create flow | `/crew generate-flow "{type}"` | Create flow with multiple crews |
-| Review architecture | `/crew review {path}` | Review existing crew/flow |
-| Analyze performance | `/crew analyze {path}` | Analyze performance metrics |
-| Optimize | `/crew optimize {path} --target="cost\|latency\|quality"` | Optimize crew performance |
-| Debug | `/crew debug {path}` | Debug execution issues |
-| Migrate | `/crew migrate {path} --to="flow"` | Migrate to standard structure |
-| Document | `/crew docs {path}` | Generate documentation |
-| Diagram | `/crew diagram {path}` | Generate architecture diagrams |
+## Context System
 
-### Detailed Examples
+The platform uses a comprehensive context system organized by domain:
 
-#### Create a Crew
+### CrewAI Context
+Complete documentation for CrewAI concepts, processes, and standards.
 
-```bash
-# Simple crew
-/crew create "A research crew with one agent that searches the web"
-
-# Multi-agent crew
-/crew create "A content creation crew with researcher, writer, and editor agents"
-
-# Complex crew with specific process
-/crew create "A customer support crew with triage, response, escalation, and quality review agents using hierarchical process"
-```
-
-#### Optimize a Crew
-
-```bash
-# Optimize for cost
-/crew optimize ./my_crew --target="cost"
-
-# Optimize for latency
-/crew optimize ./my_crew --target="latency"
-
-# Optimize for quality
-/crew optimize ./my_crew --target="quality"
-```
-
-#### Debug a Crew
-
-```bash
-# Debug specific crew
-/crew debug ./my_crew
-
-# Debug with error context
-/crew debug ./my_crew --error="AttributeError: 'Agent' object has no attribute 'execute'"
-```
-
----
-
-## Context Files
-
-### Domain Knowledge (`context/crewai/domain/concepts/`)
-
-| File | Description |
-|------|-------------|
-| `flows.md` | Flow architecture, decorators, state management |
-| `crews.md` | Crew configuration, processes, outputs |
-| `agents.md` | Agent attributes, archetypes, roles |
-| `tasks.md` | Task configuration, context passing, dependencies |
-| `tools.md` | Built-in tools, custom tool creation, integration |
-| `llms.md` | LLM providers, model selection, configuration |
-| `memory.md` | Memory types, configuration, usage patterns |
-| `processes.md` | Sequential vs hierarchical processes |
-| `cli.md` | CLI commands and utilities |
-
-### Processes (`context/crewai/processes/`)
-
-| File | Description |
-|------|-------------|
-| `crew-creation.md` | Step-by-step crew creation workflow |
-| `debugging.md` | Debugging procedures and common issues |
-| `optimization.md` | Performance optimization strategies |
-| `migration.md` | Migration patterns and best practices |
-
-### Standards (`context/crewai/standards/`)
-
-| File | Description |
-|------|-------------|
-| `code-quality.md` | Code quality standards and best practices |
-| `project-structure.md` | Standard project structure organization |
-
-### Templates (`context/crewai/templates/`)
-
-| File | Description |
-|------|-------------|
-| `agent-yaml.md` | Agent YAML templates |
-| `task-yaml.md` | Task YAML templates |
-| `flow-class.md` | Flow class templates |
-
----
+### Task Management Context
+Guides and standards for task breakdown and tracking.
 
 ## Workflows
 
-| Workflow | Trigger | Description |
-|----------|---------|-------------|
-| `create-crew` | `/crew create` | Create new crew from specification |
-| `create-flow` | `/crew generate-flow` | Create flow with multiple crews |
-| `debug-crew` | `/crew debug` | Debug execution issues and errors |
-| `optimize-crew` | `/crew optimize` | Optimize performance metrics |
-| `migrate-project` | `/crew migrate` | Migrate to standard structure |
-
----
-
-## Integrations
-
-### LLM Providers
-
-The platform supports multiple LLM providers. The system always asks for your preference:
-
-**OpenAI Options:**
-- `gpt-4o` - Best quality, most capable
-- `gpt-4o-mini` - Fast and cost-effective
-- `gpt-3.5-turbo` - Cheapest, good for simple tasks
-
-**Anthropic Options:**
-- `claude-3-5-sonnet` - Excellent reasoning and analysis
-- `claude-3-haiku` - Fast, cost-effective for routine tasks
-
-### Tools and Services
-
-- **CrewAI Tracing**: Built-in trace analysis and execution monitoring
-- **uv**: Modern dependency management for Python
-- **OpenAI API**: Access to GPT models for agent execution
-- **Anthropic API**: Access to Claude models for agent execution
-
-### File Operations
-
-| Operation | Permission |
-|-----------|------------|
-| Read/Search | ✅ Always allowed |
-| Create/Modify/Delete | ⚠️ Asks permission before proceeding |
-
----
-
-## Testing
-
-### Pre-Testing Setup
-
-1. Ensure you have a CrewAI project to test with
-2. Configure API keys (OPENAI_API_KEY or ANTHROPIC_API_KEY)
-3. Familiarize yourself with command syntax
-
-### Command Tests
-
-#### /crew create
-
-```bash
-# Test 1: Simple crew
-/crew create "A research crew with one agent that searches the web"
-
-# Test 2: Multi-agent crew
-/crew create "A content creation crew with researcher, writer, and editor agents"
-
-# Test 3: Complex crew
-/crew create "A customer support crew with triage, response, escalation, and quality review agents using hierarchical process"
-```
-
-**Expected:**
-- [ ] Specification analyzed correctly
-- [ ] Appropriate agents identified
-- [ ] Tasks designed with dependencies
-- [ ] YAML configuration generated
-- [ ] Python code generated
-- [ ] LLM preference asked
-- [ ] Permission requested before file creation
-
-#### /crew review
-
-```bash
-# Test on existing crew
-/crew review ./path/to/crew
-```
-
-**Expected:**
-- [ ] Crew structure analyzed
-- [ ] Quality score provided
-- [ ] Strengths identified
-- [ ] Issues found with severity levels
-- [ ] Improvement recommendations given
-
-#### /crew analyze
-
-```bash
-/crew analyze ./path/to/crew
-```
-
-**Expected:**
-- [ ] Configuration analyzed
-- [ ] Token usage estimated
-- [ ] Cost projections provided
-- [ ] Bottlenecks identified
-- [ ] Optimization opportunities listed
-
-#### /crew optimize
-
-```bash
-# Test cost optimization
-/crew optimize ./path/to/crew --target="cost"
-
-# Test latency optimization
-/crew optimize ./path/to/crew --target="latency"
-
-# Test quality optimization
-/crew optimize ./path/to/crew --target="quality"
-```
-
-**Expected:**
-- [ ] Current state analyzed
-- [ ] Recommendations generated for target
-- [ ] LLM preference asked
-- [ ] Before/after comparison shown
-- [ ] Permission requested for changes
-
-#### /crew debug
-
-```bash
-/crew debug ./path/to/crew
-```
-
-**Expected:**
-- [ ] Code analyzed
-- [ ] Common issues checked
-- [ ] Root cause identified (if issue exists)
-- [ ] Fix suggested with code
-- [ ] Verification steps provided
-
-#### /crew migrate
-
-```bash
-/crew migrate ./path/to/crew --to="flow"
-```
-
-**Expected:**
-- [ ] Current structure analyzed
-- [ ] Migration plan created
-- [ ] New structure generated
-- [ ] Before/after comparison shown
-- [ ] Backup mentioned
-- [ ] Permission requested
-
-#### /crew docs
-
-```bash
-/crew docs ./path/to/crew
-```
-
-**Expected:**
-- [ ] Structure analyzed
-- [ ] README content generated
-- [ ] Architecture diagram included
-- [ ] Agent/task tables created
-- [ ] Usage examples provided
-
-#### /crew diagram
-
-```bash
-/crew diagram ./path/to/crew --type="architecture"
-```
-
-**Expected:**
-- [ ] Structure analyzed
-- [ ] Diagram generated (ASCII or Mermaid)
-- [ ] Components shown correctly
-- [ ] Relationships indicated
-
-### Context Loading Tests
-
-Test that context files load correctly:
-
-```bash
-# Ask about flows
-"Explain how CrewAI flows work"
-
-# Ask about agents
-"What are the best practices for designing CrewAI agents?"
-
-# Ask about optimization
-"How do I optimize my crew for cost?"
-```
-
-**Expected:**
-- [ ] Relevant context loaded
-- [ ] Accurate information provided
-- [ ] Official documentation followed
-
-### Subagent Routing Tests
-
-Test that requests route to correct subagents:
-
-```bash
-# Should route to crew-architect
-"Review my crew architecture"
-
-# Should route to flow-engineer
-"Create a flow with multiple crews"
-
-# Should route to llm-optimizer
-"Optimize my LLM settings for cost"
-
-# Should route to debugger
-"Debug this error in my crew"
-```
-
-**Expected:**
-- [ ] Correct subagent engaged
-- [ ] Appropriate context loaded
-- [ ] Specialized response provided
-
-### Testing Checklist
-
-- [ ] Test `/crew create` with simple specification
-- [ ] Test `/crew review` on existing crew
-- [ ] Test `/crew analyze` for performance metrics
-- [ ] Test `/crew optimize` with different targets
-- [ ] Test `/crew debug` with error scenario
-- [ ] Test `/crew migrate` on crew project
-- [ ] Test `/crew docs` for documentation generation
-- [ ] Test `/crew diagram` for visualization
-- [ ] Verify context files load correctly
-- [ ] Verify LLM preference prompts work
-
-### Troubleshooting
-
-#### Context Not Loading
-- Check file paths in agent definitions
-- Verify context files exist
-- Check navigation.md files
-
-#### Wrong Subagent Routing
-- Review keyword triggers in orchestrator
-- Check routing intelligence section
-- Verify subagent registry
-
-#### Permission Not Asked
-- Check file_operations section in orchestrator
-- Verify operation type detection
-
-#### LLM Preference Not Asked
-- Check llm_configuration section
-- Verify workflow includes LLM step
-
----
-
-## Common Questions
-
-**Q: How do I create a new crew?**
-A: Use `/crew create "{spec}"` with a clear description of what your crew should do. The system will design agents, tasks, and generate all necessary code.
-
-**Q: Can I optimize for different goals?**
-A: Yes! Use `/crew optimize {path} --target="cost|latency|quality"` to optimize for cost, speed, or output quality.
-
-**Q: What LLMs are supported?**
-A: We support OpenAI (gpt-4o, gpt-4o-mini, gpt-3.5-turbo) and Anthropic (claude-3-5-sonnet, claude-3-haiku). The system will ask your preference.
-
-**Q: How do I debug my crew?**
-A: Use `/crew debug {path}` to analyze execution issues. The debugger will identify root causes and suggest fixes.
-
-**Q: Can I migrate existing projects?**
-A: Yes! Use `/crew migrate {path} --to="flow"` to migrate crews to flows or standardize project structure.
-
-**Q: How does the system choose which subagent to use?**
-A: The orchestrator analyzes your request and routes to the appropriate specialized subagent (e.g., crew-architect for design, debugger for issues).
-
-**Q: Are file operations safe?**
-A: Yes! The system always asks permission before creating, modifying, or deleting files. Read operations are allowed without asking.
-
-**Q: Can I generate documentation automatically?**
-A: Use `/crew docs {path}` to generate comprehensive documentation including README, architecture diagrams, and usage examples.
-
-**Q: What context files are included?**
-A: The platform includes comprehensive context files covering CrewAI concepts, processes, standards, and templates extracted from official documentation.
-
-**Q: How do I create a flow?**
-A: Use `/crew generate-flow "{type}"` to create flows with multiple crews, state management, and event-driven execution.
-
----
-
-## Tips for Success
-
-1. **Start simple**: Test with basic crews before complex flows
-2. **Be specific**: Provide clear, detailed specifications for better results
-3. **Use verbose mode**: Enable `verbose=True` for debugging
-4. **Check context**: The system automatically loads relevant context files
-5. **Iterate**: Refine crews based on actual usage and performance
-6. **Review carefully**: Always review generated code before approval
-7. **Test thoroughly**: Use the testing checklist to verify functionality
-
----
+Predefined workflows for common operations:
+- **Create Crew** - Complete crew creation pipeline
+- **Create Flow** - Flow development workflow
+- **Debug Crew** - Systematic debugging process
+- **Migrate Project** - Project migration procedures
+- **Optimize Crew** - Performance optimization workflow
+
+## Task Management
+
+The platform includes a task management system for breaking down features into atomic subtasks with:
+- **Dependency tracking** - Map task dependencies
+- **Status management** - Track progress
+- **Parallel execution** - Identify parallelizable tasks
+- **Validation** - Ensure task completeness
+
+## Features
+
+### Intelligent Agent Composition
+- Automatic agent role and goal generation
+- Tool assignment based on requirements
+- LLM configuration recommendations
+- Collaboration pattern suggestions
+
+### Code Generation
+- YAML configuration generation
+- Python crew implementation
+- Flow state management
+- Tool integration templates
+
+### Quality Assurance
+- Architecture review checklist
+- Code review standards
+- Performance optimization
+- Security best practices
+
+### Documentation
+- Automatic documentation generation
+- Architecture diagrams
+- API documentation
+- Usage examples
+
+## Development Workflow
+
+1. **Specify** - Describe your crew/flow requirements
+2. **Design** - Orchestrator analyzes and designs architecture
+3. **Generate** - Subagents create configurations and code
+4. **Review** - Reviewer validates quality
+5. **Test** - Tester creates tests
+6. **Deploy** - Ready-to-run project
+
+## Best Practices
+
+### Crew Design
+- Use clear agent roles and goals
+- Define appropriate tools for each agent
+- Choose process type based on task dependencies
+- Configure memory for complex workflows
+
+### Code Quality
+- Follow modular architecture
+- Implement error handling
+- Add comprehensive tests
+- Document key decisions
+
+### Performance
+- Configure `max_rpm` to avoid rate limits
+- Enable caching for expensive operations
+- Use appropriate `max_iter` values
+- Monitor token usage
+
+## Requirements
+
+- CrewAI framework
+- Python 3.8+
+- OpenAI or Anthropic API access (for LLMs)
+- Bun (for package management)
+
+## Contributing
+
+This is a development platform for CrewAI projects. To contribute:
+
+1. Add new subagents to appropriate directories
+2. Update context documentation
+3. Create or update workflows
+4. Follow existing patterns and standards
+
+## License
+
+[Add your license here]
 
 ## Support
 
-### Official CrewAI Documentation
-For official CrewAI documentation: https://docs.crewai.com/
-
-### Getting Help
-For issues with the CrewAI Development Platform:
-1. Review the context files in `.opencode/context/crewai/`
-2. Check the troubleshooting section above
-3. Ask specific questions about CrewAI concepts or operations
-
-### License
-This project is licensed under the MIT License.
-
----
-
-**Ready to build powerful CrewAI systems? Start with `/crew create` and let the platform guide you through the process!**
+For issues or questions related to:
+- **CrewAI Framework**: https://github.com/crewAIInc/crewAI
+- **This Platform**: Check context/crewai/ for detailed documentation
