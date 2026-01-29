@@ -887,7 +887,12 @@ main() {
     
     # Get target directory
     if [ -z "$TARGET_DIR" ]; then
-        TARGET_DIR=$(prompt_target_directory)
+        # If not interactive (piped), use current directory
+        if [ ! -t 0 ]; then
+            TARGET_DIR="$(pwd)"
+        else
+            TARGET_DIR=$(prompt_target_directory)
+        fi
     else
         TARGET_DIR=$(normalize_path "$TARGET_DIR")
     fi
