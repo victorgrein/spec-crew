@@ -1,10 +1,358 @@
 #!/usr/bin/env bash
-# CrewAI Skills Installer Bootstrap
+#############################################################################
+# CrewAI Skills Installer
+# Interactive installer for Claude Code and OpenCode
+#############################################################################
+
 set -e
-REPO="https://raw.githubusercontent.com/victorgrein/cli-agents-config/main"
-TMP="/tmp/crewai-installer-$$.sh"
-cleanup() { rm -f "$TMP" 2>/dev/null; }
-trap cleanup EXIT
-curl -fsSL "$REPO/installer.sh" -o "$TMP"
-chmod +x "$TMP"
-bash "$TMP" < /dev/tty
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+DIM='\033[2m'
+NC='\033[0m'
+
+# Configuration
+REPO_URL="https://raw.githubusercontent.com/victorgrein/cli-agents-config/main"
+INSTALL_DIR=""
+PLATFORM=""
+NON_INTERACTIVE=false
+
+# Package contents
+PKG_SKILLS=(
+    "crewai-agents" "crewai-tasks" "crewai-crews" "crewai-flows"
+    "crewai-tools" "crewai-llms" "crewai-memory" "crewai-processes"
+    "crewai-cli" "crewai-debugging" "crewai-optimization" "crewai-migration"
+    "crewai-crew-creation" "crewai-code-quality" "crewai-project-structure"
+    "task-management"
+)
+
+PKG_AGENTS=(
+    "crewai/crew-architect" "crewai/agent-designer" "crewai/task-designer"
+    "crewai/flow-engineer" "crewai/tool-specialist" "crewai/debugger"
+    "crewai/llm-optimizer" "crewai/migration-specialist"
+    "crewai/performance-analyst" "crewai/crewai-documenter"
+)
+
+PKG_WORKFLOWS=("create-crew" "debug-crew" "optimize-crew" "migrate-project" "create-flow")
+
+PKG_COMMANDS=(
+    "crew/create" "crew/analyze" "crew/debug" "crew/diagram"
+    "crew/docs" "crew/migrate" "crew/optimize" "crew/review"
+)
+
+#############################################################################
+# Utility Functions
+#############################################################################
+
+print_header() {
+    echo -e "${CYAN}${BOLD}"
+    echo "╔══════════════════════════════════════════════════════════╗"
+    echo "║                                                          ║"
+    echo "║            CrewAI Skills Installer                       ║"
+    echo "║                                                          ║"
+    echo "╚══════════════════════════════════════════════════════════╝"
+    echo -e "${NC}"
+}
+
+print_success() { echo -e "  ${GREEN}✓${NC} $1"; }
+print_error() { echo -e "  ${RED}✗${NC} $1"; }
+print_info() { echo -e "  ${BLUE}ℹ${NC} $1"; }
+print_warning() { echo -e "  ${YELLOW}⚠${NC} $1"; }
+print_step() { echo -e "\n${CYAN}${BOLD}▶${NC} $1\n"; }
+
+get_config_dir() {
+    [ "$PLATFORM" = "claude" ] && echo ".claude" || echo ".opencode"
+}
+
+#############################################################################
+# Check Interactive Mode
+#############################################################################
+
+check_interactive_mode() {
+    if [ ! -t 0 ]; then
+        print_header
+        print_error "Interactive mode requires a terminal"
+        echo ""
+        echo "  You're running this script in a pipe (curl | bash)"
+        echo "  For interactive mode, download the script first:"
+        echo ""
+        echo -e "  ${CYAN}# Download${NC}"
+        echo "  curl -fsSL $REPO_URL/install.sh -o crewai-install.sh"
+        echo ""
+        echo -e "  ${CYAN}# Run interactively${NC}"
+        echo "  bash crewai-install.sh"
+        echo ""
+        echo "  Or use quick install:"
+        echo ""
+        echo -e "  ${CYAN}# Install for Claude Code${NC}"
+        echo "  curl -fsSL $REPO_URL/install.sh | bash -s claude"
+        echo ""
+        echo -e "  ${CYAN}# Install for OpenCode${NC}"
+        echo "  curl -fsSL $REPO_URL/install.sh | bash -s opencode"
+        echo ""
+        exit 1
+    fi
+}
+
+#############################################################################
+# Installation Functions
+#############################################################################
+
+download_file() {
+    curl -fsSL "$1" -o "$2" 2>/dev/null
+}
+
+ensure_dir() {
+    mkdir -p "$1" 2>/dev/null || true
+}
+
+install_skills() {
+    local config_dir=$(get_config_dir)
+    local skills_dir="$INSTALL_DIR/$config_dir/skills"
+    
+    for skill in "${PKG_SKILLS[@]}"; do
+        local dest="$skills_dir/$skill/SKILL.md"
+        ensure_dir "$(dirname "$dest")"
+        download_file "$REPO_URL/templates/shared/skills/$skill/SKILL.md" "$dest" || true
+    done
+}
+
+install_workflows() {
+    local config_dir=$(get_config_dir)
+    local skills_dir="$INSTALL_DIR/$config_dir/skills"
+    
+    for workflow in "${PKG_WORKFLOWS[@]}"; do
+        local dest="$skills_dir/$workflow/SKILL.md"
+        ensure_dir "$(dirname "$dest")"
+        download_file "$REPO_URL/templates/shared/workflows/$workflow/SKILL.md" "$dest" || true
+    done
+}
+
+install_agents() {
+    local config_dir=$(get_config_dir)
+    local agents_dir
+    
+    [ "$PLATFORM" = "claude" ] && agents_dir="$INSTALL_DIR/$config_dir/agents" || agents_dir="$INSTALL_DIR/$config_dir/agent/subagents"
+    
+    for agent_path in "${PKG_AGENTS[@]}"; do
+        local agent_name="${agent_path#*/}"
+        local dest
+        [ "$PLATFORM" = "claude" ] && dest="$agents_dir/$agent_name.md" || dest="$agents_dir/crewai/$agent_name.md"
+        
+        ensure_dir "$(dirname "$dest")"
+        download_file "$REPO_URL/templates/shared/agents/$agent_path.md" "$dest" || true
+    done
+}
+
+install_commands() {
+    local config_dir=$(get_config_dir)
+    local commands_dir
+    
+    [ "$PLATFORM" = "claude" ] && commands_dir="$INSTALL_DIR/$config_dir/commands" || commands_dir="$INSTALL_DIR/$config_dir/command"
+    
+    for cmd in "${PKG_COMMANDS[@]}"; do
+        local dest="$commands_dir/$cmd.md"
+        ensure_dir "$(dirname "$dest")"
+        download_file "$REPO_URL/templates/shared/commands/$cmd.md" "$dest" || true
+    done
+}
+
+install_system() {
+    [ "$PLATFORM" != "claude" ] && return
+    
+    local config_dir="$INSTALL_DIR/.claude"
+    ensure_dir "$config_dir"
+    
+    download_file "$REPO_URL/templates/claude/CLAUDE.md" "$config_dir/CLAUDE.md" || true
+    download_file "$REPO_URL/templates/claude/settings.json" "$config_dir/settings.json" || true
+}
+
+perform_installation() {
+    print_step "Installing components..."
+    
+    install_system && print_success "System prompt"
+    install_skills && print_success "Skills (${#PKG_SKILLS[@]})"
+    install_workflows && print_success "Workflows (${#PKG_WORKFLOWS[@]})"
+    install_agents && print_success "Agents (${#PKG_AGENTS[@]})"
+    install_commands && print_success "Commands (${#PKG_COMMANDS[@]})"
+    
+    local config_dir=$(get_config_dir)
+    
+    echo ""
+    echo -e "  ${GREEN}${BOLD}════════════════════════════════════════════════════════════${NC}"
+    echo -e "  ${GREEN}${BOLD}  Installation complete!${NC}"
+    echo -e "  ${GREEN}${BOLD}════════════════════════════════════════════════════════════${NC}"
+    echo ""
+    print_info "Installed to: $INSTALL_DIR/$config_dir"
+    echo ""
+    echo -e "  ${CYAN}Next steps:${NC}"
+    if [ "$PLATFORM" = "claude" ]; then
+        echo "    1. Open Claude Code in your project"
+        echo "    2. Run /crew create"
+    else
+        echo "    1. Open OpenCode in your project"
+        echo "    2. Run /crew create"
+    fi
+    echo ""
+}
+
+#############################################################################
+# Interactive TUI
+#############################################################################
+
+show_platform_menu() {
+    clear
+    print_header
+    
+    echo -e "  ${BOLD}Step 1/3 - Choose platform:${NC}\n"
+    echo "    1) Claude Code"
+    echo "    2) OpenCode"
+    echo ""
+    read -r -p "  Enter choice [1-2]: " choice
+    
+    case $choice in
+        1) PLATFORM="claude" ;;
+        2) PLATFORM="opencode" ;;
+        *) print_error "Invalid choice"; sleep 1; show_platform_menu ;;
+    esac
+}
+
+show_location_menu() {
+    clear
+    print_header
+    
+    echo -e "  ${BOLD}Step 2/3 - Choose location:${NC}\n"
+    echo "    1) Current directory ($(pwd))"
+    echo "    2) Enter custom path"
+    echo ""
+    read -r -p "  Enter choice [1-2]: " choice
+    
+    case $choice in
+        1) INSTALL_DIR="$(pwd)" ;;
+        2) 
+            echo ""
+            read -r -p "  Enter path: " custom_path
+            INSTALL_DIR="${custom_path/#\~/$HOME}"
+            [ ! -d "$INSTALL_DIR" ] && mkdir -p "$INSTALL_DIR"
+            ;;
+        *) print_error "Invalid choice"; sleep 1; show_location_menu ;;
+    esac
+}
+
+show_confirm_menu() {
+    local config_dir=$(get_config_dir)
+    
+    clear
+    print_header
+    
+    echo -e "  ${BOLD}Step 3/3 - Confirm installation:${NC}\n"
+    echo -e "  Platform:  ${CYAN}$PLATFORM${NC}"
+    echo -e "  Location:  ${CYAN}$INSTALL_DIR${NC}"
+    echo -e "  Config:    ${CYAN}$config_dir${NC}"
+    echo ""
+    echo "  Components:"
+    echo "    • Skills (${#PKG_SKILLS[@]})"
+    echo "    • Agents (${#PKG_AGENTS[@]})"
+    echo "    • Workflows (${#PKG_WORKFLOWS[@]})"
+    echo "    • Commands (${#PKG_COMMANDS[@]})"
+    [ "$PLATFORM" = "claude" ] && echo "    • System prompt"
+    echo ""
+    
+    # Check existing
+    if [ -d "$INSTALL_DIR/$config_dir" ]; then
+        print_warning "Existing $config_dir found - files will be added/updated"
+        echo ""
+    fi
+    
+    read -r -p "  Proceed? [Y/n]: " confirm
+    [[ "$confirm" =~ ^[Nn]$ ]] && { print_info "Cancelled"; exit 0; }
+}
+
+run_interactive() {
+    check_interactive_mode
+    show_platform_menu
+    show_location_menu
+    show_confirm_menu
+    perform_installation
+}
+
+#############################################################################
+# Non-Interactive Mode
+#############################################################################
+
+run_non_interactive() {
+    print_header
+    print_success "Platform: $PLATFORM"
+    print_success "Location: $INSTALL_DIR"
+    perform_installation
+}
+
+#############################################################################
+# Main
+#############################################################################
+
+main() {
+    # Parse arguments
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            claude|--claude)
+                PLATFORM="claude"
+                NON_INTERACTIVE=true
+                shift
+                ;;
+            opencode|--opencode)
+                PLATFORM="opencode"
+                NON_INTERACTIVE=true
+                shift
+                ;;
+            --dir=*)
+                INSTALL_DIR="${1#*=}"
+                shift
+                ;;
+            --help|-h)
+                print_header
+                echo "Usage: install.sh [PLATFORM] [OPTIONS]"
+                echo ""
+                echo "Platforms:"
+                echo "  claude      Install for Claude Code"
+                echo "  opencode    Install for OpenCode"
+                echo ""
+                echo "Options:"
+                echo "  --dir=PATH  Custom installation directory"
+                echo "  --help      Show this help"
+                echo ""
+                echo "Examples:"
+                echo "  # Interactive mode"
+                echo "  bash install.sh"
+                echo ""
+                echo "  # Quick install for Claude Code"
+                echo "  curl -fsSL URL/install.sh | bash -s claude"
+                echo ""
+                echo "  # Install to custom directory"
+                echo "  bash install.sh claude --dir=~/my-project"
+                echo ""
+                exit 0
+                ;;
+            *)
+                print_error "Unknown option: $1"
+                exit 1
+                ;;
+        esac
+    done
+    
+    # Set default install dir if not specified
+    [ -z "$INSTALL_DIR" ] && INSTALL_DIR="$(pwd)"
+    
+    if [ "$NON_INTERACTIVE" = true ]; then
+        run_non_interactive
+    else
+        run_interactive
+    fi
+}
+
+main "$@"
