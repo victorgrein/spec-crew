@@ -66,7 +66,11 @@ print_warning() { echo -e "  ${YELLOW}⚠${NC} $1"; }
 print_step() { echo -e "\n${CYAN}${BOLD}▶${NC} $1\n"; }
 
 get_config_dir() {
-    [ "$PLATFORM" = "claude" ] && echo ".claude" || echo ".opencode"
+    if [ "$PLATFORM" = "claude" ]; then
+        echo ".claude"
+    else
+        echo ".opencode"
+    fi
 }
 
 #############################################################################
@@ -268,7 +272,9 @@ show_location_menu() {
             echo ""
             read -r -p "  Enter path: " custom_path
             INSTALL_DIR="${custom_path/#\~/$HOME}"
-            [ ! -d "$INSTALL_DIR" ] && mkdir -p "$INSTALL_DIR"
+            if [ ! -d "$INSTALL_DIR" ]; then
+                mkdir -p "$INSTALL_DIR"
+            fi
             ;;
         *) print_error "Invalid choice"; sleep 1; show_location_menu ;;
     esac
@@ -290,7 +296,9 @@ show_confirm_menu() {
     echo "    • Agents (${#PKG_AGENTS[@]})"
     echo "    • Workflows (${#PKG_WORKFLOWS[@]})"
     echo "    • Commands (${#PKG_COMMANDS[@]})"
-    [ "$PLATFORM" = "claude" ] && echo "    • System prompt"
+    if [ "$PLATFORM" = "claude" ]; then
+        echo "    • System prompt"
+    fi
     echo ""
     
     # Check existing
@@ -300,7 +308,10 @@ show_confirm_menu() {
     fi
     
     read -r -p "  Proceed? [Y/n]: " confirm
-    [[ "$confirm" =~ ^[Nn]$ ]] && { print_info "Cancelled"; exit 0; }
+    if [[ "$confirm" =~ ^[Nn]$ ]]; then
+        print_info "Cancelled"
+        exit 0
+    fi
 }
 
 run_interactive() {
@@ -376,7 +387,9 @@ main() {
     done
     
     # Set default install dir if not specified
-    [ -z "$INSTALL_DIR" ] && INSTALL_DIR="$(pwd)"
+    if [ -z "$INSTALL_DIR" ]; then
+        INSTALL_DIR="$(pwd)"
+    fi
     
     if [ "$NON_INTERACTIVE" = true ]; then
         run_non_interactive
