@@ -49,26 +49,83 @@ One install. Your AI becomes a CrewAI expert.
 
 ## Installation
 
-**Interactive installer (recommended):**
+### macOS
+
+**Interactive installer:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/victorgrein/cli-agents-config/main/install.sh -o /tmp/i.sh && bash /tmp/i.sh
+```
+
+**Quick install:**
+```bash
+# Claude Code
+curl -fsSL https://raw.githubusercontent.com/victorgrein/cli-agents-config/main/install.sh | bash -s claude
+
+# OpenCode
+curl -fsSL https://raw.githubusercontent.com/victorgrein/cli-agents-config/main/install.sh | bash -s opencode
+```
+
+### Linux
+
+**Interactive installer:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/victorgrein/cli-agents-config/main/install.sh -o /tmp/i.sh && bash /tmp/i.sh
+```
+
+**Quick install:**
+```bash
+# Claude Code
+curl -fsSL https://raw.githubusercontent.com/victorgrein/cli-agents-config/main/install.sh | bash -s claude
+
+# OpenCode
+curl -fsSL https://raw.githubusercontent.com/victorgrein/cli-agents-config/main/install.sh | bash -s opencode
+```
+
+> **Note:** If you don't have curl, install it first:
+> - Ubuntu/Debian: `sudo apt install curl`
+> - Fedora: `sudo dnf install curl`
+> - Arch: `sudo pacman -S curl`
+
+### Windows
+
+**Option 1: Git Bash (recommended)**
+
+Install [Git for Windows](https://git-scm.com/download/win), then open Git Bash and run:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/victorgrein/cli-agents-config/main/install.sh -o ~/i.sh && bash ~/i.sh
+```
+
+**Option 2: WSL (Windows Subsystem for Linux)**
+
+Open your WSL terminal and run:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/victorgrein/cli-agents-config/main/install.sh -o /tmp/i.sh && bash /tmp/i.sh
 ```
 
-Downloads and runs the installer. You'll choose:
-- Platform (Claude Code or OpenCode)
-- Installation location
-- Confirm before installing
+**Option 3: PowerShell (quick install only)**
 
-**Quick install (non-interactive):**
-
-```bash
-# For Claude Code
-curl -fsSL https://raw.githubusercontent.com/victorgrein/cli-agents-config/main/install.sh | bash -s claude
-
-# For OpenCode  
-curl -fsSL https://raw.githubusercontent.com/victorgrein/cli-agents-config/main/install.sh | bash -s opencode
+```powershell
+# Claude Code
+irm https://raw.githubusercontent.com/victorgrein/cli-agents-config/main/install.sh | bash -s claude
 ```
+
+> **Note:** PowerShell requires Git Bash or WSL to be installed for bash commands.
+
+### What the installer does
+
+The interactive installer will ask you:
+1. **Platform** - Claude Code or OpenCode?
+2. **Location** - Current folder or custom path?
+3. **Confirm** - Review before installing
+
+Then it downloads and installs:
+- 16 Skills
+- 10 Agents  
+- 5 Workflows
+- 8 Commands
+- System prompt (Claude Code only)
 
 ---
 
