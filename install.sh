@@ -120,6 +120,7 @@ install_skills() {
         ensure_dir "$(dirname "$dest")"
         download_file "$REPO_URL/templates/shared/skills/$skill/SKILL.md" "$dest" || true
     done
+    return 0
 }
 
 install_workflows() {
@@ -131,55 +132,84 @@ install_workflows() {
         ensure_dir "$(dirname "$dest")"
         download_file "$REPO_URL/templates/shared/workflows/$workflow/SKILL.md" "$dest" || true
     done
+    return 0
 }
 
 install_agents() {
     local config_dir=$(get_config_dir)
     local agents_dir
     
-    [ "$PLATFORM" = "claude" ] && agents_dir="$INSTALL_DIR/$config_dir/agents" || agents_dir="$INSTALL_DIR/$config_dir/agent/subagents"
+    if [ "$PLATFORM" = "claude" ]; then
+        agents_dir="$INSTALL_DIR/$config_dir/agents"
+    else
+        agents_dir="$INSTALL_DIR/$config_dir/agent/subagents"
+    fi
     
     for agent_path in "${PKG_AGENTS[@]}"; do
         local agent_name="${agent_path#*/}"
         local dest
-        [ "$PLATFORM" = "claude" ] && dest="$agents_dir/$agent_name.md" || dest="$agents_dir/crewai/$agent_name.md"
+        if [ "$PLATFORM" = "claude" ]; then
+            dest="$agents_dir/$agent_name.md"
+        else
+            dest="$agents_dir/crewai/$agent_name.md"
+        fi
         
         ensure_dir "$(dirname "$dest")"
         download_file "$REPO_URL/templates/shared/agents/$agent_path.md" "$dest" || true
     done
+    return 0
 }
 
 install_commands() {
     local config_dir=$(get_config_dir)
     local commands_dir
     
-    [ "$PLATFORM" = "claude" ] && commands_dir="$INSTALL_DIR/$config_dir/commands" || commands_dir="$INSTALL_DIR/$config_dir/command"
+    if [ "$PLATFORM" = "claude" ]; then
+        commands_dir="$INSTALL_DIR/$config_dir/commands"
+    else
+        commands_dir="$INSTALL_DIR/$config_dir/command"
+    fi
     
     for cmd in "${PKG_COMMANDS[@]}"; do
         local dest="$commands_dir/$cmd.md"
         ensure_dir "$(dirname "$dest")"
         download_file "$REPO_URL/templates/shared/commands/$cmd.md" "$dest" || true
     done
+    return 0
 }
 
 install_system() {
-    [ "$PLATFORM" != "claude" ] && return
+    if [ "$PLATFORM" != "claude" ]; then
+        return 0
+    fi
     
     local config_dir="$INSTALL_DIR/.claude"
     ensure_dir "$config_dir"
     
     download_file "$REPO_URL/templates/claude/CLAUDE.md" "$config_dir/CLAUDE.md" || true
     download_file "$REPO_URL/templates/claude/settings.json" "$config_dir/settings.json" || true
+    return 0
 }
 
 perform_installation() {
     print_step "Installing components..."
     
-    install_system && print_success "System prompt"
-    install_skills && print_success "Skills (${#PKG_SKILLS[@]})"
-    install_workflows && print_success "Workflows (${#PKG_WORKFLOWS[@]})"
-    install_agents && print_success "Agents (${#PKG_AGENTS[@]})"
-    install_commands && print_success "Commands (${#PKG_COMMANDS[@]})"
+    if [ "$PLATFORM" = "claude" ]; then
+        install_system
+        print_success "System prompt"
+    fi
+    
+    install_skills
+    print_success "Skills (${#PKG_SKILLS[@]})"
+    
+    install_workflows
+    print_success "Workflows (${#PKG_WORKFLOWS[@]})"
+    
+    install_agents
+    print_success "Agents (${#PKG_AGENTS[@]})"
+    
+    install_commands
+    print_success "Commands (${#PKG_COMMANDS[@]})"
     
     local config_dir=$(get_config_dir)
     
