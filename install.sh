@@ -1,70 +1,44 @@
 #!/usr/bin/env bash
 #############################################################################
-# CrewAI Skills Installer for Claude Code and OpenCode
-# Installs the complete CrewAI development toolkit
+# CrewAI Skills Installer
+# Interactive TUI for Claude Code and OpenCode
 #
 # Usage:
-#   bash install.sh                           # Interactive mode
-#   bash install.sh --platform claude
-#   curl -fsSL URL/install.sh | bash -s --platform claude
+#   bash <(curl -fsSL URL/install.sh)
+#   curl -fsSL URL/install.sh | bash
 #
-# Compatible with:
-#   macOS (bash 3.2+)
-#   Linux (bash 3.2+)
-#   Windows (Git Bash, WSL)
 #############################################################################
 
 set -e
 
-# Detect platform
-PLATFORM="$(uname -s)"
-case "$PLATFORM" in
-    Linux*)     PLATFORM="Linux";;
-    Darwin*)    PLATFORM="macOS";;
-    CYGWIN*|MINGW*|MSYS*) PLATFORM="Windows";;
-    *)          PLATFORM="Unknown";;
-esac
+#############################################################################
+# Colors & Styling
+#############################################################################
 
-# Colors for output (disable on Windows if not supported)
-if [ "$PLATFORM" = "Windows" ] && [ -z "$WT_SESSION" ] && [ -z "$ConEmuPID" ]; then
-    RED=''
-    GREEN=''
-    YELLOW=''
-    BLUE=''
-    MAGENTA=''
-    CYAN=''
-    BOLD=''
-    NC=''
-else
-    RED='\033[0;31m'
-    GREEN='\033[0;32m'
-    YELLOW='\033[1;33m'
-    BLUE='\033[0;34m'
-    MAGENTA='\033[0;35m'
-    CYAN='\033[0;36m'
-    BOLD='\033[1m'
-    NC='\033[0m' # No Color
-fi
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+MAGENTA='\033[0;35m'
+CYAN='\033[0;36m'
+WHITE='\033[1;37m'
+BOLD='\033[1m'
+DIM='\033[2m'
+NC='\033[0m'
 
+#############################################################################
 # Configuration
+#############################################################################
+
 REPO_URL="https://raw.githubusercontent.com/victorgrein/cli-agents-config/main"
-TEMP_DIR="/tmp/crewai-installer-$$"
 
-# Default values
-PLATFORM_TARGET=""
+# Selected options (will be set by TUI)
+PLATFORM=""
+INSTALL_SCOPE=""
 TARGET_DIR=""
-DRY_RUN=false
-NO_BACKUP=false
-YES=false
-UPDATE=false
+INSTALL_MODE=""
 
-# Cleanup temp directory on exit
-trap 'rm -rf "$TEMP_DIR" 2>/dev/null || true' EXIT INT TERM
-
-#############################################################################
-# Package Contents (Single package with everything)
-#############################################################################
-
+# Package contents
 PKG_SKILLS=(
     "crewai-agents"
     "crewai-tasks"
@@ -116,773 +90,571 @@ PKG_COMMANDS=(
     "crew/review"
 )
 
+# What to install (set by scope selection)
+INSTALL_SKILLS=true
+INSTALL_AGENTS=true
+INSTALL_WORKFLOWS=true
+INSTALL_COMMANDS=true
+INSTALL_SYSTEM=true
+
 #############################################################################
-# Utility Functions
+# TUI Helper Functions
 #############################################################################
+
+clear_screen() {
+    printf "\033[2J\033[H"
+}
+
+hide_cursor() {
+    printf "\033[?25l"
+}
+
+show_cursor() {
+    printf "\033[?25h"
+}
+
+move_cursor() {
+    printf "\033[%d;%dH" "$1" "$2"
+}
 
 print_header() {
     echo -e "${CYAN}${BOLD}"
-    echo "╔════════════════════════════════════════════════════════════════╗"
-    echo "║                                                                ║"
-    echo "║           CrewAI Skills Installer                              ║"
-    echo "║                                                                ║"
-    echo "╚════════════════════════════════════════════════════════════════╝"
+    echo "  ╔══════════════════════════════════════════════════════════╗"
+    echo "  ║                                                          ║"
+    echo "  ║            CrewAI Skills Installer                       ║"
+    echo "  ║                                                          ║"
+    echo "  ╚══════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
 }
 
-print_success() {
-    echo -e "${GREEN}✓${NC} $1"
+print_step_header() {
+    local step="$1"
+    local title="$2"
+    echo -e "\n  ${DIM}Step $step${NC}"
+    echo -e "  ${WHITE}${BOLD}$title${NC}\n"
 }
 
-print_error() {
-    echo -e "${RED}✗${NC} $1"
+print_option() {
+    local selected="$1"
+    local label="$2"
+    local description="$3"
+    
+    if [ "$selected" = true ]; then
+        echo -e "    ${CYAN}${BOLD}▸ $label${NC}"
+        if [ -n "$description" ]; then
+            echo -e "      ${DIM}$description${NC}"
+        fi
+    else
+        echo -e "    ${DIM}  $label${NC}"
+    fi
+}
+
+print_success() {
+    echo -e "  ${GREEN}✓${NC} $1"
 }
 
 print_info() {
-    echo -e "${BLUE}ℹ${NC} $1"
+    echo -e "  ${BLUE}ℹ${NC} $1"
 }
 
 print_warning() {
-    echo -e "${YELLOW}⚠${NC} $1"
+    echo -e "  ${YELLOW}⚠${NC} $1"
 }
 
-print_step() {
-    echo -e "\n${MAGENTA}${BOLD}▶${NC} $1\n"
+print_error() {
+    echo -e "  ${RED}✗${NC} $1"
 }
 
 #############################################################################
-# Platform & Path Handling
+# TUI Menu System
 #############################################################################
 
-check_bash_version() {
-    local bash_version="${BASH_VERSION%%.*}"
-    if [ "$bash_version" -lt 3 ]; then
-        print_error "This script requires Bash 3.2 or higher"
-        print_error "Current version: $BASH_VERSION"
-        exit 1
+# Read a single keypress
+read_key() {
+    local key
+    IFS= read -rsn1 key 2>/dev/null || true
+    
+    # Handle arrow keys (escape sequences)
+    if [[ $key == $'\x1b' ]]; then
+        read -rsn2 -t 0.1 key 2>/dev/null || true
+        case "$key" in
+            '[A') echo "up" ;;
+            '[B') echo "down" ;;
+            *) echo "" ;;
+        esac
+    elif [[ $key == "" ]]; then
+        echo "enter"
+    else
+        echo "$key"
     fi
 }
 
-check_dependencies() {
-    print_step "Checking dependencies..."
-
-    local missing_deps=()
-
-    if ! command -v curl &> /dev/null; then
-        missing_deps+=("curl")
-    fi
-
-    if [ ${#missing_deps[@]} -ne 0 ]; then
-        print_error "Missing required dependencies: ${missing_deps[*]}"
-        echo ""
-        echo "Please install them:"
-        case "$PLATFORM" in
-            macOS)
-                echo "  brew install ${missing_deps[*]}"
+# Generic menu selector
+# Usage: select_menu "prompt" "option1" "option2" ...
+# Returns: selected index (0-based)
+select_menu() {
+    local prompt="$1"
+    shift
+    local options=("$@")
+    local selected=0
+    local count=${#options[@]}
+    
+    hide_cursor
+    
+    while true; do
+        # Clear and redraw
+        clear_screen
+        print_header
+        print_step_header "$CURRENT_STEP" "$prompt"
+        
+        for i in "${!options[@]}"; do
+            if [ $i -eq $selected ]; then
+                print_option true "${options[$i]}"
+            else
+                print_option false "${options[$i]}"
+            fi
+            echo ""
+        done
+        
+        echo -e "\n  ${DIM}↑/↓ Navigate  •  Enter Select${NC}"
+        
+        # Read input
+        local key=$(read_key)
+        
+        case "$key" in
+            up)
+                ((selected--))
+                [ $selected -lt 0 ] && selected=$((count - 1))
                 ;;
-            Linux)
-                echo "  Ubuntu/Debian: sudo apt-get install ${missing_deps[*]}"
-                echo "  Fedora/RHEL:   sudo dnf install ${missing_deps[*]}"
-                echo "  Arch:          sudo pacman -S ${missing_deps[*]}"
+            down)
+                ((selected++))
+                [ $selected -ge $count ] && selected=0
                 ;;
-            Windows)
-                echo "  Git Bash: Install via https://git-scm.com/"
-                echo "  WSL:      sudo apt-get install ${missing_deps[*]}"
+            enter)
+                show_cursor
+                echo $selected
+                return
                 ;;
         esac
-        exit 1
-    fi
-
-    print_success "All dependencies found"
+    done
 }
 
-normalize_path() {
-    local input_path="$1"
-    local normalized_path
+# Multi-select menu
+# Usage: multiselect_menu "prompt" "option1" "option2" ...
+# Returns: space-separated indices of selected items
+multiselect_menu() {
+    local prompt="$1"
+    shift
+    local options=("$@")
+    local count=${#options[@]}
+    local cursor=0
     
-    if [ -z "$input_path" ]; then
-        echo ""
-        return 1
-    fi
+    # Initialize all as selected
+    local selected=()
+    for i in "${!options[@]}"; do
+        selected[$i]=true
+    done
+    
+    hide_cursor
+    
+    while true; do
+        clear_screen
+        print_header
+        print_step_header "$CURRENT_STEP" "$prompt"
+        
+        for i in "${!options[@]}"; do
+            local checkbox
+            if [ "${selected[$i]}" = true ]; then
+                checkbox="${GREEN}[✓]${NC}"
+            else
+                checkbox="${DIM}[ ]${NC}"
+            fi
+            
+            if [ $i -eq $cursor ]; then
+                echo -e "    ${CYAN}${BOLD}▸${NC} $checkbox ${WHITE}${options[$i]}${NC}"
+            else
+                echo -e "      $checkbox ${DIM}${options[$i]}${NC}"
+            fi
+        done
+        
+        echo -e "\n  ${DIM}↑/↓ Navigate  •  Space Toggle  •  Enter Confirm${NC}"
+        
+        local key=$(read_key)
+        
+        case "$key" in
+            up)
+                ((cursor--))
+                [ $cursor -lt 0 ] && cursor=$((count - 1))
+                ;;
+            down)
+                ((cursor++))
+                [ $cursor -ge $count ] && cursor=0
+                ;;
+            " ")
+                if [ "${selected[$cursor]}" = true ]; then
+                    selected[$cursor]=false
+                else
+                    selected[$cursor]=true
+                fi
+                ;;
+            enter)
+                show_cursor
+                local result=""
+                for i in "${!selected[@]}"; do
+                    if [ "${selected[$i]}" = true ]; then
+                        result="$result $i"
+                    fi
+                done
+                echo $result
+                return
+                ;;
+        esac
+    done
+}
 
-    if [[ $input_path == ~* ]]; then
-        normalized_path="${HOME}${input_path:1}"
+# Text input
+# Usage: text_input "prompt" "default"
+text_input() {
+    local prompt="$1"
+    local default="$2"
+    
+    clear_screen
+    print_header
+    print_step_header "$CURRENT_STEP" "$prompt"
+    
+    echo -e "  ${DIM}Press Enter to use: ${NC}${CYAN}$default${NC}"
+    echo ""
+    echo -ne "  ${WHITE}Path:${NC} "
+    
+    local input
+    read -r input
+    
+    if [ -z "$input" ]; then
+        echo "$default"
     else
-        normalized_path="$input_path"
+        # Expand ~ to home directory
+        echo "${input/#\~/$HOME}"
     fi
-
-    normalized_path="${normalized_path//\\//}"
-    normalized_path="${normalized_path%/}"
-
-    if [[ ! "$normalized_path" = /* ]] && [[ ! "$normalized_path" =~ ^[A-Za-z]: ]]; then
-        normalized_path="$(pwd)/${normalized_path}"
-    fi
-
-    echo "$normalized_path"
-    return 0
-}
-
-get_config_dir() {
-    local platform=$1
-    if [ "$platform" = "claude" ]; then
-        echo ".claude"
-    else
-        echo ".opencode"
-    fi
-}
-
-#############################################################################
-# File Operations
-#############################################################################
-
-download_file() {
-    local url="$1"
-    local dest="$2"
-    local silent="${3:-false}"
-
-    if [ "$DRY_RUN" = true ]; then
-        return 0
-    fi
-
-    if [ "$silent" = true ]; then
-        curl -fsSL "$url" -o "$dest" 2>/dev/null || return 1
-    else
-        curl -fsSL "$url" -o "$dest" || return 1
-    fi
-
-    return 0
-}
-
-ensure_dir() {
-    local dir="$1"
-    if [ "$DRY_RUN" = false ]; then
-        mkdir -p "$dir"
-    fi
-}
-
-backup_existing() {
-    local target_dir="$1"
-    local platform="$2"
-    local config_dir=$(get_config_dir "$platform")
-    local existing_dir="$target_dir/$config_dir"
-
-    if [ ! -d "$existing_dir" ]; then
-        return 0
-    fi
-
-    local timestamp=$(date +%Y%m%d_%H%M%S)
-    local backup_dir="$target_dir/.crewai-skills-backup/$timestamp"
-
-    print_info "Creating backup at $backup_dir"
-
-    if [ "$DRY_RUN" = false ]; then
-        ensure_dir "$(dirname "$backup_dir")"
-        cp -r "$existing_dir" "$backup_dir/$(basename "$config_dir")"
-    fi
-}
-
-#############################################################################
-# Content Adaptation
-#############################################################################
-
-adapt_agent_for_claude() {
-    local content="$1"
-    
-    echo "$content" | sed -e '
-        # Extract YAML frontmatter and body
-        1,/^---$/ {
-            /^---$/d
-            # Extract name for tools conversion
-            /^name:/s/^name:\s*/\nNAME:/
-            # Extract tools and convert to comma-separated
-            /^tools:/{
-                s/^tools:\s*/\nTOOLS:/
-                N
-                s/\n\s*/\n/
-                s/\n\s*/\n/g
-                s/^\s*-//g
-                s/\n/,/g
-                s/^TOOLS:.*$/TOOLS:&/
-            }
-            # Extract skills
-            /^skills:/{
-                s/^skills:\s*/\nSKILLS:/
-                N
-                s/\n\s*/\n/
-                s/\n\s*/\n/g
-                s/^\s*-//g
-                s/\n/,/g
-                s/^SKILLS:.*$/SKILLS:&/
-            }
-        }
-        # Remove YAML frontmatter markers
-        /^---$/d
-    ' | sed -e 's/^NAME: /name: /' -e 's/^TOOLS:/tools:/' -e 's/^SKILLS:/skills:/'
-}
-
-adapt_agent_for_opencode() {
-    local content="$1"
-    
-    # Extract name from content
-    local name=$(echo "$content" | grep -E "^name:" | sed 's/^name:\s*//' | sed 's/-/ /g' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) substr($i,2)}1' | tr -d ' ')
-    
-    echo "$content" | sed -e "
-        1,/^---$/ {
-            # Transform to OpenCode format
-            /^name:/s/^name:/id:/
-            /^name:/a\\
-name: $name\\
-category: subagents/crewai\\
-type: subagent\\
-version: 1.0.0\\
-author: crewai-skills\\
-mode: subagent\\
-temperature: 1.0
-        }
-        # Add tools dict
-        /^tools:/a\\
-tools:\\n  read: true\\n  write: true\\n  edit: true\\n  grep: true\\n  glob: true\\n  bash: true\\n  task: false\\npermission:\\n  bash:\\n    '*'*': deny\\n    'ls *': allow\\n    'cat *': allow\\n    'grep *': allow\\n    pwd: allow
-        # Remove YAML markers
-        /^---$/d
-    "
 }
 
 #############################################################################
 # Installation Functions
 #############################################################################
 
-install_skills() {
-    local platform="$1"
-    local target_dir="$2"
-    local config_dir=$(get_config_dir "$platform")
-    local results=()
-    
-    local skills_dir="$target_dir/$config_dir/skills"
-    
-    for skill in "${PKG_SKILLS[@]}"; do
-        local skill_path="templates/shared/skills/$skill"
-        
-        # Install SKILL.md and all subdirectories
-        local source_url="$REPO_URL/$skill_path/SKILL.md"
-        local dest_file="$skills_dir/$skill/SKILL.md"
-        
-        if download_file "$source_url" /tmp/skill_check 2>/dev/null; then
-            ensure_dir "$(dirname "$dest_file")"
-            
-            if download_file "$source_url" "$dest_file"; then
-                results+=("skills/$skill/SKILL.md: created")
-            else
-                print_warning "Failed to download: $skill"
-            fi
-            
-            # Also download references directory if it exists
-            local refs_source="$REPO_URL/$skill_path/references"
-            if download_file "$refs_source" /tmp/refs_check 2>/dev/null; then
-                local refs_dest="$skills_dir/$skill/references"
-                ensure_dir "$refs_dest"
-                
-                # Try to download known reference files
-                local ref_files=$(curl -fsSL "$refs_source/" 2>/dev/null | grep -oE 'href="[^"]*\.md"' | sed 's/href="//;s/"//' || true)
-                for ref in $ref_files; do
-                    download_file "$refs_source/$ref" "$refs_dest/$ref"
-                done
-            fi
-        else
-            print_warning "Skill not found: $skill"
-        fi
-    done
-    
-    echo "${results[@]}"
+get_config_dir() {
+    if [ "$PLATFORM" = "claude" ]; then
+        echo ".claude"
+    else
+        echo ".opencode"
+    fi
 }
 
-install_agents() {
-    local platform="$1"
-    local target_dir="$2"
-    local results=()
+download_file() {
+    local url="$1"
+    local dest="$2"
+    curl -fsSL "$url" -o "$dest" 2>/dev/null
+}
+
+ensure_dir() {
+    mkdir -p "$1" 2>/dev/null || true
+}
+
+install_skills() {
+    local config_dir=$(get_config_dir)
+    local skills_dir="$TARGET_DIR/$config_dir/skills"
     
-    local agents_dir
-    
-    if [ "$platform" = "claude" ]; then
-        agents_dir="$target_dir/.claude/agents"
-    else
-        agents_dir="$target_dir/.opencode/agent/subagents"
-    fi
-    
-    for agent_path in "${PKG_AGENTS[@]}"; do
-        local parts=(${agent_path//\// })
-        local category="${parts[0]}"
-        local agent_name="${parts[1]}"
+    for skill in "${PKG_SKILLS[@]}"; do
+        local source_url="$REPO_URL/templates/shared/skills/$skill/SKILL.md"
+        local dest_file="$skills_dir/$skill/SKILL.md"
         
-        local source_url="$REPO_URL/templates/shared/agents/$category/$agent_name.md"
-        local dest_file
+        ensure_dir "$(dirname "$dest_file")"
+        download_file "$source_url" "$dest_file" || true
         
-        if [ "$platform" = "claude" ]; then
-            dest_file="$agents_dir/$agent_name.md"
-        else
-            dest_file="$agents_dir/$category/$agent_name.md"
-        fi
+        # Try to download references
+        local refs_url="$REPO_URL/templates/shared/skills/$skill/references"
+        local refs_dir="$skills_dir/$skill/references"
         
-        if download_file "$source_url" /tmp/agent_check 2>/dev/null; then
-            ensure_dir "$(dirname "$dest_file")"
-            
-            # Download and adapt content
-            local temp_file="/tmp/agent_content_$$"
-            if download_file "$source_url" "$temp_file"; then
-                local content
-                content=$(cat "$temp_file")
-                
-                # Adapt for platform
-                if [ "$platform" = "claude" ]; then
-                    content=$(adapt_agent_for_claude "$content")
-                else
-                    content=$(adapt_agent_for_opencode "$content")
-                fi
-                
-                echo "$content" > "$dest_file"
-                results+=("agents/$agent_path.md: created")
+        # Common reference file patterns
+        for ref_name in "${skill}-reference.md" "reference.md"; do
+            local ref_url="$refs_url/$ref_name"
+            if curl -fsSL --head "$ref_url" 2>/dev/null | grep -q "200"; then
+                ensure_dir "$refs_dir"
+                download_file "$ref_url" "$refs_dir/$ref_name" || true
             fi
-            rm -f "$temp_file"
-        else
-            print_warning "Agent not found: $agent_path"
-        fi
+        done
     done
-    
-    echo "${results[@]}"
 }
 
 install_workflows() {
-    local platform="$1"
-    local target_dir="$2"
-    local config_dir=$(get_config_dir "$platform")
-    local results=()
-    
-    local skills_dir="$target_dir/$config_dir/skills"
+    local config_dir=$(get_config_dir)
+    local skills_dir="$TARGET_DIR/$config_dir/skills"
     
     for workflow in "${PKG_WORKFLOWS[@]}"; do
-        local workflow_path="templates/shared/workflows/$workflow"
-        
-        # Install as skill
-        local source_url="$REPO_URL/$workflow_path/SKILL.md"
+        local source_url="$REPO_URL/templates/shared/workflows/$workflow/SKILL.md"
         local dest_file="$skills_dir/$workflow/SKILL.md"
         
-        if download_file "$source_url" /tmp/workflow_check 2>/dev/null; then
-            ensure_dir "$(dirname "$dest_file")"
-            
-            if download_file "$source_url" "$dest_file"; then
-                results+=("workflows/$workflow/SKILL.md: created")
-            fi
-        else
-            print_warning "Workflow not found: $workflow"
-        fi
+        ensure_dir "$(dirname "$dest_file")"
+        download_file "$source_url" "$dest_file" || true
     done
+}
+
+install_agents() {
+    local config_dir=$(get_config_dir)
+    local agents_dir
     
-    echo "${results[@]}"
+    if [ "$PLATFORM" = "claude" ]; then
+        agents_dir="$TARGET_DIR/$config_dir/agents"
+    else
+        agents_dir="$TARGET_DIR/$config_dir/agent/subagents"
+    fi
+    
+    for agent_path in "${PKG_AGENTS[@]}"; do
+        local agent_name="${agent_path#*/}"
+        local source_url="$REPO_URL/templates/shared/agents/$agent_path.md"
+        local dest_file
+        
+        if [ "$PLATFORM" = "claude" ]; then
+            dest_file="$agents_dir/$agent_name.md"
+        else
+            dest_file="$agents_dir/crewai/$agent_name.md"
+        fi
+        
+        ensure_dir "$(dirname "$dest_file")"
+        download_file "$source_url" "$dest_file" || true
+    done
 }
 
 install_commands() {
-    local platform="$1"
-    local target_dir="$2"
-    local results=()
-    
+    local config_dir=$(get_config_dir)
     local commands_dir
     
-    if [ "$platform" = "claude" ]; then
-        commands_dir="$target_dir/.claude/commands"
+    if [ "$PLATFORM" = "claude" ]; then
+        commands_dir="$TARGET_DIR/$config_dir/commands"
     else
-        commands_dir="$target_dir/.opencode/command"
+        commands_dir="$TARGET_DIR/$config_dir/command"
     fi
     
     for cmd_path in "${PKG_COMMANDS[@]}"; do
-        local parts=(${cmd_path//\// })
-        local cmd_name="${parts[1]}"
-        
         local source_url="$REPO_URL/templates/shared/commands/$cmd_path.md"
         local dest_file="$commands_dir/$cmd_path.md"
         
-        if download_file "$source_url" /tmp/command_check 2>/dev/null; then
-            ensure_dir "$(dirname "$dest_file")"
-            
-            if download_file "$source_url" "$dest_file"; then
-                results+=("commands/$cmd_path.md: created")
-            fi
-        else
-            print_warning "Command not found: $cmd_path"
-        fi
+        ensure_dir "$(dirname "$dest_file")"
+        download_file "$source_url" "$dest_file" || true
     done
-    
-    echo "${results[@]}"
 }
 
 install_system_prompt() {
-    local platform="$1"
-    local target_dir="$2"
-    local results=()
-    
-    # Only for Claude Code
-    if [ "$platform" != "claude" ]; then
-        echo "${results[@]}"
+    if [ "$PLATFORM" != "claude" ]; then
         return
     fi
     
-    local config_dir="$target_dir/.claude"
+    local config_dir="$TARGET_DIR/.claude"
+    ensure_dir "$config_dir"
     
-    # Install CLAUDE.md
-    local claude_url="$REPO_URL/templates/claude/CLAUDE.md"
-    local claude_dest="$config_dir/CLAUDE.md"
+    download_file "$REPO_URL/templates/claude/CLAUDE.md" "$config_dir/CLAUDE.md" || true
+    download_file "$REPO_URL/templates/claude/settings.json" "$config_dir/settings.json" || true
+}
+
+backup_existing() {
+    local config_dir=$(get_config_dir)
+    local existing_dir="$TARGET_DIR/$config_dir"
     
-    if download_file "$claude_url" /tmp/claude_check 2>/dev/null; then
-        ensure_dir "$config_dir"
-        
-        if download_file "$claude_url" "$claude_dest"; then
-            results+=("CLAUDE.md: created")
-        fi
+    if [ -d "$existing_dir" ]; then
+        local timestamp=$(date +%Y%m%d_%H%M%S)
+        local backup_dir="$TARGET_DIR/.crewai-backup-$timestamp"
+        cp -r "$existing_dir" "$backup_dir"
+        print_info "Backup created: $backup_dir"
     fi
-    
-    # Install settings.json
-    local settings_url="$REPO_URL/templates/claude/settings.json"
-    local settings_dest="$config_dir/settings.json"
-    
-    if download_file "$settings_url" /tmp/settings_check 2>/dev/null; then
-        if download_file "$settings_url" "$settings_dest"; then
-            results+=("settings.json: created")
-        fi
-    fi
-    
-    echo "${results[@]}"
 }
 
 #############################################################################
-# Interactive Menus
+# Main TUI Flow
 #############################################################################
 
-check_interactive_mode() {
+run_tui() {
+    # Check if we have a terminal
     if [ ! -t 0 ]; then
         print_error "Interactive mode requires a terminal"
         echo ""
-        echo "For non-interactive mode, use:"
-        echo "  curl -fsSL $REPO_URL/install.sh | bash -s --platform claude"
+        echo "  For non-interactive install, download and run:"
+        echo "  curl -fsSL $REPO_URL/install.sh -o install.sh && bash install.sh"
         exit 1
     fi
-}
-
-prompt_platform() {
-    check_interactive_mode
     
-    echo -e "${BOLD}Select platform:${NC}"
-    echo "  [1] Claude Code"
-    echo "  [2] OpenCode"
-    echo ""
+    trap 'show_cursor; exit' INT TERM
     
-    while true; do
-        read -p "Enter choice (1 or 2): " choice
-        case "$choice" in
-            1) echo "claude"; return ;;
-            2) echo "opencode"; return ;;
-            *) print_error "Invalid choice. Please enter 1 or 2." ;;
-        esac
-    done
-}
-
-prompt_target_directory() {
-    check_interactive_mode
+    # Step 1: Platform Selection
+    CURRENT_STEP="1/4"
+    local platform_idx=$(select_menu "Which platform are you using?" \
+        "Claude Code" \
+        "OpenCode")
     
-    echo -e "\n${BOLD}Enter project folder:${NC}"
-    echo -e "  ${CYAN}Where do you want to install CrewAI skills?${NC}"
-    echo "  (Press Enter to use current directory: $(pwd))"
-    echo ""
+    case $platform_idx in
+        0) PLATFORM="claude" ;;
+        1) PLATFORM="opencode" ;;
+    esac
     
-    while true; do
-        read -p "Project folder path: " user_input
+    # Step 2: Installation Scope
+    CURRENT_STEP="2/4"
+    local scope_idx=$(select_menu "What would you like to install?" \
+        "Everything (Recommended)" \
+        "Let me choose specific components")
+    
+    if [ "$scope_idx" -eq 1 ]; then
+        CURRENT_STEP="2/4"
+        local components=$(multiselect_menu "Select components to install:" \
+            "Skills (16 CrewAI knowledge modules)" \
+            "Agents (10 specialist assistants)" \
+            "Workflows (5 guided processes)" \
+            "Commands (8 slash commands)" \
+            "System Prompt (CLAUDE.md orchestrator)")
         
-        if [ -z "$user_input" ]; then
-            echo "$(pwd)"
-            return
-        fi
+        INSTALL_SKILLS=false
+        INSTALL_AGENTS=false
+        INSTALL_WORKFLOWS=false
+        INSTALL_COMMANDS=false
+        INSTALL_SYSTEM=false
         
-        local path=$(normalize_path "$user_input")
+        for idx in $components; do
+            case $idx in
+                0) INSTALL_SKILLS=true ;;
+                1) INSTALL_AGENTS=true ;;
+                2) INSTALL_WORKFLOWS=true ;;
+                3) INSTALL_COMMANDS=true ;;
+                4) INSTALL_SYSTEM=true ;;
+            esac
+        done
+    fi
+    
+    # Step 3: Target Directory
+    CURRENT_STEP="3/4"
+    local location_idx=$(select_menu "Where do you want to install?" \
+        "Current directory ($(pwd))" \
+        "Different location")
+    
+    if [ "$location_idx" -eq 0 ]; then
+        TARGET_DIR="$(pwd)"
+    else
+        CURRENT_STEP="3/4"
+        TARGET_DIR=$(text_input "Enter the project path:" "$(pwd)")
         
-        if [ -d "$path" ]; then
-            echo "$path"
-            return
-        else
-            read -p "  Directory '$path' does not exist. Create it? [y/N]: " create
-            if [[ "$create" =~ ^[Yy]$ ]]; then
-                if mkdir -p "$path" 2>/dev/null; then
-                    print_success "Created directory: $path"
-                    echo "$path"
-                    return
-                else
-                    print_error "Could not create directory"
-                fi
-            fi
-        fi
-    done
-}
-
-prompt_install_mode() {
-    check_interactive_mode
-    
-    local platform="$1"
-    local config_dir=$(get_config_dir "$platform")
-    
-    echo -e "\n${YELLOW}Existing installation detected ($config_dir)${NC}"
-    echo -e "\n${BOLD}Choose action:${NC}"
-    echo "  [1] ${GREEN}Add${NC} - Add new files, keep customized files"
-    echo "  [2] ${CYAN}Update${NC} - Overwrite all files with latest versions"
-    echo ""
-    
-    while true; do
-        read -p "Enter choice (1 or 2): " choice
-        case "$choice" in
-            1) echo "add"; return ;;
-            2) echo "update"; return ;;
-            *) print_error "Invalid choice. Please enter 1 or 2." ;;
-        esac
-    done
-}
-
-#############################################################################
-# Installation Execution
-#############################################################################
-
-perform_installation() {
-    local platform="$1"
-    local target_dir="$2"
-    local force_update="$3"
-    
-    local config_dir=$(get_config_dir "$platform")
-    local existing_dir="$target_dir/$config_dir"
-    local has_existing=false
-    
-    if [ -d "$existing_dir" ]; then
-        has_existing=true
-        
-        if [ "$force_update" = true ]; then
-            print_info "Mode: Update (overwrite existing files)"
-        elif [ ! -t 0 ]; then
-            # Non-interactive: default to add mode
-            print_info "Mode: Add (keep customized files)"
-        else
-            local install_mode=$(prompt_install_mode "$platform")
-            if [ "$install_mode" = "update" ]; then
-                force_update=true
-            else
-                print_info "Mode: Add (keep customized files)"
-            fi
+        # Create if doesn't exist
+        if [ ! -d "$TARGET_DIR" ]; then
+            mkdir -p "$TARGET_DIR" 2>/dev/null || {
+                print_error "Could not create directory: $TARGET_DIR"
+                exit 1
+            }
         fi
     fi
     
-    # Summary
-    echo -e "\n${BOLD}Installation Summary:${NC}"
-    echo "  Platform:  $platform"
-    echo "  Target:    $target_dir"
-    echo "  Skills:    ${#PKG_SKILLS[@]}"
-    echo "  Agents:    ${#PKG_AGENTS[@]}"
-    echo "  Workflows: ${#PKG_WORKFLOWS[@]}"
-    echo "  Commands:  ${#PKG_COMMANDS[@]}"
-    
-    if [ "$DRY_RUN" = true ]; then
-        print_warning "\nDRY RUN - No changes will be made"
+    # Step 4: Check for existing installation
+    local config_dir=$(get_config_dir)
+    if [ -d "$TARGET_DIR/$config_dir" ]; then
+        CURRENT_STEP="4/4"
+        local mode_idx=$(select_menu "Found existing $config_dir folder. What would you like to do?" \
+            "Add new files (keep your customisations)" \
+            "Overwrite everything (fresh install)")
+        
+        if [ "$mode_idx" -eq 1 ]; then
+            INSTALL_MODE="overwrite"
+        else
+            INSTALL_MODE="add"
+        fi
+    else
+        INSTALL_MODE="new"
     fi
     
-    # Confirm (skip if non-interactive or --yes flag)
-    if [ "$YES" = false ] && [ "$DRY_RUN" = false ] && [ -t 0 ]; then
+    # Show summary and confirm
+    clear_screen
+    print_header
+    
+    echo -e "  ${WHITE}${BOLD}Installation Summary${NC}\n"
+    echo -e "  ${CYAN}Platform:${NC}    $PLATFORM"
+    echo -e "  ${CYAN}Location:${NC}    $TARGET_DIR"
+    echo -e "  ${CYAN}Mode:${NC}        $INSTALL_MODE"
+    echo ""
+    echo -e "  ${CYAN}Components:${NC}"
+    [ "$INSTALL_SKILLS" = true ] && echo "    ✓ Skills (16)"
+    [ "$INSTALL_AGENTS" = true ] && echo "    ✓ Agents (10)"
+    [ "$INSTALL_WORKFLOWS" = true ] && echo "    ✓ Workflows (5)"
+    [ "$INSTALL_COMMANDS" = true ] && echo "    ✓ Commands (8)"
+    [ "$INSTALL_SYSTEM" = true ] && [ "$PLATFORM" = "claude" ] && echo "    ✓ System Prompt"
+    echo ""
+    
+    echo -ne "  ${WHITE}Proceed with installation? ${NC}${DIM}[Y/n]${NC} "
+    read -r confirm
+    
+    if [[ "$confirm" =~ ^[Nn]$ ]]; then
         echo ""
-        read -p "Proceed with installation? [y/N]: " confirm
-        if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
-            print_info "Installation cancelled"
-            exit 0
-        fi
+        print_info "Installation cancelled"
+        exit 0
     fi
     
-    # Backup if needed
-    if [ "$has_existing" = true ] && [ "$force_update" = true ] && [ "$NO_BACKUP" = false ] && [ "$DRY_RUN" = false ]; then
-        backup_existing "$target_dir" "$platform"
-    fi
+    # Perform installation
+    echo ""
+    echo -e "  ${WHITE}${BOLD}Installing...${NC}\n"
     
-    # Create temp directory
-    mkdir -p "$TEMP_DIR"
+    # Backup if overwriting
+    if [ "$INSTALL_MODE" = "overwrite" ]; then
+        backup_existing
+        rm -rf "$TARGET_DIR/$config_dir"
+    fi
     
     # Install components
-    print_step "Installing components..."
-    
-    # Install system prompt first
-    if [ "$platform" = "claude" ]; then
-        install_system_prompt "$platform" "$target_dir" > /dev/null 2>&1
-        print_success "System prompt (CLAUDE.md, settings.json)"
+    if [ "$INSTALL_SYSTEM" = true ] && [ "$PLATFORM" = "claude" ]; then
+        install_system_prompt
+        print_success "System prompt"
     fi
     
-    # Install skills
-    install_skills "$platform" "$target_dir" > /dev/null 2>&1
-    print_success "Skills (${#PKG_SKILLS[@]} skills)"
+    if [ "$INSTALL_SKILLS" = true ]; then
+        install_skills
+        print_success "Skills (${#PKG_SKILLS[@]})"
+    fi
     
-    # Install workflows  
-    install_workflows "$platform" "$target_dir" > /dev/null 2>&1
-    print_success "Workflows (${#PKG_WORKFLOWS[@]} workflows)"
+    if [ "$INSTALL_WORKFLOWS" = true ]; then
+        install_workflows
+        print_success "Workflows (${#PKG_WORKFLOWS[@]})"
+    fi
     
-    # Install agents
-    install_agents "$platform" "$target_dir" > /dev/null 2>&1
-    print_success "Agents (${#PKG_AGENTS[@]} agents)"
+    if [ "$INSTALL_AGENTS" = true ]; then
+        install_agents
+        print_success "Agents (${#PKG_AGENTS[@]})"
+    fi
     
-    # Install commands
-    install_commands "$platform" "$target_dir" > /dev/null 2>&1
-    print_success "Commands (${#PKG_COMMANDS[@]} commands)"
+    if [ "$INSTALL_COMMANDS" = true ]; then
+        install_commands
+        print_success "Commands (${#PKG_COMMANDS[@]})"
+    fi
     
-    # Final message
+    # Done!
     echo ""
-    echo -e "${GREEN}${BOLD}════════════════════════════════════════════════════════════════${NC}"
-    echo -e "${GREEN}${BOLD}  Installation complete!${NC}"
-    echo -e "${GREEN}${BOLD}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "  ${GREEN}${BOLD}════════════════════════════════════════════════════════════${NC}"
+    echo -e "  ${GREEN}${BOLD}  Installation complete!${NC}"
+    echo -e "  ${GREEN}${BOLD}════════════════════════════════════════════════════════════${NC}"
     echo ""
-    print_info "Installed to: $target_dir/$config_dir"
+    print_info "Installed to: $TARGET_DIR/$config_dir"
     echo ""
     
-    if [ "$platform" = "claude" ]; then
-        echo -e "${CYAN}Next steps:${NC}"
-        echo "  1. Open Claude Code in your project directory"
-        echo "  2. Run /crew create to build your first crew"
-        echo "  3. Or just ask Claude about CrewAI - it knows everything now"
+    if [ "$PLATFORM" = "claude" ]; then
+        echo -e "  ${CYAN}Next steps:${NC}"
+        echo "    1. Open Claude Code in your project"
+        echo "    2. Run ${WHITE}/crew create${NC} to build your first crew"
+        echo "    3. Or just ask Claude about CrewAI"
     else
-        echo -e "${CYAN}Next steps:${NC}"
-        echo "  1. Open OpenCode in your project directory"
-        echo "  2. Run /crew create to build your first crew"
-        echo "  3. The orchestrator will guide you"
+        echo -e "  ${CYAN}Next steps:${NC}"
+        echo "    1. Open OpenCode in your project"
+        echo "    2. Run ${WHITE}/crew create${NC} to build your first crew"
     fi
-    
     echo ""
 }
 
 #############################################################################
-# Argument Parsing
-#############################################################################
-
-usage() {
-    cat << EOF
-Usage: $0 [OPTIONS]
-
-CrewAI Skills Installer for Claude Code and OpenCode
-Installs the complete CrewAI development toolkit.
-
-Options:
-  -p, --platform PLATFORM   Target platform (claude or opencode)
-  -t, --target PATH         Target directory (default: current directory)
-  -n, --dry-run             Show what would be installed without making changes
-  --no-backup               Skip backup of existing installation
-  -y, --yes                 Skip confirmation prompt
-  -u, --update              Update mode: overwrite all existing files
-  -h, --help                Show this help message
-
-Examples:
-  # Interactive mode
-  $0
-
-  # Non-interactive mode
-  $0 --platform claude
-
-  # Install to specific directory
-  $0 --platform opencode --target /path/to/project
-
-  # Dry run to see what would be installed
-  $0 --platform claude --dry-run
-
-  # Install via curl
-  curl -fsSL $REPO_URL/install.sh | bash -s --platform claude
-
-Package Contents:
-  Skills (16):    crewai-agents, crewai-tasks, crewai-crews, crewai-flows,
-                  crewai-tools, crewai-llms, crewai-memory, crewai-processes,
-                  crewai-cli, crewai-debugging, crewai-optimization,
-                  crewai-migration, crewai-crew-creation, crewai-code-quality,
-                  crewai-project-structure, task-management
-
-  Agents (10):    crew-architect, agent-designer, task-designer, flow-engineer,
-                  tool-specialist, debugger, llm-optimizer, migration-specialist,
-                  performance-analyst, crewai-documenter
-
-  Workflows (5):  create-crew, debug-crew, optimize-crew, migrate-project,
-                  create-flow
-
-  Commands (8):   /crew create, /crew analyze, /crew debug, /crew diagram,
-                  /crew docs, /crew migrate, /crew optimize, /crew review
-EOF
-}
-
-parse_args() {
-    while [ $# -gt 0 ]; do
-        case "$1" in
-            -p|--platform)
-                PLATFORM_TARGET="$2"
-                shift 2
-                ;;
-            -t|--target)
-                TARGET_DIR="$2"
-                shift 2
-                ;;
-            -n|--dry-run)
-                DRY_RUN=true
-                shift
-                ;;
-            --no-backup)
-                NO_BACKUP=true
-                shift
-                ;;
-            -y|--yes)
-                YES=true
-                shift
-                ;;
-            -u|--update)
-                UPDATE=true
-                shift
-                ;;
-            -h|--help)
-                usage
-                exit 0
-                ;;
-            *)
-                print_error "Unknown option: $1"
-                usage
-                exit 1
-                ;;
-        esac
-    done
-}
-
-#############################################################################
-# Main
+# Entry Point
 #############################################################################
 
 main() {
-    parse_args "$@"
-    
-    print_header
-    
-    # Check dependencies
-    check_bash_version
-    check_dependencies
-    
-    # Get platform
-    if [ -z "$PLATFORM_TARGET" ]; then
-        PLATFORM_TARGET=$(prompt_platform)
-    fi
-    
-    print_success "Platform: $PLATFORM_TARGET"
-    
-    # Get target directory
-    if [ -z "$TARGET_DIR" ]; then
-        # If not interactive (piped), use current directory
-        if [ ! -t 0 ]; then
-            TARGET_DIR="$(pwd)"
-        else
-            TARGET_DIR=$(prompt_target_directory)
-        fi
-    else
-        TARGET_DIR=$(normalize_path "$TARGET_DIR")
-    fi
-    
-    print_success "Target: $TARGET_DIR"
-    
-    # Perform installation
-    perform_installation "$PLATFORM_TARGET" "$TARGET_DIR" "$UPDATE"
+    # Always run TUI
+    run_tui
 }
 
 main "$@"
