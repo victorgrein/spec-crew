@@ -49,19 +49,30 @@ One install. Your AI becomes a CrewAI expert.
 
 ## Installation
 
-One command. The installer guides you through everything:
+**Quick install (one command):**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/victorgrein/cli-agents-config/main/install.sh | bash
+# For Claude Code
+curl -fsSL https://raw.githubusercontent.com/victorgrein/cli-agents-config/main/install.sh | bash -s claude
+
+# For OpenCode
+curl -fsSL https://raw.githubusercontent.com/victorgrein/cli-agents-config/main/install.sh | bash -s opencode
 ```
 
-The interactive installer will ask you:
-- **Platform:** Claude Code or OpenCode?
-- **Scope:** Everything or specific components?
-- **Location:** Current folder or another project?
-- **Mode:** If config exists, add new files or overwrite?
+**Interactive mode (with prompts):**
 
-Navigate with arrow keys, select with Enter. Done in seconds.
+```bash
+# Download first
+curl -fsSL https://raw.githubusercontent.com/victorgrein/cli-agents-config/main/install.sh -o install.sh
+
+# Then run
+bash install.sh
+```
+
+The interactive installer asks you:
+- **Platform:** Claude Code or OpenCode?
+- **Location:** Current folder or custom path?
+- **Confirm:** Review before installing
 
 ---
 
