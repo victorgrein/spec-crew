@@ -52,7 +52,7 @@ One install. Your AI becomes a CrewAI expert.
 One command. The installer guides you through everything:
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/victorgrein/cli-agents-config/main/install.sh)
+curl -fsSL https://raw.githubusercontent.com/victorgrein/cli-agents-config/main/install.sh | bash
 ```
 
 The interactive installer will ask you:
@@ -62,11 +62,6 @@ The interactive installer will ask you:
 - **Mode:** If config exists, add new files or overwrite?
 
 Navigate with arrow keys, select with Enter. Done in seconds.
-
-**For scripts or CI/CD:**
-```bash
-curl -fsSL https://raw.githubusercontent.com/victorgrein/cli-agents-config/main/install.sh | bash -s -- --platform claude
-```
 
 ---
 

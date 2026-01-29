@@ -169,14 +169,14 @@ print_error() {
 # TUI Menu System
 #############################################################################
 
-# Read a single keypress
+# Read a single keypress (from /dev/tty to work with curl pipe)
 read_key() {
     local key
-    IFS= read -rsn1 key 2>/dev/null || true
+    IFS= read -rsn1 key </dev/tty 2>/dev/null || true
     
     # Handle arrow keys (escape sequences)
     if [[ $key == $'\x1b' ]]; then
-        read -rsn2 -t 0.1 key 2>/dev/null || true
+        read -rsn2 -t 0.1 key </dev/tty 2>/dev/null || true
         case "$key" in
             '[A') echo "up" ;;
             '[B') echo "down" ;;
@@ -312,7 +312,7 @@ multiselect_menu() {
     done
 }
 
-# Text input
+# Text input (from /dev/tty to work with curl pipe)
 # Usage: text_input "prompt" "default"
 text_input() {
     local prompt="$1"
@@ -327,7 +327,7 @@ text_input() {
     echo -ne "  ${WHITE}Path:${NC} "
     
     local input
-    read -r input
+    read -r input </dev/tty
     
     if [ -z "$input" ]; then
         echo "$default"
@@ -468,91 +468,13 @@ backup_existing() {
 }
 
 #############################################################################
-# Non-Interactive Mode
-#############################################################################
-
-run_non_interactive() {
-    echo ""
-    print_header
-    
-    print_success "Platform: $PLATFORM"
-    print_success "Target: $TARGET_DIR"
-    
-    local config_dir=$(get_config_dir)
-    
-    # Check existing
-    if [ -d "$TARGET_DIR/$config_dir" ]; then
-        if [ "$INSTALL_MODE" = "overwrite" ]; then
-            backup_existing
-            rm -rf "$TARGET_DIR/$config_dir"
-            print_info "Mode: Overwrite (backup created)"
-        else
-            print_info "Mode: Add new files"
-        fi
-    fi
-    
-    echo ""
-    echo -e "  ${WHITE}${BOLD}Installing...${NC}"
-    echo ""
-    
-    if [ "$INSTALL_SYSTEM" = true ] && [ "$PLATFORM" = "claude" ]; then
-        install_system_prompt
-        print_success "System prompt"
-    fi
-    
-    if [ "$INSTALL_SKILLS" = true ]; then
-        install_skills
-        print_success "Skills (${#PKG_SKILLS[@]})"
-    fi
-    
-    if [ "$INSTALL_WORKFLOWS" = true ]; then
-        install_workflows
-        print_success "Workflows (${#PKG_WORKFLOWS[@]})"
-    fi
-    
-    if [ "$INSTALL_AGENTS" = true ]; then
-        install_agents
-        print_success "Agents (${#PKG_AGENTS[@]})"
-    fi
-    
-    if [ "$INSTALL_COMMANDS" = true ]; then
-        install_commands
-        print_success "Commands (${#PKG_COMMANDS[@]})"
-    fi
-    
-    echo ""
-    echo -e "  ${GREEN}${BOLD}════════════════════════════════════════════════════════════${NC}"
-    echo -e "  ${GREEN}${BOLD}  Installation complete!${NC}"
-    echo -e "  ${GREEN}${BOLD}════════════════════════════════════════════════════════════${NC}"
-    echo ""
-    print_info "Installed to: $TARGET_DIR/$config_dir"
-    echo ""
-}
-
-#############################################################################
 # Main TUI Flow
 #############################################################################
 
 run_tui() {
-    # Check if we have a terminal
-    if [ ! -t 0 ]; then
-        # No terminal - check if we have required args for non-interactive
-        if [ -n "$PLATFORM" ]; then
-            [ -z "$TARGET_DIR" ] && TARGET_DIR="$(pwd)"
-            [ -z "$INSTALL_MODE" ] && INSTALL_MODE="add"
-            run_non_interactive
-            exit 0
-        fi
-        
-        print_error "Interactive mode requires a terminal"
-        echo ""
-        echo "  For non-interactive install, use:"
-        echo "  curl ... | bash -s -- --platform claude"
-        echo ""
-        echo "  Options:"
-        echo "    --platform claude|opencode  (required)"
-        echo "    --target /path/to/project   (default: current dir)"
-        echo "    --overwrite                 (default: add mode)"
+    # Check if /dev/tty is available
+    if [ ! -e /dev/tty ]; then
+        print_error "This installer requires a terminal"
         exit 1
     fi
     
@@ -657,7 +579,7 @@ run_tui() {
     echo ""
     
     echo -ne "  ${WHITE}Proceed with installation? ${NC}${DIM}[Y/n]${NC} "
-    read -r confirm
+    read -r confirm </dev/tty
     
     if [[ "$confirm" =~ ^[Nn]$ ]]; then
         echo ""
@@ -724,56 +646,7 @@ run_tui() {
 }
 
 #############################################################################
-# Argument Parsing
-#############################################################################
-
-parse_args() {
-    while [ $# -gt 0 ]; do
-        case "$1" in
-            -p|--platform)
-                PLATFORM="$2"
-                shift 2
-                ;;
-            -t|--target)
-                TARGET_DIR="$2"
-                shift 2
-                ;;
-            --overwrite)
-                INSTALL_MODE="overwrite"
-                shift
-                ;;
-            -h|--help)
-                echo ""
-                echo "  CrewAI Skills Installer"
-                echo ""
-                echo "  Interactive mode (recommended):"
-                echo "    bash <(curl -fsSL $REPO_URL/install.sh)"
-                echo ""
-                echo "  Non-interactive mode:"
-                echo "    curl ... | bash -s -- --platform claude"
-                echo ""
-                echo "  Options:"
-                echo "    -p, --platform   claude or opencode (required for non-interactive)"
-                echo "    -t, --target     Target directory (default: current)"
-                echo "    --overwrite      Overwrite existing config (default: add)"
-                echo "    -h, --help       Show this help"
-                echo ""
-                exit 0
-                ;;
-            *)
-                shift
-                ;;
-        esac
-    done
-}
-
-#############################################################################
 # Entry Point
 #############################################################################
 
-main() {
-    parse_args "$@"
-    run_tui
-}
-
-main "$@"
+run_tui
