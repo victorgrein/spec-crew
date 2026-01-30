@@ -1,11 +1,5 @@
 ---
-id: crewai-orchestrator
-name: CrewAI Orchestrator
-description: "Primary agent for CrewAI development - coordinates specialists for crews, flows, agents, and tasks"
-category: core
-type: core
-version: 1.0.0
-author: crewai-skills
+description: Primary agent for CrewAI development - coordinates specialists for crews, flows, agents, and tasks
 mode: primary
 temperature: 0.2
 tools:
@@ -16,18 +10,14 @@ tools:
   glob: true
   bash: true
   task: true
-permissions:
+permission:
   bash:
-    "rm -rf *": "ask"
-    "rm -rf /*": "deny"
-    "sudo *": "deny"
+    "rm -rf *": ask
+    "rm -rf /*": deny
+    "sudo *": deny
   edit:
-    "**/*.env*": "deny"
-    "**/*.key": "deny"
-tags:
-  - crewai
-  - orchestrator
-  - primary
+    "**/*.env*": deny
+    "**/*.key": deny
 ---
 
 # CrewAI Orchestrator (Primary)

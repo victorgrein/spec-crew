@@ -185,16 +185,10 @@ transform_agent_for_opencode() {
     # Extract description from original file
     local desc=$(grep "^description:" "$input_file" | head -1 | sed 's/^description:\s*//' | tr -d '"')
     
-    # Create OpenCode compatible frontmatter
+    # Create OpenCode compatible frontmatter (only valid fields per OpenCode docs)
     cat > "$output_file" << EOF
 ---
-id: $agent_id
-name: ${agent_id}
-description: "$desc"
-category: subagents/crewai
-type: subagent
-version: 1.0.0
-author: crewai-skills
+description: $desc
 mode: subagent
 temperature: 0.7
 tools:
@@ -219,7 +213,8 @@ install_agents() {
     if [ "$PLATFORM" = "claude" ]; then
         agents_dir="$INSTALL_DIR/$config_dir/agents"
     else
-        agents_dir="$INSTALL_DIR/$config_dir/agent/subagents"
+        # OpenCode agents go in .opencode/agents/ (flat structure, filename = agent name)
+        agents_dir="$INSTALL_DIR/$config_dir/agents"
     fi
     
     for agent_path in "${PKG_AGENTS[@]}"; do
@@ -237,8 +232,9 @@ install_agents() {
                 failed=$((failed + 1))
             fi
         else
-            dest="$agents_dir/crewai/$agent_name.md"
-            ensure_dir "$(dirname "$dest")"
+            # For OpenCode, agents go in .opencode/agents/{name}.md
+            dest="$agents_dir/$agent_name.md"
+            ensure_dir "$agents_dir"
             # Download to temp, transform, then save
             if download_file "$REPO_URL/templates/shared/agents/$agent_path.md" "$temp_file"; then
                 if transform_agent_for_opencode "$temp_file" "$dest" "$agent_name"; then
@@ -261,6 +257,8 @@ install_agents() {
 install_commands() {
     local config_dir=$(get_config_dir)
     local commands_dir
+    local installed=0
+    local failed=0
     
     if [ "$PLATFORM" = "claude" ]; then
         commands_dir="$INSTALL_DIR/$config_dir/commands"
@@ -271,54 +269,106 @@ install_commands() {
     for cmd in "${PKG_COMMANDS[@]}"; do
         local dest="$commands_dir/$cmd.md"
         ensure_dir "$(dirname "$dest")"
-        download_file "$REPO_URL/templates/shared/commands/$cmd.md" "$dest" || true
+        if download_file "$REPO_URL/templates/shared/commands/$cmd.md" "$dest"; then
+            installed=$((installed + 1))
+        else
+            print_error "Failed to install command: $cmd"
+            failed=$((failed + 1))
+        fi
     done
-    return 0
+    
+    echo "$installed $failed"
 }
 
 install_system() {
+    local installed=0
+    local failed=0
+    
     if [ "$PLATFORM" = "claude" ]; then
         local config_dir="$INSTALL_DIR/.claude"
         ensure_dir "$config_dir"
-        download_file "$REPO_URL/templates/claude/CLAUDE.md" "$config_dir/CLAUDE.md" || true
-        download_file "$REPO_URL/templates/claude/settings.json" "$config_dir/settings.json" || true
+        if download_file "$REPO_URL/templates/claude/CLAUDE.md" "$config_dir/CLAUDE.md"; then
+            installed=$((installed + 1))
+        else
+            print_error "Failed to install CLAUDE.md"
+            failed=$((failed + 1))
+        fi
+        if download_file "$REPO_URL/templates/claude/settings.json" "$config_dir/settings.json"; then
+            installed=$((installed + 1))
+        else
+            print_error "Failed to install settings.json"
+            failed=$((failed + 1))
+        fi
     else
-        # OpenCode: Install primary orchestrator agent
-        local agents_dir="$INSTALL_DIR/.opencode/agent/core"
+        # OpenCode: Install primary orchestrator agent to .opencode/agents/
+        local agents_dir="$INSTALL_DIR/.opencode/agents"
         ensure_dir "$agents_dir"
-        download_file "$REPO_URL/templates/opencode/crewai-orchestrator.md" "$agents_dir/crewai-orchestrator.md" || true
+        if download_file "$REPO_URL/templates/opencode/crewai-orchestrator.md" "$agents_dir/crewai-orchestrator.md"; then
+            installed=$((installed + 1))
+        else
+            print_error "Failed to install orchestrator agent"
+            failed=$((failed + 1))
+        fi
     fi
-    return 0
+    
+    echo "$installed $failed"
 }
 
 perform_installation() {
     print_step "Installing components..."
     
-    install_system
+    # Install system files
+    local system_results=$(install_system)
+    local system_installed=$(echo "$system_results" | awk '{print $1}')
+    local system_failed=$(echo "$system_results" | awk '{print $2}')
     if [ "$PLATFORM" = "claude" ]; then
-        print_success "System prompt (CLAUDE.md)"
+        print_success "System files ($system_installed installed, $system_failed failed)"
     else
-        print_success "Orchestrator agent"
+        print_success "Orchestrator ($system_installed installed, $system_failed failed)"
     fi
     
-    install_skills
-    print_success "Skills (${#PKG_SKILLS[@]})"
+    # Install skills
+    local skills_results=$(install_skills)
+    local skills_installed=$(echo "$skills_results" | awk '{print $1}')
+    local skills_failed=$(echo "$skills_results" | awk '{print $2}')
+    print_success "Skills ($skills_installed/${#PKG_SKILLS[@]} installed, $skills_failed failed)"
     
-    install_workflows
-    print_success "Workflows (${#PKG_WORKFLOWS[@]})"
+    # Install workflows
+    local workflows_results=$(install_workflows)
+    local workflows_installed=$(echo "$workflows_results" | awk '{print $1}')
+    local workflows_failed=$(echo "$workflows_results" | awk '{print $2}')
+    print_success "Workflows ($workflows_installed/${#PKG_WORKFLOWS[@]} installed, $workflows_failed failed)"
     
-    install_agents
-    print_success "Agents (${#PKG_AGENTS[@]})"
+    # Install agents
+    local agents_results=$(install_agents)
+    local agents_installed=$(echo "$agents_results" | awk '{print $1}')
+    local agents_failed=$(echo "$agents_results" | awk '{print $2}')
+    print_success "Agents ($agents_installed/${#PKG_AGENTS[@]} installed, $agents_failed failed)"
     
-    install_commands
-    print_success "Commands (${#PKG_COMMANDS[@]})"
+    # Install commands
+    local commands_results=$(install_commands)
+    local commands_installed=$(echo "$commands_results" | awk '{print $1}')
+    local commands_failed=$(echo "$commands_results" | awk '{print $2}')
+    print_success "Commands ($commands_installed/${#PKG_COMMANDS[@]} installed, $commands_failed failed)"
     
     local config_dir=$(get_config_dir)
     
+    # Calculate totals
+    local total_failed=$((system_failed + skills_failed + workflows_failed + agents_failed + commands_failed))
+    local total_installed=$((system_installed + skills_installed + workflows_installed + agents_installed + commands_installed))
+    
     echo ""
-    echo -e "  ${GREEN}${BOLD}════════════════════════════════════════════════════════════${NC}"
-    echo -e "  ${GREEN}${BOLD}  Installation complete!${NC}"
-    echo -e "  ${GREEN}${BOLD}════════════════════════════════════════════════════════════${NC}"
+    if [ $total_failed -gt 0 ]; then
+        echo -e "  ${YELLOW}${BOLD}════════════════════════════════════════════════════════════${NC}"
+        echo -e "  ${YELLOW}${BOLD}  Installation completed with warnings${NC}"
+        echo -e "  ${YELLOW}${BOLD}════════════════════════════════════════════════════════════${NC}"
+        print_warning "$total_failed components failed to install"
+        echo "  Check your internet connection and REPO_URL: $REPO_URL"
+    else
+        echo -e "  ${GREEN}${BOLD}════════════════════════════════════════════════════════════${NC}"
+        echo -e "  ${GREEN}${BOLD}  Installation complete!${NC}"
+        echo -e "  ${GREEN}${BOLD}════════════════════════════════════════════════════════════${NC}"
+    fi
     echo ""
     print_info "Installed to: $INSTALL_DIR/$config_dir"
     echo ""
@@ -328,7 +378,7 @@ perform_installation() {
         echo "    2. Run /crew create"
     else
         echo "    1. Open OpenCode in your project"
-        echo "    2. Run /crew create"
+        echo "    2. Run @crewai-orchestrator or /crew create"
     fi
     echo ""
 }
