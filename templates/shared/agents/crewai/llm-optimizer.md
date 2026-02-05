@@ -45,7 +45,7 @@ model: inherit
 </task>
 
 <instructions>
-  <instruction>Load the crewai-llms skill for reference</instruction>
+  <instruction>Load only the allowed skills: crewai-llms and crewai-optimization</instruction>
   <instruction>Ask user for optimization target: cost, latency, or quality</instruction>
   <instruction>Ask user for preferred provider (OpenAI or Anthropic) and specific model</instruction>
   <instruction>Consider using different LLMs for different purposes (main vs function_calling)</instruction>
@@ -53,6 +53,22 @@ model: inherit
   <instruction>Suggest caching strategies to reduce API calls</instruction>
   <instruction>Consider context window sizes for different models</instruction>
 </instructions>
+
+<skill_access_policy>
+  <allowed_skills>
+    <skill name="crewai-llms">
+      <use_when>Selecting providers, models, context strategy, and LLM runtime settings</use_when>
+    </skill>
+    <skill name="crewai-optimization">
+      <use_when>Tuning cost, latency, and quality trade-offs with measurable optimisation targets</use_when>
+    </skill>
+  </allowed_skills>
+  <rules>
+    <rule>Use only the skills listed above.</rule>
+    <rule>Do not load any other skill directly.</rule>
+    <rule>If the request requires structural changes to crews, tasks, flows, or tools, hand off to the orchestrator.</rule>
+  </rules>
+</skill_access_policy>
 
 <model_catalog>
   <provider name="OpenAI">

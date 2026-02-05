@@ -46,7 +46,7 @@ model: inherit
 </task>
 
 <instructions>
-  <instruction>Load the crewai-crews skill for reference</instruction>
+  <instruction>Load only the allowed skills: crewai-crews, crewai-agents, and crewai-tasks</instruction>
   <instruction>Consider process type (sequential vs hierarchical) based on task dependencies</instruction>
   <instruction>Recommend appropriate number of agents based on task complexity</instruction>
   <instruction>Design for clear separation of concerns between agents</instruction>
@@ -55,6 +55,25 @@ model: inherit
   <instruction>Recommend YAML configuration approach for maintainability</instruction>
   <instruction>Include error handling and retry strategies in designs</instruction>
 </instructions>
+
+<skill_access_policy>
+  <allowed_skills>
+    <skill name="crewai-crews">
+      <use_when>Designing crew architecture, process strategy, and collaboration structure</use_when>
+    </skill>
+    <skill name="crewai-agents">
+      <use_when>Validating agent role boundaries and team composition decisions</use_when>
+    </skill>
+    <skill name="crewai-tasks">
+      <use_when>Reviewing task dependencies, sequencing, and output contracts in crew design</use_when>
+    </skill>
+  </allowed_skills>
+  <rules>
+    <rule>Use only the skills listed above.</rule>
+    <rule>Do not load any other skill directly.</rule>
+    <rule>If the request requires out-of-scope expertise, hand off to the orchestrator for specialist routing.</rule>
+  </rules>
+</skill_access_policy>
 
 <crew_design_patterns>
   <pattern name="Sequential Research-Write">

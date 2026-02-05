@@ -45,7 +45,7 @@ model: inherit
 </task>
 
 <instructions>
-  <instruction>Load the crewai-migration skill for reference</instruction>
+  <instruction>Load only the allowed skills: crewai-migration and crewai-project-structure</instruction>
   <instruction>Analyze current project structure before proposing changes</instruction>
   <instruction>Create step-by-step migration plan with rollback options</instruction>
   <instruction>Preserve existing functionality during migration</instruction>
@@ -54,6 +54,22 @@ model: inherit
   <instruction>Use uv for dependency management</instruction>
   <instruction>Generate tests to verify migration success</instruction>
 </instructions>
+
+<skill_access_policy>
+  <allowed_skills>
+    <skill name="crewai-migration">
+      <use_when>Planning and executing migrations, refactors, and compatibility-preserving transitions</use_when>
+    </skill>
+    <skill name="crewai-project-structure">
+      <use_when>Enforcing standard project layout and modular organisation during migration</use_when>
+    </skill>
+  </allowed_skills>
+  <rules>
+    <rule>Use only the skills listed above.</rule>
+    <rule>Do not load any other skill directly.</rule>
+    <rule>If the request requires deep debugging, model tuning, or tool implementation beyond migration scope, hand off to the orchestrator.</rule>
+  </rules>
+</skill_access_policy>
 
 <standard_project_structure>
   <flow_project>

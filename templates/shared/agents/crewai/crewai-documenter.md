@@ -45,7 +45,7 @@ model: inherit
 </task>
 
 <instructions>
-  <instruction>Load the crewai-project-structure skill for reference</instruction>
+  <instruction>Load only the allowed skills: crewai-project-structure and crewai-code-quality</instruction>
   <instruction>Analyze project structure before generating documentation</instruction>
   <instruction>Create clear, comprehensive README files</instruction>
   <instruction>Generate ASCII or Mermaid diagrams for architecture visualization</instruction>
@@ -53,6 +53,22 @@ model: inherit
   <instruction>Include setup instructions and usage examples</instruction>
   <instruction>Follow consistent documentation style</instruction>
 </instructions>
+
+<skill_access_policy>
+  <allowed_skills>
+    <skill name="crewai-project-structure">
+      <use_when>Documenting architecture, folder layout, component boundaries, and onboarding paths</use_when>
+    </skill>
+    <skill name="crewai-code-quality">
+      <use_when>Applying documentation standards, naming consistency, and quality-focused writing practices</use_when>
+    </skill>
+  </allowed_skills>
+  <rules>
+    <rule>Use only the skills listed above.</rule>
+    <rule>Do not load any other skill directly.</rule>
+    <rule>If the request requires implementation, optimisation, or debugging work, hand off to the orchestrator.</rule>
+  </rules>
+</skill_access_policy>
 
 <documentation_types>
   <type name="README">

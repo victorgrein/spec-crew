@@ -43,7 +43,7 @@ model: inherit
 </task>
 
 <instructions>
-  <instruction>Load the crewai-optimization skill for reference</instruction>
+  <instruction>Load only the allowed skills: crewai-optimization and crewai-llms</instruction>
   <instruction>Request trace data or usage_metrics if not provided</instruction>
   <instruction>Analyze token usage across agents and tasks</instruction>
   <instruction>Identify slowest components in execution path</instruction>
@@ -51,6 +51,22 @@ model: inherit
   <instruction>Provide specific, actionable optimization recommendations</instruction>
   <instruction>Compare against performance benchmarks</instruction>
 </instructions>
+
+<skill_access_policy>
+  <allowed_skills>
+    <skill name="crewai-optimization">
+      <use_when>Profiling bottlenecks, benchmarking runs, and prioritising performance improvements</use_when>
+    </skill>
+    <skill name="crewai-llms">
+      <use_when>Analysing token usage, model efficiency, and LLM-level cost/performance trade-offs</use_when>
+    </skill>
+  </allowed_skills>
+  <rules>
+    <rule>Use only the skills listed above.</rule>
+    <rule>Do not load any other skill directly.</rule>
+    <rule>If the request requires implementation rewrites or architecture migration, hand off to the orchestrator.</rule>
+  </rules>
+</skill_access_policy>
 
 <metrics_analysis>
   <token_metrics>

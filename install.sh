@@ -178,12 +178,76 @@ transform_agent_for_opencode() {
     local input_file="$1"
     local output_file="$2"
     local agent_id="$3"
-    
+    local content
+    local desc
+    local skill_permissions
+
     # Extract content after frontmatter
-    local content=$(sed -n '/^---$/,/^---$/!p' "$input_file" | tail -n +1)
-    
-    # Extract description from original file
-    local desc=$(grep "^description:" "$input_file" | head -1 | sed 's/^description:\s*//' | tr -d '"')
+    content=$(awk '
+        BEGIN { frontmatter_end = 0; delimiter_count = 0 }
+        /^---$/ {
+            delimiter_count++
+            if (delimiter_count == 2) {
+                frontmatter_end = 1
+            }
+            next
+        }
+        frontmatter_end { print }
+    ' "$input_file")
+
+    # Extract description from original file frontmatter
+    desc=$(awk '
+        BEGIN { in_frontmatter = 0 }
+        /^---$/ {
+            if (in_frontmatter == 0) {
+                in_frontmatter = 1
+                next
+            }
+            exit
+        }
+        in_frontmatter && /^description:/ {
+            sub(/^description:[[:space:]]*/, "", $0)
+            gsub(/"/, "", $0)
+            print
+            exit
+        }
+    ' "$input_file")
+
+    if [ -z "$desc" ]; then
+        desc="$agent_id specialist agent"
+    fi
+
+    # Extract skills from original frontmatter and convert to OpenCode permission map
+    skill_permissions=$(awk '
+        BEGIN { in_frontmatter = 0; in_skills = 0 }
+        /^---$/ {
+            if (in_frontmatter == 0) {
+                in_frontmatter = 1
+                next
+            }
+            exit
+        }
+        in_frontmatter {
+            if ($0 ~ /^skills:[[:space:]]*$/) {
+                in_skills = 1
+                next
+            }
+            if (in_skills == 1) {
+                if ($0 ~ /^[[:space:]]*-[[:space:]]+/) {
+                    skill = $0
+                    sub(/^[[:space:]]*-[[:space:]]*/, "", skill)
+                    gsub(/"/, "", skill)
+                    if (length(skill) > 0) {
+                        print "    \"" skill "\": allow"
+                    }
+                    next
+                }
+                if ($0 ~ /^[A-Za-z0-9_-]+:/) {
+                    in_skills = 0
+                }
+            }
+        }
+    ' "$input_file")
     
     # Create OpenCode compatible frontmatter (only valid fields per OpenCode docs)
     cat > "$output_file" << EOF
@@ -199,6 +263,10 @@ tools:
   glob: true
   bash: true
   task: true
+permission:
+  skill:
+$skill_permissions
+    "*": deny
 ---
 $content
 EOF

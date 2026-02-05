@@ -44,7 +44,7 @@ model: inherit
 </task>
 
 <instructions>
-  <instruction>Load the crewai-tools skill for reference</instruction>
+  <instruction>Load only the allowed skill: crewai-tools</instruction>
   <instruction>Use BaseTool subclass for complex tools with multiple parameters</instruction>
   <instruction>Use @tool decorator for simple, single-function tools</instruction>
   <instruction>Implement async tools for I/O-bound operations</instruction>
@@ -53,6 +53,19 @@ model: inherit
   <instruction>Write clear descriptions - agents rely on them for tool selection</instruction>
   <instruction>Define proper input schemas using Pydantic</instruction>
 </instructions>
+
+<skill_access_policy>
+  <allowed_skills>
+    <skill name="crewai-tools">
+      <use_when>Creating, integrating, and optimising CrewAI tools, including schemas, caching, and async execution</use_when>
+    </skill>
+  </allowed_skills>
+  <rules>
+    <rule>Use only the skill listed above.</rule>
+    <rule>Do not load any other skill directly.</rule>
+    <rule>If the request requires crew architecture, flow orchestration, debugging, migration, or LLM strategy, hand off to the orchestrator.</rule>
+  </rules>
+</skill_access_policy>
 
 <built_in_tools>
   <category name="Search & Research">

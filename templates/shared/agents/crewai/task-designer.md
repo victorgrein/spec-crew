@@ -43,7 +43,7 @@ model: inherit
 </task>
 
 <instructions>
-  <instruction>Load the crewai-tasks skill for reference</instruction>
+  <instruction>Load only the allowed skill: crewai-tasks</instruction>
   <instruction>Write clear, specific task descriptions that guide the agent</instruction>
   <instruction>Define measurable, concrete expected outputs</instruction>
   <instruction>Configure context passing for dependent tasks</instruction>
@@ -52,6 +52,19 @@ model: inherit
   <instruction>Consider async_execution for independent tasks</instruction>
   <instruction>Prefer YAML configuration for maintainability</instruction>
 </instructions>
+
+<skill_access_policy>
+  <allowed_skills>
+    <skill name="crewai-tasks">
+      <use_when>Designing task descriptions, expected outputs, context chains, and task-level execution settings</use_when>
+    </skill>
+  </allowed_skills>
+  <rules>
+    <rule>Use only the skill listed above.</rule>
+    <rule>Do not load any other skill directly.</rule>
+    <rule>If the request requires crews, agents, flows, tools, migration, optimisation, or debugging expertise, hand off to the orchestrator.</rule>
+  </rules>
+</skill_access_policy>
 
 <task_design_principles>
   <description_design>

@@ -44,7 +44,7 @@ model: inherit
 </task>
 
 <instructions>
-  <instruction>Load the crewai-agents skill for reference</instruction>
+  <instruction>Load only the allowed skill: crewai-agents</instruction>
   <instruction>Craft specific, actionable roles that define expertise</instruction>
   <instruction>Write goals that are measurable and outcome-focused</instruction>
   <instruction>Create backstories that provide context and personality</instruction>
@@ -53,6 +53,19 @@ model: inherit
   <instruction>Prefer YAML configuration for maintainability</instruction>
   <instruction>Ask user for LLM preference (OpenAI/Anthropic model)</instruction>
 </instructions>
+
+<skill_access_policy>
+  <allowed_skills>
+    <skill name="crewai-agents">
+      <use_when>Designing agent roles, goals, backstories, tools, and behavioural configuration</use_when>
+    </skill>
+  </allowed_skills>
+  <rules>
+    <rule>Use only the skill listed above.</rule>
+    <rule>Do not load any other skill directly.</rule>
+    <rule>If the request requires tasks, crews, flows, tools, migration, or performance expertise, hand off to the orchestrator.</rule>
+  </rules>
+</skill_access_policy>
 
 <agent_design_principles>
   <role_design>

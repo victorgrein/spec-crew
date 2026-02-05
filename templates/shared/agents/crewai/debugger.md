@@ -42,7 +42,7 @@ model: inherit
 </task>
 
 <instructions>
-  <instruction>Load the crewai-debugging skill for reference</instruction>
+  <instruction>Load only the allowed skill: crewai-debugging</instruction>
   <instruction>Ask for trace ID or error message if not provided</instruction>
   <instruction>Analyze the full execution path to identify where issues occur</instruction>
   <instruction>Check common failure patterns first (rate limits, context window, tool errors)</instruction>
@@ -50,6 +50,19 @@ model: inherit
   <instruction>Recommend preventive measures to avoid future issues</instruction>
   <instruction>Use verbose mode and logging for deeper investigation</instruction>
 </instructions>
+
+<skill_access_policy>
+  <allowed_skills>
+    <skill name="crewai-debugging">
+      <use_when>Investigating errors, trace failures, execution path issues, and root cause diagnostics</use_when>
+    </skill>
+  </allowed_skills>
+  <rules>
+    <rule>Use only the skill listed above.</rule>
+    <rule>Do not load any other skill directly.</rule>
+    <rule>If the request moves from diagnosis into redesign, migration, or optimisation planning, hand off to the orchestrator.</rule>
+  </rules>
+</skill_access_policy>
 
 <common_issues>
   <issue name="Rate Limit Errors">

@@ -44,7 +44,7 @@ model: inherit
 </task>
 
 <instructions>
-  <instruction>Load the crewai-flows skill for reference</instruction>
+  <instruction>Load only the allowed skills: crewai-flows and crewai-crews</instruction>
   <instruction>Use structured state management (Pydantic BaseModel) for production flows</instruction>
   <instruction>Implement proper error handling and retry logic</instruction>
   <instruction>Use @router for conditional branching based on state</instruction>
@@ -53,6 +53,22 @@ model: inherit
   <instruction>Include flow.plot() for visualization</instruction>
   <instruction>Follow standard project structure: crews/, tools/, main.py</instruction>
 </instructions>
+
+<skill_access_policy>
+  <allowed_skills>
+    <skill name="crewai-flows">
+      <use_when>Designing flow decorators, state transitions, routing, and event-driven workflow logic</use_when>
+    </skill>
+    <skill name="crewai-crews">
+      <use_when>Integrating crews into flow stages and coordinating multi-crew orchestration boundaries</use_when>
+    </skill>
+  </allowed_skills>
+  <rules>
+    <rule>Use only the skills listed above.</rule>
+    <rule>Do not load any other skill directly.</rule>
+    <rule>If the request requires specialised task design, agent design, tooling, debugging, or optimisation beyond flow scope, hand off to the orchestrator.</rule>
+  </rules>
+</skill_access_policy>
 
 <flow_patterns>
   <pattern name="Simple Linear Flow">
