@@ -1,232 +1,163 @@
 ---
 name: crewai-tools
-description: Create custom tools and use built-in tools for CrewAI agents with proper error handling and caching
-license: MIT
-compatibility: opencode
-metadata:
-  category: crewai-concept
-  audience: developers
-  complexity: moderate
+description: This skill should be used when user asks to "create a tool", build a "custom tool", use "built-in tools", improve "tool error handling", add caching, or integrate tools safely into agent workflows. It provides guidance for defining robust tool contracts, selecting synchronous or asynchronous execution paths, and enforcing timeout, validation, and fallback behavior. Use it when tool invocation quality is inconsistent, argument schemas are unclear, or external dependencies introduce reliability risk. It helps standardize integration patterns that improve correctness, observability, and maintainability across CrewAI implementations.
+version: 1.0.0
 ---
+
+# CrewAI Tools
 
 ## What This Skill Does
 
-Provides comprehensive guidance for creating and using CrewAI tools - capabilities that empower agents with web searching, data analysis, file operations, and more. Includes built-in tools, custom tool creation, and async tool patterns.
+Define a practical operating model for tool creation, integration, and operational reliability in CrewAI implementations.
+Organize decisions, guardrails, and review criteria so teams produce consistent tool interfaces, argument contracts, error handling behavior, and integration patterns.
+Reduce rework by separating fast core guidance from deeper reference and example materials.
 
 ## When to Use This Skill
 
-- Creating custom tools for agents
-- Using built-in tools (search, file, database)
-- Implementing async tools
-- Setting up tool caching
-- Writing effective tool descriptions
-- Handling tool errors gracefully
+- Use this skill when work requires "create a tool" outcomes with repeatable delivery quality.
+- Use this skill when work requires "custom tool" outcomes with repeatable delivery quality.
+- Use this skill when work requires "built-in tools" outcomes with repeatable delivery quality.
+- Use this skill when work requires "tool error handling" outcomes with repeatable delivery quality.
+- Use this skill when work requires "tool caching" outcomes with repeatable delivery quality.
+- Use this skill when work requires "tool integration" outcomes with repeatable delivery quality.
+- Use this skill when existing behavior is inconsistent and stronger operational standards are needed.
+- Use this skill when implementation choices require explicit tradeoffs and documented decision rules.
 
-## Quick Reference
+## Key Concepts
 
-### Key Characteristics
+- **Tool Contract**: Define precise inputs and outputs so agents can call tools correctly.
+- **Description Quality**: Write clear tool descriptions that guide invocation choice and argument shape.
+- **Built-in Fit**: Prefer built-in tools when they satisfy requirements and reduce maintenance overhead.
+- **Custom Extension**: Implement custom tools when domain-specific logic cannot be expressed otherwise.
+- **Error Semantics**: Return actionable failures that preserve context and support automated retries.
+- **Timeout Budget**: Set explicit execution limits to prevent blocked workflows and queue buildup.
+- **Caching Strategy**: Cache stable outputs while preserving correctness for volatile data sources.
+- **Async Path**: Adopt asynchronous execution for network-heavy or high-latency tool workloads.
+- **Security Boundary**: Validate parameters and restrict side effects for safer execution.
+- **Telemetry**: Capture latency, failure rates, and usage to prioritize improvements.
 
-- **Utility**: Web searching, data analysis, content generation
-- **Integration**: Seamlessly integrate into agent workflows
-- **Customizability**: Create custom tools or use existing ones
-- **Error Handling**: Robust error handling mechanisms
-- **Caching**: Intelligent caching to optimize performance
-- **Async Support**: Both synchronous and asynchronous tools
+## Quick Start
 
-### Installation
+1. Define the immediate objective and the final acceptance criteria before writing configuration details.
+2. Capture scope boundaries for tool creation, integration, and operational reliability and record assumptions that affect downstream decisions.
+3. Select the smallest viable implementation path that can be validated in one short feedback loop.
+4. Reuse stable patterns from references before introducing any custom structure or novel behavior.
+5. Document dependencies and interfaces so adjacent skills can consume outputs without ambiguity.
+6. Validate expected outputs early to catch contract defects before broader orchestration begins.
+7. Add observability points for key transitions, failures, and performance-sensitive operations.
+8. Execute one representative run and compare outcomes against explicit acceptance criteria.
+9. Resolve the highest-impact gaps first, then rerun the same scenario to verify improvement.
+10. Promote the pattern to reusable guidance only after repeatable success across realistic inputs.
+11. Link implementation artifacts to references and examples to preserve progressive disclosure.
+12. Record follow-up actions for optimization, hardening, and documentation synchronization.
 
-```bash
-pip install 'crewai[tools]'
-```
+## Operational Notes
 
-## Built-in Tools
+- Prioritize outcome clarity over implementation detail when initiating crewai-tools workstreams.
+- Keep each decision reversible until validation confirms durability under realistic conditions.
+- Isolate one variable per iteration when diagnosing quality, latency, or reliability regressions.
+- Preserve naming consistency so logs, references, and handoffs remain easy to trace.
+- Treat missing acceptance criteria as a blocking issue rather than an optional cleanup task.
+- Align constraints, defaults, and fallback behavior before scaling execution volume.
+- Use short review cycles to reduce expensive late-stage redesign and repeated retesting.
+- Capture rationale for non-default choices so future maintainers can assess tradeoffs quickly.
+- Keep externally visible outputs stable by validating format expectations before release.
+- Prefer explicit interfaces between phases to avoid hidden coupling and fragile assumptions.
+- Apply conservative limits first, then relax limits only with evidence from measured outcomes.
+- Build reliability through deterministic workflows before adding advanced optimization layers.
+- Track operational metrics continuously and escalate anomalies with context-rich reports.
+- Enforce concise scopes for each run to protect budget, latency, and debugging speed.
+- Review old guidance regularly and retire patterns that no longer match current behavior.
 
-### Search & Research
+## Collaboration Boundaries
 
-| Tool | Description |
-|------|-------------|
-| `SerperDevTool` | Web search via Serper API |
-| `WebsiteSearchTool` | RAG-based website search |
-| `GithubSearchTool` | Search GitHub repositories |
-| `WikipediaTools` | Wikipedia search |
-| `EXASearchTool` | Exhaustive data source search |
+- Coordinate with related skills early when outputs from one phase become inputs to another phase.
+- Define ownership for each artifact so review loops have clear accountability and completion signals.
+- Avoid duplicating deep reference content inside SKILL.md and keep progressive disclosure strict.
+- Share only essential context in cross-skill handoffs to protect focus and reduce token overhead.
+- Escalate unresolved ambiguity as explicit decisions instead of embedding hidden assumptions.
+- Reconcile terminology across skills to prevent mismatched interpretations during implementation.
+- Validate interface compatibility whenever file structure, schema, or process sequencing changes.
+- Record integration risks and mitigation steps before merging significant workflow changes.
 
-### File & Document
+## Detailed Operating Guidance
 
-| Tool | Description |
-|------|-------------|
-| `FileReadTool` | Read file contents |
-| `FileWriteTool` | Write to files |
-| `DirectoryReadTool` | Read directory contents |
-| `PDFSearchTool` | Search PDF documents |
-| `CSVSearchTool` | Search CSV files |
-| `JSONSearchTool` | Search JSON files |
+- Define a clear input contract before execution so upstream producers and downstream consumers interpret scope consistently.
+- Establish quality thresholds for completeness, factuality, and formatting before tuning speed or cost-related parameters.
+- Separate planning concerns from execution concerns so revisions do not unintentionally alter stable interface behavior.
+- Keep assumption logs for uncertain requirements and convert unresolved assumptions into explicit decisions during review.
+- Use bounded iterations with checkpoint reviews to prevent over-optimization that erodes maintainability and traceability.
+- Prioritize deterministic outputs for automation-facing steps, then add expressive flexibility only where stakeholder value increases.
+- Align naming and structural conventions with adjacent skills so handoffs remain understandable without extra translation work.
+- Validate failure handling paths with representative bad inputs rather than relying only on happy-path testing.
+- Capture performance observations in concise notes to support future optimization decisions with historical context.
+- Treat every external dependency as potentially unreliable and design graceful fallback behavior from the start.
+- Consolidate duplicate guidance into references to preserve one source of truth and reduce synchronization overhead.
+- Tighten scope immediately when execution noise appears, then widen scope only after signal quality improves.
+- Preserve auditability by linking key decisions to affected artifacts and expected operational outcomes.
+- Prefer simple coordination mechanisms first, and expand orchestration complexity only when measurable benefit appears.
+- Re-validate links, file names, and assumptions after structural refactors to avoid hidden documentation drift.
 
-### Database
+## Review Questions
 
-| Tool | Description |
-|------|-------------|
-| `PGSearchTool` | PostgreSQL search |
-| `MySQLTool` | MySQL operations |
-| `NL2SQLTool` | Natural language to SQL |
+- Which acceptance criterion provides the strongest signal that this implementation is ready for production use?
+- Which assumption, if incorrect, would create the largest risk to correctness or downstream compatibility?
+- Which part of the workflow has the least observability and therefore needs better trace instrumentation?
+- Which configuration choice offers the best cost-quality balance for the current delivery objective?
+- Which dependency could fail silently, and what detection mechanism would expose that failure quickly?
+- Which output field or artifact format is most likely to break consumer integrations after changes?
+- Which retry or fallback strategy is missing for the highest-latency or least-reliable operation?
+- Which section of guidance can be simplified without losing decision quality or implementation safety?
+- Which unresolved ambiguity should be escalated before the next implementation iteration begins?
+- Which evidence confirms that recent edits improved outcomes instead of merely changing behavior?
 
-### Web Scraping
+## Quality Signals
 
-| Tool | Description |
-|------|-------------|
-| `ScrapeWebsiteTool` | Scrape entire websites |
-| `SeleniumScrapingTool` | Browser-based scraping |
-| `FirecrawlScrapeWebsiteTool` | Firecrawl scraping |
+- Validate outcomes against explicit acceptance criteria and operational constraints before promoting guidance to reusable standards.
+- Compare a baseline run and a revised run to confirm improvements in reliability, latency, or cost without hidden regressions.
+- Record rationale for every non-default decision so maintainers can audit tradeoffs quickly during future updates.
 
-### AI & Code
+## Validation Checklist
 
-| Tool | Description |
-|------|-------------|
-| `CodeInterpreterTool` | Execute Python code |
-| `RagTool` | General RAG operations |
-| `VisionTool` | Image analysis |
+- [ ] Confirm frontmatter uses only `name`, `description`, and `version` fields.
+- [ ] Confirm body guidance stays concise, actionable, and focused on operational decisions.
+- [ ] Confirm language remains imperative or infinitive and avoids second-person directives.
+- [ ] Confirm no tables are present in SKILL.md and move tabular detail to references.
+- [ ] Confirm no code blocks are present in SKILL.md and move runnable content to examples.
+- [ ] Confirm scope statements align with the intended tool creation, integration, and operational reliability objective.
+- [ ] Confirm trigger scenarios remain specific enough to activate the correct skill reliably.
+- [ ] Confirm key concepts define stable vocabulary used consistently across related files.
+- [ ] Confirm quick-start steps form a complete path from planning through validation.
+- [ ] Confirm decision rationale exists for non-default settings and unusual execution paths.
+- [ ] Confirm operational limits and safeguards are explicit for high-cost or high-risk actions.
+- [ ] Confirm logging and trace requirements are sufficient for efficient incident diagnosis.
+- [ ] Confirm acceptance criteria are measurable and tied to expected output contracts.
+- [ ] Confirm cross-skill dependencies are named and linked to concrete resource files.
+- [ ] Confirm references contain deep technical detail and examples contain runnable artifacts.
+- [ ] Confirm guidance remains current with project structure and naming conventions.
+- [ ] Confirm ambiguity is reduced by replacing vague language with explicit decision rules.
+- [ ] Confirm failure modes and fallback behavior are addressed at least at a high level.
+- [ ] Confirm final review checks readability, correctness, and maintainability standards.
+- [ ] Confirm links in Additional Resources resolve correctly from this skill directory.
 
-## Creating Custom Tools
+## Common Mistakes to Avoid
 
-### Using BaseTool Subclass
+- Avoid combining multiple unrelated objectives into one run without explicit decomposition.
+- Avoid vague completion definitions that force subjective reviews and repeated rework cycles.
+- Avoid adding advanced options before validating a stable baseline behavior path.
+- Avoid relying on defaults that were not reviewed against current project constraints.
+- Avoid pushing deep implementation detail into SKILL.md where discoverability should stay high.
+- Avoid silent handoff assumptions when dependencies cross skills or ownership boundaries.
+- Avoid changing structure and behavior simultaneously when debugging active regressions.
+- Avoid skipping post-change verification, even when edits appear small and localized.
+- Avoid stale links to renamed files after directory or filename standardization work.
+- Avoid retaining obsolete guidance that conflicts with current references and examples.
 
-```python
-from crewai.tools import BaseTool
-from pydantic import BaseModel, Field
-from typing import Type
+## Additional Resources
 
-class MyToolInput(BaseModel):
-    """Input schema for MyTool."""
-    query: str = Field(..., description="The search query")
-    limit: int = Field(default=10, description="Max results to return")
-
-class MyCustomTool(BaseTool):
-    name: str = "my_custom_tool"
-    description: str = """
-    Searches for data based on query.
-    Use this when you need to find specific information.
-    """
-    args_schema: Type[BaseModel] = MyToolInput
-
-    def _run(self, query: str, limit: int = 10) -> str:
-        try:
-            # Tool implementation
-            results = self._search(query, limit)
-            return f"Found {len(results)} results: {results}"
-        except Exception as e:
-            return f"Error: {str(e)}"
-```
-
-### Using @tool Decorator
-
-```python
-from crewai.tools import tool
-
-@tool("calculate_metrics")
-def calculate_metrics(data: str) -> str:
-    """Calculate key metrics from the provided data.
-    
-    Use this when you need to compute statistics or metrics.
-    
-    Args:
-        data: JSON string containing the data to analyze
-    """
-    try:
-        import json
-        parsed = json.loads(data)
-        # Calculate metrics
-        return f"Metrics calculated: {metrics}"
-    except Exception as e:
-        return f"Error: {str(e)}"
-```
-
-## Async Tools
-
-### Async with Decorator
-
-```python
-@tool("fetch_data_async")
-async def fetch_data_async(query: str) -> str:
-    """Asynchronously fetch data based on the query."""
-    await asyncio.sleep(1)  # Simulate async operation
-    return f"Data retrieved for {query}"
-```
-
-### Async with BaseTool
-
-```python
-class AsyncAPITool(BaseTool):
-    name: str = "async_api_tool"
-    description: str = "Fetches data from external API asynchronously"
-
-    async def _run(self, endpoint: str) -> str:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(endpoint) as response:
-                data = await response.json()
-                return str(data)
-```
-
-## Custom Caching
-
-```python
-@tool
-def expensive_operation(query: str) -> str:
-    """Performs an expensive operation."""
-    return result
-
-def cache_func(args, result):
-    # Only cache if result doesn't contain error
-    return "error" not in result.lower()
-
-expensive_operation.cache_function = cache_func
-```
-
-## Using Tools with Agents
-
-```python
-from crewai import Agent
-from crewai_tools import SerperDevTool, FileReadTool
-
-search_tool = SerperDevTool()
-file_tool = FileReadTool()
-
-researcher = Agent(
-    role="Research Analyst",
-    goal="Find and analyze information",
-    backstory="Expert researcher",
-    tools=[search_tool, file_tool],
-    verbose=True
-)
-```
-
-## Tool Description Guidelines
-
-**Good description:**
-```python
-description = """
-Use this tool to search the web for current information.
-Best for: Finding recent news, articles, and data.
-Input: A search query string.
-Output: List of relevant search results with titles and snippets.
-"""
-```
-
-**Bad description:**
-```python
-description = "Searches the web"  # Too vague
-```
-
-## Best Practices
-
-1. **Clear Descriptions**: Agents use descriptions to decide which tool to use
-2. **Error Handling**: Always wrap operations in try/except, return error strings
-3. **Input Validation**: Use Pydantic models with Field descriptions
-4. **Caching**: Enable for expensive operations
-5. **Async**: Use for I/O-bound operations
-6. **Rate Limiting**: Consider API limits in tool implementation
-
-## Related Skills
-
-- `crewai-agents` - Assigning tools to agents
-- `crewai-tasks` - Task-specific tool overrides
-- `crewai-debugging` - Debugging tool issues
+For detailed documentation and examples:
+- **[Complete Reference](references/complete-reference.md)** - Full API details, options, and extended guidance.
+- **[Patterns Guide](references/patterns-reference.md)** - Reusable archetypes, workflows, and decision patterns.
+- **[Basic Setup](examples/basic-setup.md)** - Minimal starting path for first implementation pass.
+- **[Code Examples](examples/python-code.md)** - Runnable Python-oriented implementation patterns.
+- **[YAML Configs](examples/yaml-config.md)** - Declarative configuration examples and templates.

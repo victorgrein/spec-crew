@@ -1,226 +1,163 @@
 ---
 name: crewai-optimization
-description: Optimize CrewAI crews for cost, latency, or quality with model selection and configuration strategies
-license: MIT
-compatibility: opencode
-metadata:
-  category: crewai-process
-  audience: developers
-  complexity: moderate
+description: This skill should be used when user asks to "optimize crew", "reduce cost", "improve latency", lower "token usage", or tune quality-performance tradeoffs with evidence. It provides guidance for baseline measurement, bottleneck isolation, controlled experiments, and iterative optimization across model choice, concurrency, caching, and prompt efficiency. Use it when runtime is slow, spend is increasing, or quality drops after efficiency changes. It helps establish repeatable optimization loops that preserve correctness while improving operational performance and keeping tradeoff decisions visible to maintainers and reviewers.
+version: 1.0.0
 ---
+
+# CrewAI Optimization
 
 ## What This Skill Does
 
-Provides a systematic approach to optimizing CrewAI crews for cost, latency, or quality. Includes model selection strategies, configuration patterns, and measurement techniques.
+Define a practical operating model for cost, latency, and quality optimization with measurable tradeoffs in CrewAI implementations.
+Organize decisions, guardrails, and review criteria so teams produce consistent baseline metrics, optimization experiments, and accepted performance profiles.
+Reduce rework by separating fast core guidance from deeper reference and example materials.
 
 ## When to Use This Skill
 
-- Reducing API costs
-- Improving execution speed
-- Maximizing output quality
-- Measuring and comparing performance
-- Implementing tiered model strategies
+- Use this skill when work requires "optimize crew" outcomes with repeatable delivery quality.
+- Use this skill when work requires "reduce cost" outcomes with repeatable delivery quality.
+- Use this skill when work requires "improve latency" outcomes with repeatable delivery quality.
+- Use this skill when work requires "token usage" outcomes with repeatable delivery quality.
+- Use this skill when work requires "performance tuning" outcomes with repeatable delivery quality.
+- Use this skill when work requires "optimization strategies" outcomes with repeatable delivery quality.
+- Use this skill when existing behavior is inconsistent and stronger operational standards are needed.
+- Use this skill when implementation choices require explicit tradeoffs and documented decision rules.
 
-## Quick Reference
+## Key Concepts
 
-### Optimization Targets
+- **Baseline First**: Measure current behavior before introducing any optimization changes.
+- **Target Selection**: Prioritize cost, latency, or quality explicitly to avoid mixed signals.
+- **Experiment Scope**: Change one major variable at a time to preserve attribution.
+- **Model Tiering**: Use right-sized models across steps to reduce unnecessary spend.
+- **Concurrency Tuning**: Parallelize independent work while preserving correctness boundaries.
+- **Caching Leverage**: Reuse deterministic outputs to lower repeated external calls.
+- **Prompt Efficiency**: Shorten prompts and output requirements to reduce token burn.
+- **Quality Guardrail**: Add review checks when lowering cost might degrade outcomes.
+- **Regression Watch**: Track quality drift after each optimization pass.
+- **Iterative Cadence**: Adopt recurring optimization cycles instead of one-time tuning.
 
-| Target | Focus | Key Strategies |
-|--------|-------|----------------|
-| Cost | Reduce API costs | Cheaper models, caching, reduce iterations |
-| Latency | Reduce execution time | Fast models, async, caching |
-| Quality | Maximize output quality | Best models, reasoning, memory |
+## Quick Start
 
-### Model Selection Guide
+1. Define the immediate objective and the final acceptance criteria before writing configuration details.
+2. Capture scope boundaries for cost, latency, and quality optimization with measurable tradeoffs and record assumptions that affect downstream decisions.
+3. Select the smallest viable implementation path that can be validated in one short feedback loop.
+4. Reuse stable patterns from references before introducing any custom structure or novel behavior.
+5. Document dependencies and interfaces so adjacent skills can consume outputs without ambiguity.
+6. Validate expected outputs early to catch contract defects before broader orchestration begins.
+7. Add observability points for key transitions, failures, and performance-sensitive operations.
+8. Execute one representative run and compare outcomes against explicit acceptance criteria.
+9. Resolve the highest-impact gaps first, then rerun the same scenario to verify improvement.
+10. Promote the pattern to reusable guidance only after repeatable success across realistic inputs.
+11. Link implementation artifacts to references and examples to preserve progressive disclosure.
+12. Record follow-up actions for optimization, hardening, and documentation synchronization.
 
-| Optimization | Main LLM | Function Calling LLM |
-|--------------|----------|---------------------|
-| Cost | gpt-4o-mini | gpt-3.5-turbo |
-| Latency | gpt-4o-mini | gpt-4o-mini |
-| Quality | gpt-4o | gpt-4o-mini |
-| Balanced | gpt-4o-mini | gpt-3.5-turbo |
+## Operational Notes
 
-## Optimization Process
+- Prioritize outcome clarity over implementation detail when initiating crewai-optimization workstreams.
+- Keep each decision reversible until validation confirms durability under realistic conditions.
+- Isolate one variable per iteration when diagnosing quality, latency, or reliability regressions.
+- Preserve naming consistency so logs, references, and handoffs remain easy to trace.
+- Treat missing acceptance criteria as a blocking issue rather than an optional cleanup task.
+- Align constraints, defaults, and fallback behavior before scaling execution volume.
+- Use short review cycles to reduce expensive late-stage redesign and repeated retesting.
+- Capture rationale for non-default choices so future maintainers can assess tradeoffs quickly.
+- Keep externally visible outputs stable by validating format expectations before release.
+- Prefer explicit interfaces between phases to avoid hidden coupling and fragile assumptions.
+- Apply conservative limits first, then relax limits only with evidence from measured outcomes.
+- Build reliability through deterministic workflows before adding advanced optimization layers.
+- Track operational metrics continuously and escalate anomalies with context-rich reports.
+- Enforce concise scopes for each run to protect budget, latency, and debugging speed.
+- Review old guidance regularly and retire patterns that no longer match current behavior.
 
-### Step 1: Baseline Measurement
+## Collaboration Boundaries
 
-**Collect metrics:**
-```python
-result = crew.kickoff(inputs={...})
-print(f"Token Usage: {crew.usage_metrics}")
-print(f"Execution Time: {execution_time}")
-```
+- Coordinate with related skills early when outputs from one phase become inputs to another phase.
+- Define ownership for each artifact so review loops have clear accountability and completion signals.
+- Avoid duplicating deep reference content inside SKILL.md and keep progressive disclosure strict.
+- Share only essential context in cross-skill handoffs to protect focus and reduce token overhead.
+- Escalate unresolved ambiguity as explicit decisions instead of embedding hidden assumptions.
+- Reconcile terminology across skills to prevent mismatched interpretations during implementation.
+- Validate interface compatibility whenever file structure, schema, or process sequencing changes.
+- Record integration risks and mitigation steps before merging significant workflow changes.
 
-**Document baseline:**
-- Total tokens
-- Execution time
-- Output quality (manual assessment)
-- Cost estimate
+## Detailed Operating Guidance
 
-### Step 2: Identify Bottlenecks
+- Define a clear input contract before execution so upstream producers and downstream consumers interpret scope consistently.
+- Establish quality thresholds for completeness, factuality, and formatting before tuning speed or cost-related parameters.
+- Separate planning concerns from execution concerns so revisions do not unintentionally alter stable interface behavior.
+- Keep assumption logs for uncertain requirements and convert unresolved assumptions into explicit decisions during review.
+- Use bounded iterations with checkpoint reviews to prevent over-optimization that erodes maintainability and traceability.
+- Prioritize deterministic outputs for automation-facing steps, then add expressive flexibility only where stakeholder value increases.
+- Align naming and structural conventions with adjacent skills so handoffs remain understandable without extra translation work.
+- Validate failure handling paths with representative bad inputs rather than relying only on happy-path testing.
+- Capture performance observations in concise notes to support future optimization decisions with historical context.
+- Treat every external dependency as potentially unreliable and design graceful fallback behavior from the start.
+- Consolidate duplicate guidance into references to preserve one source of truth and reduce synchronization overhead.
+- Tighten scope immediately when execution noise appears, then widen scope only after signal quality improves.
+- Preserve auditability by linking key decisions to affected artifacts and expected operational outcomes.
+- Prefer simple coordination mechanisms first, and expand orchestration complexity only when measurable benefit appears.
+- Re-validate links, file names, and assumptions after structural refactors to avoid hidden documentation drift.
 
-**Analyze token usage by component:**
-```python
-for task_output in result.tasks_output:
-    print(f"Task: {task_output.description[:50]}")
-    print(f"Tokens: {task_output.token_usage}")
-```
+## Review Questions
 
-**Common bottlenecks:**
-- High token usage in specific agents
-- Long execution time in specific tasks
-- Excessive API calls (low cache hit rate)
-- Agent loops (max_iter reached)
+- Which acceptance criterion provides the strongest signal that this implementation is ready for production use?
+- Which assumption, if incorrect, would create the largest risk to correctness or downstream compatibility?
+- Which part of the workflow has the least observability and therefore needs better trace instrumentation?
+- Which configuration choice offers the best cost-quality balance for the current delivery objective?
+- Which dependency could fail silently, and what detection mechanism would expose that failure quickly?
+- Which output field or artifact format is most likely to break consumer integrations after changes?
+- Which retry or fallback strategy is missing for the highest-latency or least-reliable operation?
+- Which section of guidance can be simplified without losing decision quality or implementation safety?
+- Which unresolved ambiguity should be escalated before the next implementation iteration begins?
+- Which evidence confirms that recent edits improved outcomes instead of merely changing behavior?
 
-### Step 3: Apply Optimizations
+## Quality Signals
 
-See optimization configurations below.
+- Validate outcomes against explicit acceptance criteria and operational constraints before promoting guidance to reusable standards.
+- Compare a baseline run and a revised run to confirm improvements in reliability, latency, or cost without hidden regressions.
+- Record rationale for every non-default decision so maintainers can audit tradeoffs quickly during future updates.
 
-### Step 4: Measure Improvement
+## Validation Checklist
 
-**Compare to baseline:**
-- Token reduction %
-- Time reduction %
-- Quality change (better/same/worse)
-- Cost savings
+- [ ] Confirm frontmatter uses only `name`, `description`, and `version` fields.
+- [ ] Confirm body guidance stays concise, actionable, and focused on operational decisions.
+- [ ] Confirm language remains imperative or infinitive and avoids second-person directives.
+- [ ] Confirm no tables are present in SKILL.md and move tabular detail to references.
+- [ ] Confirm no code blocks are present in SKILL.md and move runnable content to examples.
+- [ ] Confirm scope statements align with the intended cost, latency, and quality optimization with measurable tradeoffs objective.
+- [ ] Confirm trigger scenarios remain specific enough to activate the correct skill reliably.
+- [ ] Confirm key concepts define stable vocabulary used consistently across related files.
+- [ ] Confirm quick-start steps form a complete path from planning through validation.
+- [ ] Confirm decision rationale exists for non-default settings and unusual execution paths.
+- [ ] Confirm operational limits and safeguards are explicit for high-cost or high-risk actions.
+- [ ] Confirm logging and trace requirements are sufficient for efficient incident diagnosis.
+- [ ] Confirm acceptance criteria are measurable and tied to expected output contracts.
+- [ ] Confirm cross-skill dependencies are named and linked to concrete resource files.
+- [ ] Confirm references contain deep technical detail and examples contain runnable artifacts.
+- [ ] Confirm guidance remains current with project structure and naming conventions.
+- [ ] Confirm ambiguity is reduced by replacing vague language with explicit decision rules.
+- [ ] Confirm failure modes and fallback behavior are addressed at least at a high level.
+- [ ] Confirm final review checks readability, correctness, and maintainability standards.
+- [ ] Confirm links in Additional Resources resolve correctly from this skill directory.
 
-### Step 5: Iterate
+## Common Mistakes to Avoid
 
-Fine-tune based on results.
+- Avoid combining multiple unrelated objectives into one run without explicit decomposition.
+- Avoid vague completion definitions that force subjective reviews and repeated rework cycles.
+- Avoid adding advanced options before validating a stable baseline behavior path.
+- Avoid relying on defaults that were not reviewed against current project constraints.
+- Avoid pushing deep implementation detail into SKILL.md where discoverability should stay high.
+- Avoid silent handoff assumptions when dependencies cross skills or ownership boundaries.
+- Avoid changing structure and behavior simultaneously when debugging active regressions.
+- Avoid skipping post-change verification, even when edits appear small and localized.
+- Avoid stale links to renamed files after directory or filename standardization work.
+- Avoid retaining obsolete guidance that conflicts with current references and examples.
 
-## Cost Optimization
+## Additional Resources
 
-**Goal:** Reduce API costs while maintaining acceptable quality
-
-**Strategies:**
-1. Use cheaper models for simple tasks
-2. Separate function_calling_llm (cheaper model for tools)
-3. Enable caching
-4. Reduce max_iter
-5. Optimize prompts for fewer tokens
-
-**Implementation:**
-```python
-agent = Agent(
-    role="...",
-    llm="gpt-4o-mini",  # Cheaper main model
-    function_calling_llm="gpt-3.5-turbo",  # Even cheaper for tools
-    cache=True,
-    max_iter=15,
-    respect_context_window=True
-)
-```
-
-### Tiered Model Strategy
-
-```python
-# Manager with best model
-manager = Agent(llm="gpt-4o")  # Best for coordination
-
-# Workers with cheaper models
-worker = Agent(
-    llm="gpt-4o-mini",
-    function_calling_llm="gpt-3.5-turbo"
-)
-```
-
-## Latency Optimization
-
-**Goal:** Reduce execution time
-
-**Strategies:**
-1. Use faster models
-2. Enable caching
-3. Use async execution
-4. Reduce max_iter
-5. Set execution timeouts
-
-**Implementation:**
-```python
-agent = Agent(
-    role="...",
-    llm="gpt-4o-mini",  # Fast model
-    cache=True,
-    max_iter=10,
-    max_execution_time=60
-)
-
-# Use async kickoff
-result = await crew.akickoff(inputs={...})
-```
-
-### Parallel Execution
-
-```python
-# Parallel execution
-task1 = Task(..., async_execution=True)
-task2 = Task(..., async_execution=True)
-task3 = Task(..., context=[task1, task2])  # Waits for both
-```
-
-## Quality Optimization
-
-**Goal:** Maximize output quality
-
-**Strategies:**
-1. Use best models
-2. Enable reasoning
-3. Increase max_iter
-4. Enable memory
-5. Add validation tasks
-
-**Implementation:**
-```python
-agent = Agent(
-    role="...",
-    llm="gpt-4o",  # Best quality
-    reasoning=True,
-    max_iter=25,
-    memory=True,
-    verbose=True
-)
-```
-
-### Add Review Task
-
-```python
-review_task = Task(
-    description="Review and improve the output",
-    expected_output="Refined, high-quality output",
-    agent=reviewer,
-    context=[main_task]
-)
-```
-
-## Cost Estimation
-
-```python
-def estimate_cost(metrics, model="gpt-4o"):
-    prices = {
-        "gpt-4o": {"input": 0.005, "output": 0.015},
-        "gpt-4o-mini": {"input": 0.00015, "output": 0.0006},
-        "gpt-3.5-turbo": {"input": 0.0005, "output": 0.0015},
-    }
-    price = prices.get(model, prices["gpt-4o"])
-    input_cost = (metrics["prompt_tokens"] / 1000) * price["input"]
-    output_cost = (metrics["completion_tokens"] / 1000) * price["output"]
-    return input_cost + output_cost
-```
-
-## Optimization Checklist
-
-- [ ] Baseline metrics collected
-- [ ] Bottlenecks identified
-- [ ] Optimization target chosen (cost/latency/quality)
-- [ ] Appropriate models selected
-- [ ] Caching enabled
-- [ ] max_iter tuned
-- [ ] Async execution where applicable
-- [ ] Improvement measured
-- [ ] Quality verified
-
-## Related Skills
-
-- `crewai-llms` - Model selection and configuration
-- `crewai-agents` - Agent configuration
-- `crewai-debugging` - Performance troubleshooting
+For detailed documentation and examples:
+- **[Complete Reference](references/complete-reference.md)** - Full API details, options, and extended guidance.
+- **[Patterns Guide](references/patterns-reference.md)** - Reusable archetypes, workflows, and decision patterns.
+- **[Basic Setup](examples/basic-setup.md)** - Minimal starting path for first implementation pass.
+- **[Code Examples](examples/python-code.md)** - Runnable Python-oriented implementation patterns.
+- **[YAML Configs](examples/yaml-config.md)** - Declarative configuration examples and templates.

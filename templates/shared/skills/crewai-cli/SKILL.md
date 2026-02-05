@@ -1,312 +1,163 @@
 ---
 name: crewai-cli
-description: Use CrewAI CLI for project creation, dependency management, running crews and flows, and debugging
-license: MIT
-compatibility: opencode
-metadata:
-  category: crewai-concept
-  audience: developers
-  complexity: basic
+description: This skill should be used when user asks about "crewai CLI", "command line" workflows, specific "cli commands", how to "run crew", bootstrap projects, or debug runs through replay tooling. It provides guidance for reliable command lifecycles covering create, install, run, inspect, and troubleshoot actions. Use it when environment setup is inconsistent, dependency sync is error-prone, or teams need repeatable operational sequences for development and CI. It helps standardize command usage so project initialization, execution, and debugging remain fast, predictable, and auditable.
+version: 1.0.0
 ---
+
+# CrewAI CLI
 
 ## What This Skill Does
 
-Provides comprehensive guidance for using the CrewAI command-line interface (CLI) for creating, managing, and running CrewAI projects. Includes project creation, dependency management, and debugging commands.
+Define a practical operating model for command-line workflows for project lifecycle management in CrewAI implementations.
+Organize decisions, guardrails, and review criteria so teams produce consistent repeatable command sequences, setup routines, and debugging workflows.
+Reduce rework by separating fast core guidance from deeper reference and example materials.
 
 ## When to Use This Skill
 
-- Creating new crew or flow projects
-- Installing and managing dependencies
-- Running crews and flows
-- Debugging with task replay
-- Managing virtual environments
-
-## Quick Reference
-
-### Essential Commands
-
-| Command | Purpose |
-|---------|---------|
-| `crewai create crew <name>` | Create new crew project |
-| `crewai create flow <name>` | Create new flow project |
-| `crewai install` | Install dependencies |
-| `crewai run` | Run crew or flow |
-| `crewai log-tasks-outputs` | View task outputs |
-| `crewai replay -t <id>` | Replay from task |
-
-## Project Commands
-
-### Create New Project
-
-```bash
-# Create a new crew project
-crewai create crew my_crew
-
-# Create a new flow project
-crewai create flow my_flow
-```
-
-### Generated Structure (Crew)
-
-```
-my_crew/
-├── src/
-│   └── my_crew/
-│       ├── __init__.py
-│       ├── main.py
-│       ├── crew.py
-│       ├── config/
-│       │   ├── agents.yaml
-│       │   └── tasks.yaml
-│       └── tools/
-│           └── custom_tool.py
-├── tests/
-├── pyproject.toml
-└── README.md
-```
-
-### Generated Structure (Flow)
-
-```
-my_flow/
-├── src/
-│   └── my_flow/
-│       ├── __init__.py
-│       ├── main.py
-│       ├── crews/
-│       │   └── poem_crew/
-│       │       ├── config/
-│       │       │   ├── agents.yaml
-│       │       │   └── tasks.yaml
-│       │       └── poem_crew.py
-│       └── tools/
-│           └── custom_tool.py
-├── tests/
-├── pyproject.toml
-└── README.md
-```
-
-### Install Dependencies
-
-```bash
-crewai install
-```
-
-This runs `uv sync` to install all dependencies from `pyproject.toml`.
-
-### Run Project
-
-```bash
-# Run crew or flow (auto-detects type)
-crewai run
-
-# Explicitly run flow
-crewai flow kickoff
-```
-
-### Activate Virtual Environment
-
-```bash
-source .venv/bin/activate
-```
-
-## Dependency Management
-
-### Add Dependencies
-
-```bash
-# Add a package
-uv add package_name
-
-# Add CrewAI tools
-uv add 'crewai[tools]'
-
-# Add specific version
-uv add package_name@1.2.3
-```
-
-### Sync Dependencies
-
-```bash
-uv sync
-```
-
-### Update Dependencies
-
-```bash
-uv add crewai@latest
-uv add 'crewai[tools]'@latest
-```
-
-## Debugging Commands
-
-### View Task Outputs
-
-```bash
-crewai log-tasks-outputs
-```
-
-Shows the latest kickoff task IDs for replay.
-
-### Replay from Task
-
-```bash
-crewai replay -t <task_id>
-```
-
-Replays execution from a specific task, retaining context from previous tasks.
-
-## Flow Commands
-
-### Kickoff Flow
-
-```bash
-crewai flow kickoff
-```
-
-### Plot Flow
-
-```bash
-crewai flow plot
-```
-
-Generates an HTML visualization of the flow.
-
-## Running with uv
-
-Alternative to `crewai run`:
-
-```bash
-# Run the project
-uv run kickoff
-
-# Run with specific inputs
-uv run kickoff --topic "AI trends"
-
-# Run tests
-uv run pytest
-```
-
-## Project Configuration
-
-### pyproject.toml (Crew)
-
-```toml
-[project]
-name = "my_crew"
-version = "0.1.0"
-description = "My CrewAI project"
-requires-python = ">=3.10"
-dependencies = [
-    "crewai>=0.100.0",
-    "crewai-tools>=0.17.0",
-]
-
-[project.scripts]
-kickoff = "my_crew.main:kickoff"
-
-[tool.crewai]
-type = "crew"
-```
-
-### pyproject.toml (Flow)
-
-```toml
-[project]
-name = "my_flow"
-version = "0.1.0"
-description = "My CrewAI Flow"
-requires-python = ">=3.10"
-dependencies = [
-    "crewai>=0.100.0",
-]
-
-[project.scripts]
-kickoff = "my_flow.main:kickoff"
-plot = "my_flow.main:plot"
-
-[tool.crewai]
-type = "flow"
-```
-
-### Environment Variables
-
-Create `.env` file:
-
-```env
-OPENAI_API_KEY=your_api_key
-ANTHROPIC_API_KEY=your_api_key
-SERPER_API_KEY=your_api_key
-```
-
-## Common Workflows
-
-### Starting a New Crew Project
-
-```bash
-# Create project
-crewai create crew my_project
-cd my_project
-
-# Install dependencies
-crewai install
-
-# Activate environment
-source .venv/bin/activate
-
-# Edit agents and tasks
-# Edit src/my_project/config/agents.yaml
-# Edit src/my_project/config/tasks.yaml
-
-# Run
-crewai run
-```
-
-### Starting a New Flow Project
-
-```bash
-# Create project
-crewai create flow my_flow
-cd my_flow
-
-# Install dependencies
-crewai install
-
-# Activate environment
-source .venv/bin/activate
-
-# Edit flow and crews
-# Edit src/my_flow/main.py
-# Edit crews in src/my_flow/crews/
-
-# Run
-crewai run
-```
-
-### Debugging a Crew
-
-```bash
-# Run with verbose output
-# (Set verbose=True in crew definition)
-
-# View task outputs
-crewai log-tasks-outputs
-
-# Replay from specific task
-crewai replay -t <task_id>
-```
-
-## Tips
-
-1. **Always use virtual environment**: `source .venv/bin/activate`
-2. **Use uv for dependencies**: Faster than pip
-3. **Check pyproject.toml**: Ensure type is set correctly (crew/flow)
-4. **Use verbose mode**: Set `verbose=True` for debugging
-5. **Save logs**: Use `output_log_file` for persistent logs
-
-## Related Skills
-
-- `crewai-crews` - Crew configuration
-- `crewai-flows` - Flow configuration
-- `crewai-debugging` - Debugging strategies
-- `crewai-project-structure` - Project structure standards
+- Use this skill when work requires "crewai CLI" outcomes with repeatable delivery quality.
+- Use this skill when work requires "command line" outcomes with repeatable delivery quality.
+- Use this skill when work requires "cli commands" outcomes with repeatable delivery quality.
+- Use this skill when work requires "run crew" outcomes with repeatable delivery quality.
+- Use this skill when work requires "create project" outcomes with repeatable delivery quality.
+- Use this skill when work requires "debug commands" outcomes with repeatable delivery quality.
+- Use this skill when existing behavior is inconsistent and stronger operational standards are needed.
+- Use this skill when implementation choices require explicit tradeoffs and documented decision rules.
+
+## Key Concepts
+
+- **Command Lifecycle**: Use create, install, run, and debug commands as a consistent lifecycle.
+- **Project Bootstrap**: Generate standard project scaffolds to reduce manual setup errors.
+- **Dependency Sync**: Keep dependency manifests and runtime environments aligned.
+- **Execution Modes**: Run crews and flows with explicit command choices and context.
+- **Replay Workflow**: Replay failed runs from known checkpoints for faster debugging.
+- **Environment Hygiene**: Manage variables and virtual environments in a repeatable manner.
+- **Config Awareness**: Keep pyproject settings coherent with project intent and runtime needs.
+- **Flow Utilities**: Use flow-specific commands for kickoff and visualization tasks.
+- **Command Safety**: Prefer deterministic command sequences for team handoff and CI.
+- **Operational Speed**: Automate repetitive command chains to reduce setup latency.
+
+## Quick Start
+
+1. Define the immediate objective and the final acceptance criteria before writing configuration details.
+2. Capture scope boundaries for command-line workflows for project lifecycle management and record assumptions that affect downstream decisions.
+3. Select the smallest viable implementation path that can be validated in one short feedback loop.
+4. Reuse stable patterns from references before introducing any custom structure or novel behavior.
+5. Document dependencies and interfaces so adjacent skills can consume outputs without ambiguity.
+6. Validate expected outputs early to catch contract defects before broader orchestration begins.
+7. Add observability points for key transitions, failures, and performance-sensitive operations.
+8. Execute one representative run and compare outcomes against explicit acceptance criteria.
+9. Resolve the highest-impact gaps first, then rerun the same scenario to verify improvement.
+10. Promote the pattern to reusable guidance only after repeatable success across realistic inputs.
+11. Link implementation artifacts to references and examples to preserve progressive disclosure.
+12. Record follow-up actions for optimization, hardening, and documentation synchronization.
+
+## Operational Notes
+
+- Prioritize outcome clarity over implementation detail when initiating crewai-cli workstreams.
+- Keep each decision reversible until validation confirms durability under realistic conditions.
+- Isolate one variable per iteration when diagnosing quality, latency, or reliability regressions.
+- Preserve naming consistency so logs, references, and handoffs remain easy to trace.
+- Treat missing acceptance criteria as a blocking issue rather than an optional cleanup task.
+- Align constraints, defaults, and fallback behavior before scaling execution volume.
+- Use short review cycles to reduce expensive late-stage redesign and repeated retesting.
+- Capture rationale for non-default choices so future maintainers can assess tradeoffs quickly.
+- Keep externally visible outputs stable by validating format expectations before release.
+- Prefer explicit interfaces between phases to avoid hidden coupling and fragile assumptions.
+- Apply conservative limits first, then relax limits only with evidence from measured outcomes.
+- Build reliability through deterministic workflows before adding advanced optimization layers.
+- Track operational metrics continuously and escalate anomalies with context-rich reports.
+- Enforce concise scopes for each run to protect budget, latency, and debugging speed.
+- Review old guidance regularly and retire patterns that no longer match current behavior.
+
+## Collaboration Boundaries
+
+- Coordinate with related skills early when outputs from one phase become inputs to another phase.
+- Define ownership for each artifact so review loops have clear accountability and completion signals.
+- Avoid duplicating deep reference content inside SKILL.md and keep progressive disclosure strict.
+- Share only essential context in cross-skill handoffs to protect focus and reduce token overhead.
+- Escalate unresolved ambiguity as explicit decisions instead of embedding hidden assumptions.
+- Reconcile terminology across skills to prevent mismatched interpretations during implementation.
+- Validate interface compatibility whenever file structure, schema, or process sequencing changes.
+- Record integration risks and mitigation steps before merging significant workflow changes.
+
+## Detailed Operating Guidance
+
+- Define a clear input contract before execution so upstream producers and downstream consumers interpret scope consistently.
+- Establish quality thresholds for completeness, factuality, and formatting before tuning speed or cost-related parameters.
+- Separate planning concerns from execution concerns so revisions do not unintentionally alter stable interface behavior.
+- Keep assumption logs for uncertain requirements and convert unresolved assumptions into explicit decisions during review.
+- Use bounded iterations with checkpoint reviews to prevent over-optimization that erodes maintainability and traceability.
+- Prioritize deterministic outputs for automation-facing steps, then add expressive flexibility only where stakeholder value increases.
+- Align naming and structural conventions with adjacent skills so handoffs remain understandable without extra translation work.
+- Validate failure handling paths with representative bad inputs rather than relying only on happy-path testing.
+- Capture performance observations in concise notes to support future optimization decisions with historical context.
+- Treat every external dependency as potentially unreliable and design graceful fallback behavior from the start.
+- Consolidate duplicate guidance into references to preserve one source of truth and reduce synchronization overhead.
+- Tighten scope immediately when execution noise appears, then widen scope only after signal quality improves.
+- Preserve auditability by linking key decisions to affected artifacts and expected operational outcomes.
+- Prefer simple coordination mechanisms first, and expand orchestration complexity only when measurable benefit appears.
+- Re-validate links, file names, and assumptions after structural refactors to avoid hidden documentation drift.
+
+## Review Questions
+
+- Which acceptance criterion provides the strongest signal that this implementation is ready for production use?
+- Which assumption, if incorrect, would create the largest risk to correctness or downstream compatibility?
+- Which part of the workflow has the least observability and therefore needs better trace instrumentation?
+- Which configuration choice offers the best cost-quality balance for the current delivery objective?
+- Which dependency could fail silently, and what detection mechanism would expose that failure quickly?
+- Which output field or artifact format is most likely to break consumer integrations after changes?
+- Which retry or fallback strategy is missing for the highest-latency or least-reliable operation?
+- Which section of guidance can be simplified without losing decision quality or implementation safety?
+- Which unresolved ambiguity should be escalated before the next implementation iteration begins?
+- Which evidence confirms that recent edits improved outcomes instead of merely changing behavior?
+
+## Quality Signals
+
+- Validate outcomes against explicit acceptance criteria and operational constraints before promoting guidance to reusable standards.
+- Compare a baseline run and a revised run to confirm improvements in reliability, latency, or cost without hidden regressions.
+- Record rationale for every non-default decision so maintainers can audit tradeoffs quickly during future updates.
+
+## Validation Checklist
+
+- [ ] Confirm frontmatter uses only `name`, `description`, and `version` fields.
+- [ ] Confirm body guidance stays concise, actionable, and focused on operational decisions.
+- [ ] Confirm language remains imperative or infinitive and avoids second-person directives.
+- [ ] Confirm no tables are present in SKILL.md and move tabular detail to references.
+- [ ] Confirm no code blocks are present in SKILL.md and move runnable content to examples.
+- [ ] Confirm scope statements align with the intended command-line workflows for project lifecycle management objective.
+- [ ] Confirm trigger scenarios remain specific enough to activate the correct skill reliably.
+- [ ] Confirm key concepts define stable vocabulary used consistently across related files.
+- [ ] Confirm quick-start steps form a complete path from planning through validation.
+- [ ] Confirm decision rationale exists for non-default settings and unusual execution paths.
+- [ ] Confirm operational limits and safeguards are explicit for high-cost or high-risk actions.
+- [ ] Confirm logging and trace requirements are sufficient for efficient incident diagnosis.
+- [ ] Confirm acceptance criteria are measurable and tied to expected output contracts.
+- [ ] Confirm cross-skill dependencies are named and linked to concrete resource files.
+- [ ] Confirm references contain deep technical detail and examples contain runnable artifacts.
+- [ ] Confirm guidance remains current with project structure and naming conventions.
+- [ ] Confirm ambiguity is reduced by replacing vague language with explicit decision rules.
+- [ ] Confirm failure modes and fallback behavior are addressed at least at a high level.
+- [ ] Confirm final review checks readability, correctness, and maintainability standards.
+- [ ] Confirm links in Additional Resources resolve correctly from this skill directory.
+
+## Common Mistakes to Avoid
+
+- Avoid combining multiple unrelated objectives into one run without explicit decomposition.
+- Avoid vague completion definitions that force subjective reviews and repeated rework cycles.
+- Avoid adding advanced options before validating a stable baseline behavior path.
+- Avoid relying on defaults that were not reviewed against current project constraints.
+- Avoid pushing deep implementation detail into SKILL.md where discoverability should stay high.
+- Avoid silent handoff assumptions when dependencies cross skills or ownership boundaries.
+- Avoid changing structure and behavior simultaneously when debugging active regressions.
+- Avoid skipping post-change verification, even when edits appear small and localized.
+- Avoid stale links to renamed files after directory or filename standardization work.
+- Avoid retaining obsolete guidance that conflicts with current references and examples.
+
+## Additional Resources
+
+For detailed documentation and examples:
+- **[Complete Reference](references/complete-reference.md)** - Full API details, options, and extended guidance.
+- **[Patterns Guide](references/patterns-reference.md)** - Reusable archetypes, workflows, and decision patterns.
+- **[Basic Setup](examples/basic-setup.md)** - Minimal starting path for first implementation pass.
+- **[Code Examples](examples/python-code.md)** - Runnable Python-oriented implementation patterns.
+- **[YAML Configs](examples/yaml-config.md)** - Declarative configuration examples and templates.

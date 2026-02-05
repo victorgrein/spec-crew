@@ -1,251 +1,163 @@
 ---
 name: crewai-tasks
-description: Create and configure CrewAI tasks with descriptions, expected outputs, context dependencies, and structured outputs
-license: MIT
-compatibility: opencode
-metadata:
-  category: crewai-concept
-  audience: developers
-  complexity: moderate
+description: This skill should be used when user asks to "create a task", "configure task", define "task dependencies", specify an "expected output", implement an "async task", add human approval checkpoints, or formalize callback and guardrail behavior. It provides practical guidance for writing clear task contracts, managing context handoffs, and choosing structured output formats for downstream automation. Use it when task outcomes are ambiguous, dependency chains are fragile, or delivery artifacts need stable schemas, measurable acceptance criteria, and repeatable execution quality across crew runs.
+version: 1.0.0
 ---
+
+# CrewAI Tasks
 
 ## What This Skill Does
 
-Provides comprehensive guidance for creating CrewAI tasks - specific assignments completed by agents. Tasks define what needs to be done, expected deliverables, context dependencies, and output handling.
+Define a practical operating model for task specification, dependency design, and output contracts in CrewAI implementations.
+Organize decisions, guardrails, and review criteria so teams produce consistent task descriptions, expected outputs, dependency chains, guardrails, and delivery artifacts.
+Reduce rework by separating fast core guidance from deeper reference and example materials.
 
 ## When to Use This Skill
 
-- Creating new tasks for a crew
-- Configuring task dependencies and context passing
-- Setting up structured outputs (Pydantic models)
-- Defining output files for task artifacts
-- Implementing async task execution
-- Adding human-in-the-loop approval
-- Setting up task callbacks and guardrails
+- Use this skill when work requires "create a task" outcomes with repeatable delivery quality.
+- Use this skill when work requires "configure task" outcomes with repeatable delivery quality.
+- Use this skill when work requires "task dependencies" outcomes with repeatable delivery quality.
+- Use this skill when work requires "expected output" outcomes with repeatable delivery quality.
+- Use this skill when work requires "async task" outcomes with repeatable delivery quality.
+- Use this skill when work requires "task best practices" outcomes with repeatable delivery quality.
+- Use this skill when existing behavior is inconsistent and stronger operational standards are needed.
+- Use this skill when implementation choices require explicit tradeoffs and documented decision rules.
 
-## Quick Reference
+## Key Concepts
 
-### Essential Attributes
+- **Task Contract**: Define a single clear job so each task has one owner and one measurable output.
+- **Expected Output**: Describe concrete acceptance criteria to make completion verification deterministic and fast.
+- **Dependency Context**: Pass only required upstream outputs to reduce ambiguity and token overhead.
+- **Structured Output**: Use schema-backed formats when downstream automation depends on stable fields.
+- **Execution Mode**: Choose synchronous or asynchronous execution based on dependency and latency constraints.
+- **Human Gate**: Insert approval checkpoints for high-risk or externally visible deliverables.
+- **Tool Override**: Assign task-level tools when a task needs capabilities different from default agent tools.
+- **Callback Hook**: Attach post-completion logic for audits, persistence, or follow-up orchestration.
+- **Failure Surface**: Plan retries, fallback behavior, and safe exits before running production workloads.
+- **Traceability**: Name tasks consistently so logs, outputs, and replay paths stay clear.
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `description` | `str` | Clear, detailed description of what needs to be done |
-| `expected_output` | `str` | Specific description of expected deliverable |
-| `agent` | `Agent` | Agent responsible for the task |
-| `name` | `str` | Identifier for the task |
+## Quick Start
 
-### Context and Dependencies
+1. Define the immediate objective and the final acceptance criteria before writing configuration details.
+2. Capture scope boundaries for task specification, dependency design, and output contracts and record assumptions that affect downstream decisions.
+3. Select the smallest viable implementation path that can be validated in one short feedback loop.
+4. Reuse stable patterns from references before introducing any custom structure or novel behavior.
+5. Document dependencies and interfaces so adjacent skills can consume outputs without ambiguity.
+6. Validate expected outputs early to catch contract defects before broader orchestration begins.
+7. Add observability points for key transitions, failures, and performance-sensitive operations.
+8. Execute one representative run and compare outcomes against explicit acceptance criteria.
+9. Resolve the highest-impact gaps first, then rerun the same scenario to verify improvement.
+10. Promote the pattern to reusable guidance only after repeatable success across realistic inputs.
+11. Link implementation artifacts to references and examples to preserve progressive disclosure.
+12. Record follow-up actions for optimization, hardening, and documentation synchronization.
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `context` | `List[Task]` | Tasks whose output provides context |
-| `tools` | `List[BaseTool]` | Task-specific tools (override agent tools) |
+## Operational Notes
 
-### Output Handling
+- Prioritize outcome clarity over implementation detail when initiating crewai-tasks workstreams.
+- Keep each decision reversible until validation confirms durability under realistic conditions.
+- Isolate one variable per iteration when diagnosing quality, latency, or reliability regressions.
+- Preserve naming consistency so logs, references, and handoffs remain easy to trace.
+- Treat missing acceptance criteria as a blocking issue rather than an optional cleanup task.
+- Align constraints, defaults, and fallback behavior before scaling execution volume.
+- Use short review cycles to reduce expensive late-stage redesign and repeated retesting.
+- Capture rationale for non-default choices so future maintainers can assess tradeoffs quickly.
+- Keep externally visible outputs stable by validating format expectations before release.
+- Prefer explicit interfaces between phases to avoid hidden coupling and fragile assumptions.
+- Apply conservative limits first, then relax limits only with evidence from measured outcomes.
+- Build reliability through deterministic workflows before adding advanced optimization layers.
+- Track operational metrics continuously and escalate anomalies with context-rich reports.
+- Enforce concise scopes for each run to protect budget, latency, and debugging speed.
+- Review old guidance regularly and retire patterns that no longer match current behavior.
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `output_file` | `str` | Save output to file |
-| `output_json` | `Type[BaseModel]` | Parse output as JSON |
-| `output_pydantic` | `Type[BaseModel]` | Parse output as Pydantic model |
+## Collaboration Boundaries
 
-### Execution Settings
+- Coordinate with related skills early when outputs from one phase become inputs to another phase.
+- Define ownership for each artifact so review loops have clear accountability and completion signals.
+- Avoid duplicating deep reference content inside SKILL.md and keep progressive disclosure strict.
+- Share only essential context in cross-skill handoffs to protect focus and reduce token overhead.
+- Escalate unresolved ambiguity as explicit decisions instead of embedding hidden assumptions.
+- Reconcile terminology across skills to prevent mismatched interpretations during implementation.
+- Validate interface compatibility whenever file structure, schema, or process sequencing changes.
+- Record integration risks and mitigation steps before merging significant workflow changes.
 
-| Attribute | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `async_execution` | `bool` | False | Run asynchronously |
-| `human_input` | `bool` | False | Require human approval |
-| `callback` | `Callable` | None | Function called after completion |
+## Detailed Operating Guidance
 
-### YAML Configuration Pattern
+- Define a clear input contract before execution so upstream producers and downstream consumers interpret scope consistently.
+- Establish quality thresholds for completeness, factuality, and formatting before tuning speed or cost-related parameters.
+- Separate planning concerns from execution concerns so revisions do not unintentionally alter stable interface behavior.
+- Keep assumption logs for uncertain requirements and convert unresolved assumptions into explicit decisions during review.
+- Use bounded iterations with checkpoint reviews to prevent over-optimization that erodes maintainability and traceability.
+- Prioritize deterministic outputs for automation-facing steps, then add expressive flexibility only where stakeholder value increases.
+- Align naming and structural conventions with adjacent skills so handoffs remain understandable without extra translation work.
+- Validate failure handling paths with representative bad inputs rather than relying only on happy-path testing.
+- Capture performance observations in concise notes to support future optimization decisions with historical context.
+- Treat every external dependency as potentially unreliable and design graceful fallback behavior from the start.
+- Consolidate duplicate guidance into references to preserve one source of truth and reduce synchronization overhead.
+- Tighten scope immediately when execution noise appears, then widen scope only after signal quality improves.
+- Preserve auditability by linking key decisions to affected artifacts and expected operational outcomes.
+- Prefer simple coordination mechanisms first, and expand orchestration complexity only when measurable benefit appears.
+- Re-validate links, file names, and assumptions after structural refactors to avoid hidden documentation drift.
 
-```yaml
-# config/tasks.yaml
-research_task:
-  description: >
-    Research the latest developments in {topic} from the past month.
-    Focus on peer-reviewed sources and industry reports.
-  expected_output: >
-    A comprehensive report of 500-800 words covering:
-    1) Key findings
-    2) Market implications
-    3) Recommended actions
-    Use markdown formatting.
-  agent: researcher
+## Review Questions
 
-analysis_task:
-  description: >
-    Analyze the research findings and identify key patterns.
-  expected_output: >
-    An analysis report with insights and recommendations.
-  agent: analyst
-  context:
-    - research_task
-```
+- Which acceptance criterion provides the strongest signal that this implementation is ready for production use?
+- Which assumption, if incorrect, would create the largest risk to correctness or downstream compatibility?
+- Which part of the workflow has the least observability and therefore needs better trace instrumentation?
+- Which configuration choice offers the best cost-quality balance for the current delivery objective?
+- Which dependency could fail silently, and what detection mechanism would expose that failure quickly?
+- Which output field or artifact format is most likely to break consumer integrations after changes?
+- Which retry or fallback strategy is missing for the highest-latency or least-reliable operation?
+- Which section of guidance can be simplified without losing decision quality or implementation safety?
+- Which unresolved ambiguity should be escalated before the next implementation iteration begins?
+- Which evidence confirms that recent edits improved outcomes instead of merely changing behavior?
 
-```python
-@task
-def research_task(self) -> Task:
-    return Task(config=self.tasks_config['research_task'])
+## Quality Signals
 
-@task
-def analysis_task(self) -> Task:
-    return Task(
-        config=self.tasks_config['analysis_task'],
-        context=[self.research_task()]
-    )
-```
+- Validate outcomes against explicit acceptance criteria and operational constraints before promoting guidance to reusable standards.
+- Compare a baseline run and a revised run to confirm improvements in reliability, latency, or cost without hidden regressions.
+- Record rationale for every non-default decision so maintainers can audit tradeoffs quickly during future updates.
 
-## Task Patterns
+## Validation Checklist
 
-### Research Task
+- [ ] Confirm frontmatter uses only `name`, `description`, and `version` fields.
+- [ ] Confirm body guidance stays concise, actionable, and focused on operational decisions.
+- [ ] Confirm language remains imperative or infinitive and avoids second-person directives.
+- [ ] Confirm no tables are present in SKILL.md and move tabular detail to references.
+- [ ] Confirm no code blocks are present in SKILL.md and move runnable content to examples.
+- [ ] Confirm scope statements align with the intended task specification, dependency design, and output contracts objective.
+- [ ] Confirm trigger scenarios remain specific enough to activate the correct skill reliably.
+- [ ] Confirm key concepts define stable vocabulary used consistently across related files.
+- [ ] Confirm quick-start steps form a complete path from planning through validation.
+- [ ] Confirm decision rationale exists for non-default settings and unusual execution paths.
+- [ ] Confirm operational limits and safeguards are explicit for high-cost or high-risk actions.
+- [ ] Confirm logging and trace requirements are sufficient for efficient incident diagnosis.
+- [ ] Confirm acceptance criteria are measurable and tied to expected output contracts.
+- [ ] Confirm cross-skill dependencies are named and linked to concrete resource files.
+- [ ] Confirm references contain deep technical detail and examples contain runnable artifacts.
+- [ ] Confirm guidance remains current with project structure and naming conventions.
+- [ ] Confirm ambiguity is reduced by replacing vague language with explicit decision rules.
+- [ ] Confirm failure modes and fallback behavior are addressed at least at a high level.
+- [ ] Confirm final review checks readability, correctness, and maintainability standards.
+- [ ] Confirm links in Additional Resources resolve correctly from this skill directory.
 
-```python
-research_task = Task(
-    description="""
-    Research {topic} and gather comprehensive information from reliable sources.
-    Include recent developments, key players, and market trends.
-    """,
-    expected_output="""
-    A detailed research summary including:
-    - Key findings (minimum 5 points)
-    - Sources cited
-    - Relevant data points and statistics
-    """,
-    agent=researcher,
-    tools=[SerperDevTool(), WebsiteSearchTool()]
-)
-```
+## Common Mistakes to Avoid
 
-### Writing Task with Output File
+- Avoid combining multiple unrelated objectives into one run without explicit decomposition.
+- Avoid vague completion definitions that force subjective reviews and repeated rework cycles.
+- Avoid adding advanced options before validating a stable baseline behavior path.
+- Avoid relying on defaults that were not reviewed against current project constraints.
+- Avoid pushing deep implementation detail into SKILL.md where discoverability should stay high.
+- Avoid silent handoff assumptions when dependencies cross skills or ownership boundaries.
+- Avoid changing structure and behavior simultaneously when debugging active regressions.
+- Avoid skipping post-change verification, even when edits appear small and localized.
+- Avoid stale links to renamed files after directory or filename standardization work.
+- Avoid retaining obsolete guidance that conflicts with current references and examples.
 
-```python
-writing_task = Task(
-    description="""
-    Write a blog post about {topic} based on the research and analysis.
-    Make it engaging and accessible to a general audience.
-    """,
-    expected_output="""
-    A well-structured blog post of 800-1200 words in markdown format.
-    Include an introduction, main sections, and conclusion.
-    """,
-    agent=writer,
-    context=[research_task, analysis_task],
-    output_file="output/blog_post.md"
-)
-```
+## Additional Resources
 
-### Structured Output Task
-
-```python
-from pydantic import BaseModel
-from typing import List
-
-class ResearchFindings(BaseModel):
-    key_points: List[str]
-    sources: List[str]
-    confidence_score: float
-
-extraction_task = Task(
-    description="Extract structured data from the research",
-    expected_output="Structured research findings",
-    agent=analyst,
-    output_pydantic=ResearchFindings
-)
-```
-
-## Context Passing
-
-Tasks can receive context from previous tasks:
-
-```python
-task1 = Task(
-    description="Research topic",
-    expected_output="Research report",
-    agent=researcher
-)
-
-task2 = Task(
-    description="Analyze the research findings from the previous task",
-    expected_output="Analysis report",
-    agent=analyst,
-    context=[task1]  # Receives task1's output
-)
-
-task3 = Task(
-    description="Write based on research and analysis",
-    expected_output="Final document",
-    agent=writer,
-    context=[task1, task2]  # Receives both outputs
-)
-```
-
-## Async Execution
-
-```python
-# Independent tasks can run asynchronously
-task1 = Task(
-    description="Research topic A",
-    agent=researcher,
-    async_execution=True
-)
-
-task2 = Task(
-    description="Research topic B",
-    agent=researcher,
-    async_execution=True
-)
-
-# This task waits for both
-task3 = Task(
-    description="Combine findings",
-    agent=analyst,
-    context=[task1, task2]
-)
-```
-
-## Human Input
-
-```python
-review_task = Task(
-    description="Review the generated content",
-    expected_output="Approved content or revision requests",
-    agent=reviewer,
-    human_input=True  # Requires human approval
-)
-```
-
-## Task Callbacks
-
-```python
-def task_completed(output):
-    print(f"Task completed: {output.raw[:100]}...")
-    # Log to database, send notification, etc.
-
-task = Task(
-    description="...",
-    expected_output="...",
-    agent=agent,
-    callback=task_completed
-)
-```
-
-## Best Practices
-
-1. **Clear Descriptions**: Be specific about what needs to be done
-2. **Measurable Outputs**: Define concrete, verifiable expected outputs
-3. **Proper Context**: List all tasks whose output is needed
-4. **Avoid Circular Dependencies**: Tasks can't depend on each other
-5. **Use Variables**: Use `{variable}` for dynamic content
-6. **Output Files**: Specify for tasks generating artifacts
-7. **Structured Output**: Use Pydantic models for data extraction
-
-## Templates
-
-See `templates/task-yaml.md` for comprehensive YAML templates.
-
-## Related Skills
-
-- `crewai-agents` - Agent configuration for tasks
-- `crewai-crews` - Assembling tasks into crews
-- `crewai-flows` - Using tasks within flows
+For detailed documentation and examples:
+- **[Complete Reference](references/complete-reference.md)** - Full API details, options, and extended guidance.
+- **[Patterns Guide](references/patterns-reference.md)** - Reusable archetypes, workflows, and decision patterns.
+- **[Basic Setup](examples/basic-setup.md)** - Minimal starting path for first implementation pass.
+- **[Code Examples](examples/python-code.md)** - Runnable Python-oriented implementation patterns.
+- **[YAML Configs](examples/yaml-config.md)** - Declarative configuration examples and templates.

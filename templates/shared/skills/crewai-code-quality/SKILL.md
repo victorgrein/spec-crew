@@ -1,320 +1,163 @@
 ---
 name: crewai-code-quality
-description: Code quality standards for CrewAI projects including naming conventions, agent/task design, error handling, and testing
-license: MIT
-compatibility: opencode
-metadata:
-  category: crewai-standard
-  audience: developers
-  complexity: moderate
+description: This skill should be used when user asks about "code quality", "naming conventions", "error handling", "testing standards", review criteria, or maintainability policy for CrewAI projects. It provides guidance for enforcing consistent contracts, readable implementation patterns, explicit failure handling, and practical quality gates for delivery. Use it when codebases show drift, reviews are inconsistent, or regressions recur after refactors. It helps establish durable engineering standards that improve clarity, correctness, and operational readiness while preserving documentation alignment and long-term maintainability.
+version: 1.0.0
 ---
+
+# CrewAI Code Quality
 
 ## What This Skill Does
 
-Provides code quality standards for writing high-quality, maintainable CrewAI code. Includes naming conventions, agent/task design patterns, error handling, and testing standards.
+Define a practical operating model for quality standards, review gates, and maintainability discipline in CrewAI implementations.
+Organize decisions, guardrails, and review criteria so teams produce consistent naming standards, validation checklists, and quality-control policies.
+Reduce rework by separating fast core guidance from deeper reference and example materials.
 
 ## When to Use This Skill
 
-- Writing new CrewAI code
-- Reviewing crew implementations
-- Establishing coding standards
-- Creating documentation
-- Writing tests
+- Use this skill when work requires "code quality" outcomes with repeatable delivery quality.
+- Use this skill when work requires "naming conventions" outcomes with repeatable delivery quality.
+- Use this skill when work requires "error handling" outcomes with repeatable delivery quality.
+- Use this skill when work requires "testing standards" outcomes with repeatable delivery quality.
+- Use this skill when work requires "review standards" outcomes with repeatable delivery quality.
+- Use this skill when work requires "maintainable code" outcomes with repeatable delivery quality.
+- Use this skill when existing behavior is inconsistent and stronger operational standards are needed.
+- Use this skill when implementation choices require explicit tradeoffs and documented decision rules.
 
-## Quick Reference
+## Key Concepts
 
-### Naming Conventions
+- **Clarity First**: Prefer explicit intent and descriptive naming over compact but opaque patterns.
+- **Contract Strength**: Define robust role, task, and output contracts before optimization work.
+- **Error Discipline**: Handle failures explicitly with actionable context and safe exits.
+- **Test Strategy**: Cover critical paths with repeatable tests and deterministic assertions.
+- **Config Hygiene**: Keep environment and project configuration minimal, explicit, and auditable.
+- **Documentation Pairing**: Update docs whenever behavior, interfaces, or assumptions change.
+- **Review Criteria**: Apply consistent quality gates for readability, correctness, and safety.
+- **Refactor Safety**: Use small, reversible changes with validation after each step.
+- **Consistency**: Align style and structure across modules to reduce cognitive load.
+- **Operational Readiness**: Prepare code for debugging, observability, and long-term maintenance.
 
-| Component | Convention | Example |
-|-----------|------------|---------|
-| Project | snake_case | `my_crew_project` |
-| Crew class | PascalCase | `ResearchCrew` |
-| Agent methods | snake_case | `research_analyst` |
-| Task methods | snake_case | `research_task` |
-| YAML keys | snake_case | `research_analyst` |
-| Tool classes | PascalCase | `CustomSearchTool` |
+## Quick Start
 
-## Agent Design Standards
+1. Define the immediate objective and the final acceptance criteria before writing configuration details.
+2. Capture scope boundaries for quality standards, review gates, and maintainability discipline and record assumptions that affect downstream decisions.
+3. Select the smallest viable implementation path that can be validated in one short feedback loop.
+4. Reuse stable patterns from references before introducing any custom structure or novel behavior.
+5. Document dependencies and interfaces so adjacent skills can consume outputs without ambiguity.
+6. Validate expected outputs early to catch contract defects before broader orchestration begins.
+7. Add observability points for key transitions, failures, and performance-sensitive operations.
+8. Execute one representative run and compare outcomes against explicit acceptance criteria.
+9. Resolve the highest-impact gaps first, then rerun the same scenario to verify improvement.
+10. Promote the pattern to reusable guidance only after repeatable success across realistic inputs.
+11. Link implementation artifacts to references and examples to preserve progressive disclosure.
+12. Record follow-up actions for optimization, hardening, and documentation synchronization.
 
-### Role Definition
+## Operational Notes
 
-**Good:**
-```yaml
-role: >
-  Senior Data Research Analyst specializing in AI trends
-```
+- Prioritize outcome clarity over implementation detail when initiating crewai-code-quality workstreams.
+- Keep each decision reversible until validation confirms durability under realistic conditions.
+- Isolate one variable per iteration when diagnosing quality, latency, or reliability regressions.
+- Preserve naming consistency so logs, references, and handoffs remain easy to trace.
+- Treat missing acceptance criteria as a blocking issue rather than an optional cleanup task.
+- Align constraints, defaults, and fallback behavior before scaling execution volume.
+- Use short review cycles to reduce expensive late-stage redesign and repeated retesting.
+- Capture rationale for non-default choices so future maintainers can assess tradeoffs quickly.
+- Keep externally visible outputs stable by validating format expectations before release.
+- Prefer explicit interfaces between phases to avoid hidden coupling and fragile assumptions.
+- Apply conservative limits first, then relax limits only with evidence from measured outcomes.
+- Build reliability through deterministic workflows before adding advanced optimization layers.
+- Track operational metrics continuously and escalate anomalies with context-rich reports.
+- Enforce concise scopes for each run to protect budget, latency, and debugging speed.
+- Review old guidance regularly and retire patterns that no longer match current behavior.
 
-**Bad:**
-```yaml
-role: Researcher
-```
+## Collaboration Boundaries
 
-### Goal Definition
+- Coordinate with related skills early when outputs from one phase become inputs to another phase.
+- Define ownership for each artifact so review loops have clear accountability and completion signals.
+- Avoid duplicating deep reference content inside SKILL.md and keep progressive disclosure strict.
+- Share only essential context in cross-skill handoffs to protect focus and reduce token overhead.
+- Escalate unresolved ambiguity as explicit decisions instead of embedding hidden assumptions.
+- Reconcile terminology across skills to prevent mismatched interpretations during implementation.
+- Validate interface compatibility whenever file structure, schema, or process sequencing changes.
+- Record integration risks and mitigation steps before merging significant workflow changes.
 
-**Good:**
-```yaml
-goal: >
-  Uncover comprehensive, accurate information about {topic}
-  with focus on recent developments and expert opinions
-```
+## Detailed Operating Guidance
 
-**Bad:**
-```yaml
-goal: Research stuff
-```
+- Define a clear input contract before execution so upstream producers and downstream consumers interpret scope consistently.
+- Establish quality thresholds for completeness, factuality, and formatting before tuning speed or cost-related parameters.
+- Separate planning concerns from execution concerns so revisions do not unintentionally alter stable interface behavior.
+- Keep assumption logs for uncertain requirements and convert unresolved assumptions into explicit decisions during review.
+- Use bounded iterations with checkpoint reviews to prevent over-optimization that erodes maintainability and traceability.
+- Prioritize deterministic outputs for automation-facing steps, then add expressive flexibility only where stakeholder value increases.
+- Align naming and structural conventions with adjacent skills so handoffs remain understandable without extra translation work.
+- Validate failure handling paths with representative bad inputs rather than relying only on happy-path testing.
+- Capture performance observations in concise notes to support future optimization decisions with historical context.
+- Treat every external dependency as potentially unreliable and design graceful fallback behavior from the start.
+- Consolidate duplicate guidance into references to preserve one source of truth and reduce synchronization overhead.
+- Tighten scope immediately when execution noise appears, then widen scope only after signal quality improves.
+- Preserve auditability by linking key decisions to affected artifacts and expected operational outcomes.
+- Prefer simple coordination mechanisms first, and expand orchestration complexity only when measurable benefit appears.
+- Re-validate links, file names, and assumptions after structural refactors to avoid hidden documentation drift.
 
-### Backstory Definition
+## Review Questions
 
-**Good:**
-```yaml
-backstory: >
-  You're a seasoned researcher with 10+ years of experience
-  in technology analysis. Known for your ability to find
-  hidden insights and present complex information clearly.
-```
+- Which acceptance criterion provides the strongest signal that this implementation is ready for production use?
+- Which assumption, if incorrect, would create the largest risk to correctness or downstream compatibility?
+- Which part of the workflow has the least observability and therefore needs better trace instrumentation?
+- Which configuration choice offers the best cost-quality balance for the current delivery objective?
+- Which dependency could fail silently, and what detection mechanism would expose that failure quickly?
+- Which output field or artifact format is most likely to break consumer integrations after changes?
+- Which retry or fallback strategy is missing for the highest-latency or least-reliable operation?
+- Which section of guidance can be simplified without losing decision quality or implementation safety?
+- Which unresolved ambiguity should be escalated before the next implementation iteration begins?
+- Which evidence confirms that recent edits improved outcomes instead of merely changing behavior?
 
-**Bad:**
-```yaml
-backstory: Expert researcher
-```
+## Quality Signals
 
-## Task Design Standards
+- Validate outcomes against explicit acceptance criteria and operational constraints before promoting guidance to reusable standards.
+- Compare a baseline run and a revised run to confirm improvements in reliability, latency, or cost without hidden regressions.
+- Record rationale for every non-default decision so maintainers can audit tradeoffs quickly during future updates.
 
-### Description
+## Validation Checklist
 
-**Good:**
-```yaml
-description: >
-  Research {topic} thoroughly using web searches and
-  authoritative sources. Focus on:
-  1. Recent developments (last 6 months)
-  2. Key players and their contributions
-  3. Market trends and predictions
-  Include citations for all major claims.
-```
+- [ ] Confirm frontmatter uses only `name`, `description`, and `version` fields.
+- [ ] Confirm body guidance stays concise, actionable, and focused on operational decisions.
+- [ ] Confirm language remains imperative or infinitive and avoids second-person directives.
+- [ ] Confirm no tables are present in SKILL.md and move tabular detail to references.
+- [ ] Confirm no code blocks are present in SKILL.md and move runnable content to examples.
+- [ ] Confirm scope statements align with the intended quality standards, review gates, and maintainability discipline objective.
+- [ ] Confirm trigger scenarios remain specific enough to activate the correct skill reliably.
+- [ ] Confirm key concepts define stable vocabulary used consistently across related files.
+- [ ] Confirm quick-start steps form a complete path from planning through validation.
+- [ ] Confirm decision rationale exists for non-default settings and unusual execution paths.
+- [ ] Confirm operational limits and safeguards are explicit for high-cost or high-risk actions.
+- [ ] Confirm logging and trace requirements are sufficient for efficient incident diagnosis.
+- [ ] Confirm acceptance criteria are measurable and tied to expected output contracts.
+- [ ] Confirm cross-skill dependencies are named and linked to concrete resource files.
+- [ ] Confirm references contain deep technical detail and examples contain runnable artifacts.
+- [ ] Confirm guidance remains current with project structure and naming conventions.
+- [ ] Confirm ambiguity is reduced by replacing vague language with explicit decision rules.
+- [ ] Confirm failure modes and fallback behavior are addressed at least at a high level.
+- [ ] Confirm final review checks readability, correctness, and maintainability standards.
+- [ ] Confirm links in Additional Resources resolve correctly from this skill directory.
 
-**Bad:**
-```yaml
-description: Research the topic
-```
+## Common Mistakes to Avoid
 
-### Expected Output
+- Avoid combining multiple unrelated objectives into one run without explicit decomposition.
+- Avoid vague completion definitions that force subjective reviews and repeated rework cycles.
+- Avoid adding advanced options before validating a stable baseline behavior path.
+- Avoid relying on defaults that were not reviewed against current project constraints.
+- Avoid pushing deep implementation detail into SKILL.md where discoverability should stay high.
+- Avoid silent handoff assumptions when dependencies cross skills or ownership boundaries.
+- Avoid changing structure and behavior simultaneously when debugging active regressions.
+- Avoid skipping post-change verification, even when edits appear small and localized.
+- Avoid stale links to renamed files after directory or filename standardization work.
+- Avoid retaining obsolete guidance that conflicts with current references and examples.
 
-**Good:**
-```yaml
-expected_output: >
-  A comprehensive research report (800-1200 words) containing:
-  - Executive summary (100 words)
-  - Key findings (5+ bullet points)
-  - Detailed analysis (500-800 words)
-  - Sources cited (minimum 3)
-  Format: Markdown with headers
-```
+## Additional Resources
 
-**Bad:**
-```yaml
-expected_output: Research report
-```
-
-## Crew Class Standards
-
-```python
-from crewai import Agent, Crew, Task, Process
-from crewai.project import CrewBase, agent, task, crew
-from crewai_tools import SerperDevTool
-
-@CrewBase
-class ResearchCrew:
-    """Research crew for comprehensive topic analysis."""
-    
-    agents_config = 'config/agents.yaml'
-    tasks_config = 'config/tasks.yaml'
-
-    @agent
-    def researcher(self) -> Agent:
-        """Create the research analyst agent."""
-        return Agent(
-            config=self.agents_config['researcher'],
-            tools=[SerperDevTool()],
-            verbose=True
-        )
-
-    @task
-    def research_task(self) -> Task:
-        """Create the research task."""
-        return Task(config=self.tasks_config['research_task'])
-
-    @crew
-    def crew(self) -> Crew:
-        """Create and configure the crew."""
-        return Crew(
-            agents=self.agents,
-            tasks=self.tasks,
-            process=Process.sequential,
-            verbose=True
-        )
-```
-
-## Custom Tool Standards
-
-```python
-from crewai.tools import BaseTool
-from pydantic import BaseModel, Field
-from typing import Type
-
-class MyToolInput(BaseModel):
-    """Input schema for MyTool."""
-    query: str = Field(..., description="The search query")
-
-class MyTool(BaseTool):
-    """Custom tool for specific functionality."""
-    
-    name: str = "my_tool"
-    description: str = """
-    Use this tool when you need to [specific use case].
-    Input: A search query string
-    Output: Relevant results as formatted text
-    """
-    args_schema: Type[BaseModel] = MyToolInput
-
-    def _run(self, query: str) -> str:
-        """Execute the tool."""
-        try:
-            result = self._perform_search(query)
-            return f"Results: {result}"
-        except Exception as e:
-            return f"Error: {str(e)}"
-```
-
-## Error Handling Standards
-
-### In Tools
-
-```python
-def _run(self, query: str) -> str:
-    try:
-        result = self._perform_operation(query)
-        return result
-    except ConnectionError as e:
-        return f"Connection error: {str(e)}. Please try again."
-    except ValueError as e:
-        return f"Invalid input: {str(e)}"
-    except Exception as e:
-        return f"Unexpected error: {str(e)}"
-```
-
-### In Crews
-
-```python
-@crew
-def crew(self) -> Crew:
-    return Crew(
-        agents=self.agents,
-        tasks=self.tasks,
-        verbose=True,  # Enable for debugging
-        max_rpm=30,    # Prevent rate limits
-    )
-```
-
-## Configuration Standards
-
-### Environment Variables
-
-```env
-# Required
-OPENAI_API_KEY=sk-...
-
-# Optional
-ANTHROPIC_API_KEY=sk-ant-...
-SERPER_API_KEY=...
-
-# Model defaults
-OPENAI_MODEL_NAME=gpt-4o
-```
-
-### pyproject.toml
-
-```toml
-[project]
-name = "my_crew"
-version = "0.1.0"
-description = "Description of what this crew does"
-requires-python = ">=3.10"
-dependencies = [
-    "crewai>=0.100.0",
-    "crewai-tools>=0.17.0",
-]
-
-[project.scripts]
-kickoff = "my_crew.main:kickoff"
-
-[tool.crewai]
-type = "crew"  # or "flow"
-```
-
-## Documentation Standards
-
-### README.md
-
-Every project must include:
-- Project description
-- Installation instructions
-- Configuration requirements
-- Usage examples
-- Architecture overview
-
-### Code Comments
-
-```python
-@agent
-def researcher(self) -> Agent:
-    """
-    Create the research analyst agent.
-    
-    This agent specializes in finding and synthesizing
-    information from web sources. Uses SerperDevTool
-    for web searches.
-    
-    Returns:
-        Agent: Configured research agent
-    """
-    return Agent(...)
-```
-
-## Testing Standards
-
-### Basic Test
-
-```python
-def test_crew_creation():
-    """Test that crew can be created."""
-    crew = MyCrew().crew()
-    assert crew is not None
-    assert len(crew.agents) > 0
-    assert len(crew.tasks) > 0
-
-def test_crew_execution():
-    """Test crew execution with sample input."""
-    crew = MyCrew().crew()
-    result = crew.kickoff(inputs={"topic": "test"})
-    assert result is not None
-    assert result.raw != ""
-```
-
-## Quality Checklist
-
-- [ ] Project follows standard structure
-- [ ] Naming conventions followed
-- [ ] Agents have detailed roles, goals, backstories
-- [ ] Tasks have clear descriptions and expected outputs
-- [ ] Tools have proper error handling
-- [ ] Environment variables documented
-- [ ] README.md complete
-- [ ] Tests included
-
-## Related Skills
-
-- `crewai-project-structure` - Project structure standards
-- `crewai-agents` - Agent configuration
-- `crewai-tasks` - Task configuration
-- `crewai-tools` - Tool creation
+For detailed documentation and examples:
+- **[Complete Reference](references/complete-reference.md)** - Full API details, options, and extended guidance.
+- **[Patterns Guide](references/patterns-reference.md)** - Reusable archetypes, workflows, and decision patterns.
+- **[Basic Setup](examples/basic-setup.md)** - Minimal starting path for first implementation pass.
+- **[Code Examples](examples/python-code.md)** - Runnable Python-oriented implementation patterns.
+- **[YAML Configs](examples/yaml-config.md)** - Declarative configuration examples and templates.

@@ -1,250 +1,163 @@
 ---
 name: crewai-processes
-description: Understand and choose between CrewAI process types - sequential and hierarchical execution flows
-license: MIT
-compatibility: opencode
-metadata:
-  category: crewai-concept
-  audience: developers
-  complexity: moderate
+description: This skill should be used when user asks about a "sequential process", a "hierarchical process", "process selection", manager requirements, or execution-governance tradeoffs in CrewAI workflows. It provides guidance for choosing process type by dependency shape, coordination complexity, quality requirements, and cost profile. Use it when linear execution starts failing to manage adaptation needs, when manager behavior must be introduced safely, or when teams need explicit rules for context propagation, control boundaries, and replayability. It helps standardize process decisions so orchestration remains predictable, auditable, and maintainable.
+version: 1.0.0
 ---
+
+# CrewAI Processes
 
 ## What This Skill Does
 
-Provides detailed guidance on CrewAI process types - Sequential and Hierarchical - to help choose the right execution flow for your crew. Includes comparison, use cases, and implementation patterns.
+Define a practical operating model for process-type selection and execution governance in CrewAI implementations.
+Organize decisions, guardrails, and review criteria so teams produce consistent process decisions, manager requirements, and workflow governance rules.
+Reduce rework by separating fast core guidance from deeper reference and example materials.
 
 ## When to Use This Skill
 
-- Choosing between sequential and hierarchical processes
-- Designing crew execution flow
-- Setting up manager agents for hierarchical process
-- Understanding context passing between tasks
-- Optimizing workflow for cost or quality
+- Use this skill when work requires "sequential process" outcomes with repeatable delivery quality.
+- Use this skill when work requires "hierarchical process" outcomes with repeatable delivery quality.
+- Use this skill when work requires "process selection" outcomes with repeatable delivery quality.
+- Use this skill when work requires "workflow control" outcomes with repeatable delivery quality.
+- Use this skill when work requires "manager configuration" outcomes with repeatable delivery quality.
+- Use this skill when work requires "execution flow" outcomes with repeatable delivery quality.
+- Use this skill when existing behavior is inconsistent and stronger operational standards are needed.
+- Use this skill when implementation choices require explicit tradeoffs and documented decision rules.
 
-## Quick Reference
+## Key Concepts
 
-### Process Comparison
+- **Sequential Flow**: Execute tasks in defined order for predictable and low-overhead delivery.
+- **Hierarchical Flow**: Use manager-mediated planning for complex, adaptive project coordination.
+- **Control Surface**: Balance explicit orchestration against autonomous delegation as complexity grows.
+- **Manager Requirement**: Provide manager configuration whenever hierarchical execution is enabled.
+- **Context Propagation**: Pass only relevant outputs to downstream tasks to preserve clarity.
+- **Cost Profile**: Account for manager overhead when comparing process alternatives.
+- **Quality Profile**: Use hierarchical execution when validation and adaptation are primary needs.
+- **Complexity Threshold**: Switch process types when linear execution cannot manage dependencies safely.
+- **Recovery Path**: Use replay-friendly configurations to support failure recovery workflows.
+- **Decision Trace**: Log process decisions to simplify debugging and governance reviews.
 
-| Aspect | Sequential | Hierarchical |
-|--------|------------|--------------|
-| **Complexity** | Simple | Complex |
-| **Control** | Predictable | Dynamic |
-| **Coordination** | Implicit (order) | Explicit (manager) |
-| **Validation** | None built-in | Manager validates |
-| **Best For** | Linear workflows | Complex projects |
-| **Requirements** | None | manager_llm or manager_agent |
-| **Token Usage** | Lower | Higher (manager overhead) |
+## Quick Start
 
-## Sequential Process (Default)
+1. Define the immediate objective and the final acceptance criteria before writing configuration details.
+2. Capture scope boundaries for process-type selection and execution governance and record assumptions that affect downstream decisions.
+3. Select the smallest viable implementation path that can be validated in one short feedback loop.
+4. Reuse stable patterns from references before introducing any custom structure or novel behavior.
+5. Document dependencies and interfaces so adjacent skills can consume outputs without ambiguity.
+6. Validate expected outputs early to catch contract defects before broader orchestration begins.
+7. Add observability points for key transitions, failures, and performance-sensitive operations.
+8. Execute one representative run and compare outcomes against explicit acceptance criteria.
+9. Resolve the highest-impact gaps first, then rerun the same scenario to verify improvement.
+10. Promote the pattern to reusable guidance only after repeatable success across realistic inputs.
+11. Link implementation artifacts to references and examples to preserve progressive disclosure.
+12. Record follow-up actions for optimization, hardening, and documentation synchronization.
 
-Tasks execute one after another in the order they are defined.
+## Operational Notes
 
-```python
-from crewai import Crew, Process
+- Prioritize outcome clarity over implementation detail when initiating crewai-processes workstreams.
+- Keep each decision reversible until validation confirms durability under realistic conditions.
+- Isolate one variable per iteration when diagnosing quality, latency, or reliability regressions.
+- Preserve naming consistency so logs, references, and handoffs remain easy to trace.
+- Treat missing acceptance criteria as a blocking issue rather than an optional cleanup task.
+- Align constraints, defaults, and fallback behavior before scaling execution volume.
+- Use short review cycles to reduce expensive late-stage redesign and repeated retesting.
+- Capture rationale for non-default choices so future maintainers can assess tradeoffs quickly.
+- Keep externally visible outputs stable by validating format expectations before release.
+- Prefer explicit interfaces between phases to avoid hidden coupling and fragile assumptions.
+- Apply conservative limits first, then relax limits only with evidence from measured outcomes.
+- Build reliability through deterministic workflows before adding advanced optimization layers.
+- Track operational metrics continuously and escalate anomalies with context-rich reports.
+- Enforce concise scopes for each run to protect budget, latency, and debugging speed.
+- Review old guidance regularly and retire patterns that no longer match current behavior.
 
-crew = Crew(
-    agents=[researcher, writer, editor],
-    tasks=[research_task, write_task, edit_task],
-    process=Process.sequential  # Default
-)
-```
+## Collaboration Boundaries
 
-### Characteristics
+- Coordinate with related skills early when outputs from one phase become inputs to another phase.
+- Define ownership for each artifact so review loops have clear accountability and completion signals.
+- Avoid duplicating deep reference content inside SKILL.md and keep progressive disclosure strict.
+- Share only essential context in cross-skill handoffs to protect focus and reduce token overhead.
+- Escalate unresolved ambiguity as explicit decisions instead of embedding hidden assumptions.
+- Reconcile terminology across skills to prevent mismatched interpretations during implementation.
+- Validate interface compatibility whenever file structure, schema, or process sequencing changes.
+- Record integration risks and mitigation steps before merging significant workflow changes.
 
-- Tasks run in defined order
-- Each task's output becomes context for the next
-- Simple, predictable flow
-- Best for linear workflows
+## Detailed Operating Guidance
 
-### Flow Diagram
+- Define a clear input contract before execution so upstream producers and downstream consumers interpret scope consistently.
+- Establish quality thresholds for completeness, factuality, and formatting before tuning speed or cost-related parameters.
+- Separate planning concerns from execution concerns so revisions do not unintentionally alter stable interface behavior.
+- Keep assumption logs for uncertain requirements and convert unresolved assumptions into explicit decisions during review.
+- Use bounded iterations with checkpoint reviews to prevent over-optimization that erodes maintainability and traceability.
+- Prioritize deterministic outputs for automation-facing steps, then add expressive flexibility only where stakeholder value increases.
+- Align naming and structural conventions with adjacent skills so handoffs remain understandable without extra translation work.
+- Validate failure handling paths with representative bad inputs rather than relying only on happy-path testing.
+- Capture performance observations in concise notes to support future optimization decisions with historical context.
+- Treat every external dependency as potentially unreliable and design graceful fallback behavior from the start.
+- Consolidate duplicate guidance into references to preserve one source of truth and reduce synchronization overhead.
+- Tighten scope immediately when execution noise appears, then widen scope only after signal quality improves.
+- Preserve auditability by linking key decisions to affected artifacts and expected operational outcomes.
+- Prefer simple coordination mechanisms first, and expand orchestration complexity only when measurable benefit appears.
+- Re-validate links, file names, and assumptions after structural refactors to avoid hidden documentation drift.
 
-```
-Task 1 → Task 2 → Task 3 → Output
-   ↓        ↓        ↓
-Agent 1  Agent 2  Agent 3
-```
+## Review Questions
 
-### Task Order and Context
+- Which acceptance criterion provides the strongest signal that this implementation is ready for production use?
+- Which assumption, if incorrect, would create the largest risk to correctness or downstream compatibility?
+- Which part of the workflow has the least observability and therefore needs better trace instrumentation?
+- Which configuration choice offers the best cost-quality balance for the current delivery objective?
+- Which dependency could fail silently, and what detection mechanism would expose that failure quickly?
+- Which output field or artifact format is most likely to break consumer integrations after changes?
+- Which retry or fallback strategy is missing for the highest-latency or least-reliable operation?
+- Which section of guidance can be simplified without losing decision quality or implementation safety?
+- Which unresolved ambiguity should be escalated before the next implementation iteration begins?
+- Which evidence confirms that recent edits improved outcomes instead of merely changing behavior?
 
-```python
-crew = Crew(
-    agents=[agent1, agent2, agent3],
-    tasks=[
-        task1,  # Executes first
-        task2,  # Executes second (receives task1 output)
-        task3   # Executes third (receives task1, task2 output)
-    ],
-    process=Process.sequential
-)
-```
+## Quality Signals
 
-### When to Use Sequential
+- Validate outcomes against explicit acceptance criteria and operational constraints before promoting guidance to reusable standards.
+- Compare a baseline run and a revised run to confirm improvements in reliability, latency, or cost without hidden regressions.
+- Record rationale for every non-default decision so maintainers can audit tradeoffs quickly during future updates.
 
-- Linear workflows with clear steps
-- Each task depends on the previous
-- Simple, predictable execution
-- Debugging and testing
-- Cost optimization is priority
+## Validation Checklist
 
-## Hierarchical Process
+- [ ] Confirm frontmatter uses only `name`, `description`, and `version` fields.
+- [ ] Confirm body guidance stays concise, actionable, and focused on operational decisions.
+- [ ] Confirm language remains imperative or infinitive and avoids second-person directives.
+- [ ] Confirm no tables are present in SKILL.md and move tabular detail to references.
+- [ ] Confirm no code blocks are present in SKILL.md and move runnable content to examples.
+- [ ] Confirm scope statements align with the intended process-type selection and execution governance objective.
+- [ ] Confirm trigger scenarios remain specific enough to activate the correct skill reliably.
+- [ ] Confirm key concepts define stable vocabulary used consistently across related files.
+- [ ] Confirm quick-start steps form a complete path from planning through validation.
+- [ ] Confirm decision rationale exists for non-default settings and unusual execution paths.
+- [ ] Confirm operational limits and safeguards are explicit for high-cost or high-risk actions.
+- [ ] Confirm logging and trace requirements are sufficient for efficient incident diagnosis.
+- [ ] Confirm acceptance criteria are measurable and tied to expected output contracts.
+- [ ] Confirm cross-skill dependencies are named and linked to concrete resource files.
+- [ ] Confirm references contain deep technical detail and examples contain runnable artifacts.
+- [ ] Confirm guidance remains current with project structure and naming conventions.
+- [ ] Confirm ambiguity is reduced by replacing vague language with explicit decision rules.
+- [ ] Confirm failure modes and fallback behavior are addressed at least at a high level.
+- [ ] Confirm final review checks readability, correctness, and maintainability standards.
+- [ ] Confirm links in Additional Resources resolve correctly from this skill directory.
 
-A manager agent coordinates and delegates tasks to worker agents.
+## Common Mistakes to Avoid
 
-```python
-from crewai import Crew, Process
+- Avoid combining multiple unrelated objectives into one run without explicit decomposition.
+- Avoid vague completion definitions that force subjective reviews and repeated rework cycles.
+- Avoid adding advanced options before validating a stable baseline behavior path.
+- Avoid relying on defaults that were not reviewed against current project constraints.
+- Avoid pushing deep implementation detail into SKILL.md where discoverability should stay high.
+- Avoid silent handoff assumptions when dependencies cross skills or ownership boundaries.
+- Avoid changing structure and behavior simultaneously when debugging active regressions.
+- Avoid skipping post-change verification, even when edits appear small and localized.
+- Avoid stale links to renamed files after directory or filename standardization work.
+- Avoid retaining obsolete guidance that conflicts with current references and examples.
 
-crew = Crew(
-    agents=[researcher, writer, analyst],
-    tasks=[research_task, write_task, analysis_task],
-    process=Process.hierarchical,
-    manager_llm="gpt-4o"  # Required for hierarchical
-)
-```
+## Additional Resources
 
-### Characteristics
-
-- Manager agent coordinates work
-- Dynamic task delegation
-- Manager validates outputs
-- Best for complex, interdependent tasks
-
-### Requirements
-
-- Must specify `manager_llm` OR `manager_agent`
-
-### Flow Diagram
-
-```
-        ┌─────────────────┐
-        │  Manager Agent  │
-        │   (Delegator)   │
-        └────────┬────────┘
-                 │
-      ┌──────────┼──────────┐
-      ▼          ▼          ▼
-┌──────────┐ ┌──────────┐ ┌──────────┐
-│ Worker 1 │ │ Worker 2 │ │ Worker 3 │
-└──────────┘ └──────────┘ └──────────┘
-```
-
-### Manager Configuration
-
-**Option 1: Manager LLM**
-```python
-crew = Crew(
-    agents=[worker1, worker2, worker3],
-    tasks=[task1, task2, task3],
-    process=Process.hierarchical,
-    manager_llm="gpt-4o"  # CrewAI creates manager agent
-)
-```
-
-**Option 2: Custom Manager Agent**
-```python
-manager = Agent(
-    role="Project Manager",
-    goal="Coordinate team to deliver high-quality results",
-    backstory="Experienced manager skilled at delegation",
-    allow_delegation=True
-)
-
-crew = Crew(
-    agents=[worker1, worker2, worker3],
-    tasks=[task1, task2, task3],
-    process=Process.hierarchical,
-    manager_agent=manager
-)
-```
-
-### Manager Responsibilities
-
-1. **Task Analysis**: Understand task requirements
-2. **Delegation**: Assign tasks to appropriate agents
-3. **Coordination**: Manage dependencies and order
-4. **Validation**: Review and approve outputs
-5. **Iteration**: Request revisions if needed
-
-### When to Use Hierarchical
-
-- Complex tasks requiring coordination
-- Multiple specialists with different skills
-- Tasks with unclear dependencies
-- Need for quality validation
-- Dynamic workflow decisions
-
-## Process Selection Guide
-
-### Use Sequential When:
-
-- Tasks have clear, linear dependencies
-- Order of execution is known upfront
-- Simple workflows with 2-5 tasks
-- Debugging or testing
-- Cost optimization is priority
-
-### Use Hierarchical When:
-
-- Tasks are complex and interdependent
-- Need dynamic task allocation
-- Quality validation is important
-- Multiple specialists collaborate
-- Workflow decisions depend on outputs
-
-## Examples
-
-### Sequential Crew
-
-```python
-from crewai import Agent, Crew, Task, Process
-
-researcher = Agent(role="Researcher", goal="Research topics", backstory="Expert")
-writer = Agent(role="Writer", goal="Write content", backstory="Skilled writer")
-editor = Agent(role="Editor", goal="Edit content", backstory="Detail-oriented")
-
-research = Task(description="Research {topic}", expected_output="Findings", agent=researcher)
-write = Task(description="Write article", expected_output="Draft", agent=writer, context=[research])
-edit = Task(description="Edit article", expected_output="Final", agent=editor, context=[write])
-
-crew = Crew(
-    agents=[researcher, writer, editor],
-    tasks=[research, write, edit],
-    process=Process.sequential,
-    verbose=True
-)
-
-result = crew.kickoff(inputs={"topic": "AI trends"})
-```
-
-### Hierarchical Crew
-
-```python
-from crewai import Agent, Crew, Task, Process
-
-# Workers
-researcher = Agent(role="Researcher", goal="Research", backstory="Expert researcher")
-analyst = Agent(role="Analyst", goal="Analyze", backstory="Data analyst")
-writer = Agent(role="Writer", goal="Write", backstory="Content writer")
-
-# Tasks
-research = Task(description="Research {topic}", expected_output="Findings", agent=researcher)
-analyze = Task(description="Analyze data", expected_output="Analysis", agent=analyst)
-write = Task(description="Write report", expected_output="Report", agent=writer)
-
-# Hierarchical crew with manager
-crew = Crew(
-    agents=[researcher, analyst, writer],
-    tasks=[research, analyze, write],
-    process=Process.hierarchical,
-    manager_llm="gpt-4o",
-    verbose=True
-)
-
-result = crew.kickoff(inputs={"topic": "Market trends"})
-```
-
-## Related Skills
-
-- `crewai-crews` - Crew configuration
-- `crewai-agents` - Agent configuration
-- `crewai-tasks` - Task configuration
-- `crewai-flows` - Multi-crew orchestration
+For detailed documentation and examples:
+- **[Complete Reference](references/complete-reference.md)** - Full API details, options, and extended guidance.
+- **[Patterns Guide](references/patterns-reference.md)** - Reusable archetypes, workflows, and decision patterns.
+- **[Basic Setup](examples/basic-setup.md)** - Minimal starting path for first implementation pass.
+- **[Code Examples](examples/python-code.md)** - Runnable Python-oriented implementation patterns.
+- **[YAML Configs](examples/yaml-config.md)** - Declarative configuration examples and templates.

@@ -1,260 +1,163 @@
 ---
 name: crewai-debugging
-description: Debug CrewAI crews and flows with systematic troubleshooting for rate limits, context windows, tools, and agent loops
-license: MIT
-compatibility: opencode
-metadata:
-  category: crewai-process
-  audience: developers
-  complexity: moderate
+description: This skill should be used when user asks to "debug crew", "troubleshoot flow", diagnose "agent loops", resolve "rate limit errors", fix parsing or tool failures, or isolate root causes in unstable runs. It provides guidance for signal collection, reproducible test paths, hypothesis-driven diagnosis, and verification of durable fixes. Use it when behavior regresses after configuration changes, incident symptoms are intermittent, or tracing is insufficient for confident remediation. It helps teams move from symptom chasing to structured debugging with measurable outcomes and stronger prevention safeguards.
+version: 1.0.0
 ---
+
+# CrewAI Debugging
 
 ## What This Skill Does
 
-Provides a systematic approach to debugging CrewAI crews and flows. Includes common issue diagnosis, solutions for rate limits, context windows, tool errors, agent loops, and output parsing problems.
+Define a practical operating model for incident diagnosis, root-cause isolation, and remediation planning in CrewAI implementations.
+Organize decisions, guardrails, and review criteria so teams produce consistent debug traces, issue hypotheses, fix plans, and validation outcomes.
+Reduce rework by separating fast core guidance from deeper reference and example materials.
 
 ## When to Use This Skill
 
-- Troubleshooting crew execution failures
-- Diagnosing rate limit errors
-- Fixing context window issues
-- Debugging tool problems
-- Resolving agent loops
-- Fixing output parsing errors
+- Use this skill when work requires "debug crew" outcomes with repeatable delivery quality.
+- Use this skill when work requires "troubleshoot flow" outcomes with repeatable delivery quality.
+- Use this skill when work requires "agent loops" outcomes with repeatable delivery quality.
+- Use this skill when work requires "rate limit errors" outcomes with repeatable delivery quality.
+- Use this skill when work requires "output parsing errors" outcomes with repeatable delivery quality.
+- Use this skill when work requires "tool failures" outcomes with repeatable delivery quality.
+- Use this skill when existing behavior is inconsistent and stronger operational standards are needed.
+- Use this skill when implementation choices require explicit tradeoffs and documented decision rules.
 
-## Quick Reference
+## Key Concepts
 
-### Common Issues
+- **Signal Collection**: Capture logs, inputs, traces, and recent changes before changing behavior.
+- **Reproducibility**: Reproduce issues with stable inputs to validate root-cause confidence.
+- **Hypothesis Loop**: Test one probable cause at a time and measure effect quickly.
+- **Rate-limit Diagnosis**: Differentiate provider throttling from local concurrency misconfiguration.
+- **Context Diagnosis**: Identify truncation and summarize strategies when context budgets overflow.
+- **Tool Diagnosis**: Validate tool wiring, argument schema, and runtime permissions.
+- **Loop Diagnosis**: Check unclear objectives and permissive delegation when agents repeat actions.
+- **Output Diagnosis**: Validate schema compatibility when parsing or pydantic conversion fails.
+- **Fix Verification**: Re-run critical paths to confirm fix durability across representative inputs.
+- **Postmortem Hygiene**: Record causes and safeguards to prevent recurrence.
 
-| Category | Symptoms | Check |
-|----------|----------|-------|
-| Rate Limits | 429 errors, intermittent failures | max_rpm settings |
-| Context Window | Truncated output, lost context | respect_context_window |
-| Tool Errors | Tool not found, wrong arguments | Tool assignment, descriptions |
-| Agent Loops | max_iter reached, repeated actions | Task clarity, delegation |
-| Output Parsing | Pydantic errors, JSON failures | Output format, model |
+## Quick Start
 
-## Debugging Workflow
+1. Define the immediate objective and the final acceptance criteria before writing configuration details.
+2. Capture scope boundaries for incident diagnosis, root-cause isolation, and remediation planning and record assumptions that affect downstream decisions.
+3. Select the smallest viable implementation path that can be validated in one short feedback loop.
+4. Reuse stable patterns from references before introducing any custom structure or novel behavior.
+5. Document dependencies and interfaces so adjacent skills can consume outputs without ambiguity.
+6. Validate expected outputs early to catch contract defects before broader orchestration begins.
+7. Add observability points for key transitions, failures, and performance-sensitive operations.
+8. Execute one representative run and compare outcomes against explicit acceptance criteria.
+9. Resolve the highest-impact gaps first, then rerun the same scenario to verify improvement.
+10. Promote the pattern to reusable guidance only after repeatable success across realistic inputs.
+11. Link implementation artifacts to references and examples to preserve progressive disclosure.
+12. Record follow-up actions for optimization, hardening, and documentation synchronization.
 
-### Step 1: Gather Information
+## Operational Notes
 
-**Collect:**
-- Error message or unexpected behavior description
-- Trace ID (if available)
-- Recent code changes
-- Input data used
+- Prioritize outcome clarity over implementation detail when initiating crewai-debugging workstreams.
+- Keep each decision reversible until validation confirms durability under realistic conditions.
+- Isolate one variable per iteration when diagnosing quality, latency, or reliability regressions.
+- Preserve naming consistency so logs, references, and handoffs remain easy to trace.
+- Treat missing acceptance criteria as a blocking issue rather than an optional cleanup task.
+- Align constraints, defaults, and fallback behavior before scaling execution volume.
+- Use short review cycles to reduce expensive late-stage redesign and repeated retesting.
+- Capture rationale for non-default choices so future maintainers can assess tradeoffs quickly.
+- Keep externally visible outputs stable by validating format expectations before release.
+- Prefer explicit interfaces between phases to avoid hidden coupling and fragile assumptions.
+- Apply conservative limits first, then relax limits only with evidence from measured outcomes.
+- Build reliability through deterministic workflows before adding advanced optimization layers.
+- Track operational metrics continuously and escalate anomalies with context-rich reports.
+- Enforce concise scopes for each run to protect budget, latency, and debugging speed.
+- Review old guidance regularly and retire patterns that no longer match current behavior.
 
-**Enable verbose logging:**
-```python
-agent = Agent(role="...", verbose=True)
-crew = Crew(agents=[...], verbose=True)
-```
+## Collaboration Boundaries
 
-**Enable file logging:**
-```python
-crew = Crew(
-    agents=[...],
-    output_log_file="debug_logs.json"
-)
-```
+- Coordinate with related skills early when outputs from one phase become inputs to another phase.
+- Define ownership for each artifact so review loops have clear accountability and completion signals.
+- Avoid duplicating deep reference content inside SKILL.md and keep progressive disclosure strict.
+- Share only essential context in cross-skill handoffs to protect focus and reduce token overhead.
+- Escalate unresolved ambiguity as explicit decisions instead of embedding hidden assumptions.
+- Reconcile terminology across skills to prevent mismatched interpretations during implementation.
+- Validate interface compatibility whenever file structure, schema, or process sequencing changes.
+- Record integration risks and mitigation steps before merging significant workflow changes.
 
-### Step 2: Reproduce the Issue
+## Detailed Operating Guidance
 
-**Isolate the problem:**
-- Use minimal inputs
-- Test individual agents with `agent.kickoff()`
-- Run single tasks if possible
+- Define a clear input contract before execution so upstream producers and downstream consumers interpret scope consistently.
+- Establish quality thresholds for completeness, factuality, and formatting before tuning speed or cost-related parameters.
+- Separate planning concerns from execution concerns so revisions do not unintentionally alter stable interface behavior.
+- Keep assumption logs for uncertain requirements and convert unresolved assumptions into explicit decisions during review.
+- Use bounded iterations with checkpoint reviews to prevent over-optimization that erodes maintainability and traceability.
+- Prioritize deterministic outputs for automation-facing steps, then add expressive flexibility only where stakeholder value increases.
+- Align naming and structural conventions with adjacent skills so handoffs remain understandable without extra translation work.
+- Validate failure handling paths with representative bad inputs rather than relying only on happy-path testing.
+- Capture performance observations in concise notes to support future optimization decisions with historical context.
+- Treat every external dependency as potentially unreliable and design graceful fallback behavior from the start.
+- Consolidate duplicate guidance into references to preserve one source of truth and reduce synchronization overhead.
+- Tighten scope immediately when execution noise appears, then widen scope only after signal quality improves.
+- Preserve auditability by linking key decisions to affected artifacts and expected operational outcomes.
+- Prefer simple coordination mechanisms first, and expand orchestration complexity only when measurable benefit appears.
+- Re-validate links, file names, and assumptions after structural refactors to avoid hidden documentation drift.
 
-**Check consistency:**
-- Is the issue reproducible?
-- Does it happen with different inputs?
-- Is it intermittent or consistent?
+## Review Questions
 
-### Step 3: Analyze Traces
+- Which acceptance criterion provides the strongest signal that this implementation is ready for production use?
+- Which assumption, if incorrect, would create the largest risk to correctness or downstream compatibility?
+- Which part of the workflow has the least observability and therefore needs better trace instrumentation?
+- Which configuration choice offers the best cost-quality balance for the current delivery objective?
+- Which dependency could fail silently, and what detection mechanism would expose that failure quickly?
+- Which output field or artifact format is most likely to break consumer integrations after changes?
+- Which retry or fallback strategy is missing for the highest-latency or least-reliable operation?
+- Which section of guidance can be simplified without losing decision quality or implementation safety?
+- Which unresolved ambiguity should be escalated before the next implementation iteration begins?
+- Which evidence confirms that recent edits improved outcomes instead of merely changing behavior?
 
-**View task outputs:**
-```bash
-crewai log-tasks-outputs
-```
+## Quality Signals
 
-**Check token usage:**
-```python
-result = crew.kickoff()
-print(crew.usage_metrics)
-```
+- Validate outcomes against explicit acceptance criteria and operational constraints before promoting guidance to reusable standards.
+- Compare a baseline run and a revised run to confirm improvements in reliability, latency, or cost without hidden regressions.
+- Record rationale for every non-default decision so maintainers can audit tradeoffs quickly during future updates.
 
-**Examine execution flow:**
-- Which agent/task failed?
-- What was the last successful output?
-- Where did execution diverge from expected?
+## Validation Checklist
 
-### Step 4: Identify Root Cause
+- [ ] Confirm frontmatter uses only `name`, `description`, and `version` fields.
+- [ ] Confirm body guidance stays concise, actionable, and focused on operational decisions.
+- [ ] Confirm language remains imperative or infinitive and avoids second-person directives.
+- [ ] Confirm no tables are present in SKILL.md and move tabular detail to references.
+- [ ] Confirm no code blocks are present in SKILL.md and move runnable content to examples.
+- [ ] Confirm scope statements align with the intended incident diagnosis, root-cause isolation, and remediation planning objective.
+- [ ] Confirm trigger scenarios remain specific enough to activate the correct skill reliably.
+- [ ] Confirm key concepts define stable vocabulary used consistently across related files.
+- [ ] Confirm quick-start steps form a complete path from planning through validation.
+- [ ] Confirm decision rationale exists for non-default settings and unusual execution paths.
+- [ ] Confirm operational limits and safeguards are explicit for high-cost or high-risk actions.
+- [ ] Confirm logging and trace requirements are sufficient for efficient incident diagnosis.
+- [ ] Confirm acceptance criteria are measurable and tied to expected output contracts.
+- [ ] Confirm cross-skill dependencies are named and linked to concrete resource files.
+- [ ] Confirm references contain deep technical detail and examples contain runnable artifacts.
+- [ ] Confirm guidance remains current with project structure and naming conventions.
+- [ ] Confirm ambiguity is reduced by replacing vague language with explicit decision rules.
+- [ ] Confirm failure modes and fallback behavior are addressed at least at a high level.
+- [ ] Confirm final review checks readability, correctness, and maintainability standards.
+- [ ] Confirm links in Additional Resources resolve correctly from this skill directory.
 
-Use the common issues table above to categorize the problem.
+## Common Mistakes to Avoid
 
-### Step 5: Apply Fix
+- Avoid combining multiple unrelated objectives into one run without explicit decomposition.
+- Avoid vague completion definitions that force subjective reviews and repeated rework cycles.
+- Avoid adding advanced options before validating a stable baseline behavior path.
+- Avoid relying on defaults that were not reviewed against current project constraints.
+- Avoid pushing deep implementation detail into SKILL.md where discoverability should stay high.
+- Avoid silent handoff assumptions when dependencies cross skills or ownership boundaries.
+- Avoid changing structure and behavior simultaneously when debugging active regressions.
+- Avoid skipping post-change verification, even when edits appear small and localized.
+- Avoid stale links to renamed files after directory or filename standardization work.
+- Avoid retaining obsolete guidance that conflicts with current references and examples.
 
-**Test the fix:**
-- Use same inputs that caused the issue
-- Verify expected behavior
-- Check for side effects
+## Additional Resources
 
-**Document the fix:**
-- What was the root cause?
-- What change resolved it?
-- How to prevent in future?
-
-## Common Issues and Solutions
-
-### Rate Limit Errors
-
-**Symptoms:**
-- "Rate limit exceeded" errors
-- 429 HTTP status codes
-
-**Solution:**
-```python
-agent = Agent(
-    role="...",
-    max_rpm=30  # Limit requests per minute
-)
-
-# Or at crew level
-crew = Crew(
-    agents=[...],
-    max_rpm=60
-)
-```
-
-### Context Window Exceeded
-
-**Symptoms:**
-- "Context length exceeded" errors
-- Agent losing context
-
-**Solution:**
-```python
-agent = Agent(
-    role="...",
-    respect_context_window=True  # Auto-summarize
-)
-
-# Or use RAG for large documents
-from crewai_tools import RagTool
-agent = Agent(tools=[RagTool()])
-```
-
-### Tool Not Working
-
-**Symptoms:**
-- Tool not being used
-- Wrong tool selected
-- Tool errors
-
-**Solution:**
-```python
-# Ensure tool is instantiated and assigned
-agent = Agent(
-    role="...",
-    tools=[MyTool()]  # Not MyTool (class)
-)
-
-# Improve tool description
-class MyTool(BaseTool):
-    description = """
-    Use this tool when you need to [specific use case].
-    Input: [describe expected input]
-    Output: [describe expected output]
-    """
-```
-
-### Agent Stuck in Loop
-
-**Symptoms:**
-- max_iter reached
-- Repeated similar outputs
-
-**Solution:**
-```python
-# Reduce iterations
-agent = Agent(
-    role="...",
-    max_iter=15,
-    allow_delegation=False  # Prevent delegation loops
-)
-
-# Clarify task
-task = Task(
-    description="[Specific, actionable description]",
-    expected_output="[Clear, measurable output]"
-)
-```
-
-### Output Parsing Errors
-
-**Symptoms:**
-- Pydantic validation errors
-- JSON parsing failures
-
-**Solution:**
-```python
-# Make model more flexible
-from typing import Optional
-
-class OutputModel(BaseModel):
-    required_field: str
-    optional_field: Optional[str] = None
-
-# Improve expected_output
-task = Task(
-    expected_output="""
-    Return a JSON object with:
-    - required_field: string (required)
-    - optional_field: string (optional)
-    """,
-    output_pydantic=OutputModel
-)
-```
-
-### Async Errors
-
-**Symptoms:**
-- "Event loop already running"
-- Deadlocks
-
-**Solution:**
-```python
-import asyncio
-
-async def main():
-    result = await crew.akickoff(inputs={...})
-    return result
-
-asyncio.run(main())
-```
-
-## Debugging Commands
-
-```bash
-# View task outputs
-crewai log-tasks-outputs
-
-# Replay from specific task
-crewai replay -t <task_id>
-```
-
-## Debugging Checklist
-
-- [ ] Verbose mode enabled
-- [ ] Logs being captured
-- [ ] Issue reproducible
-- [ ] Root cause identified
-- [ ] Fix tested
-- [ ] Preventive measures added
-
-## Related Skills
-
-- `crewai-llms` - Rate limiting and context window settings
-- `crewai-tools` - Tool creation and debugging
-- `crewai-agents` - Agent configuration
-- `crewai-tasks` - Task configuration
+For detailed documentation and examples:
+- **[Complete Reference](references/complete-reference.md)** - Full API details, options, and extended guidance.
+- **[Patterns Guide](references/patterns-reference.md)** - Reusable archetypes, workflows, and decision patterns.
+- **[Basic Setup](examples/basic-setup.md)** - Minimal starting path for first implementation pass.
+- **[Code Examples](examples/python-code.md)** - Runnable Python-oriented implementation patterns.
+- **[YAML Configs](examples/yaml-config.md)** - Declarative configuration examples and templates.
