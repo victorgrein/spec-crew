@@ -4,9 +4,9 @@ description: Create a complete CrewAI crew from natural language specification. 
 context: fork
 agent: general-purpose
 skills:
-  - crewai-crews
-  - crewai-agents
-  - crewai-tasks
+  - core-build
+  - tools
+  - governance
 ---
 
 # Create Crew Workflow

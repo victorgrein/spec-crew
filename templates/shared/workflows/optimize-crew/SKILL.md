@@ -4,8 +4,8 @@ description: Optimize CrewAI crews for cost, latency, or quality. Use when asked
 context: fork
 agent: general-purpose
 skills:
-  - crewai-optimization
-  - crewai-llms
+  - runtime
+  - tools
 ---
 
 # Optimize Crew Workflow

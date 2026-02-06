@@ -4,8 +4,8 @@ description: Create a CrewAI Flow with state management, crew integration, and e
 context: fork
 agent: general-purpose
 skills:
-  - crewai-flows
-  - crewai-crews
+  - flows
+  - core-build
 ---
 
 # Create Flow Workflow

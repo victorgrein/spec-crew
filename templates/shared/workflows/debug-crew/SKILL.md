@@ -4,8 +4,8 @@ description: Debug CrewAI execution issues by analyzing traces, identifying fail
 context: fork
 agent: general-purpose
 skills:
-  - crewai-debugging
-  - crewai-crews
+  - runtime
+  - tools
 ---
 
 # Debug Crew Workflow

@@ -4,9 +4,9 @@ description: Migrate CrewAI projects to standard flow structure, refactor monoli
 context: fork
 agent: general-purpose
 skills:
-  - crewai-migration
-  - crewai-project-structure
-  - crewai-flows
+  - migration
+  - flows
+  - governance
 ---
 
 # Migrate Project Workflow
