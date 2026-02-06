@@ -38,12 +38,32 @@ So when you ask for help, you finally get answers that work.
 
 Everything you need to build crews properly:
 
-- **16 Skills** that teach your AI how CrewAI actually works
-- **10 Specialist Agents** ready to help with specific tasks
-- **8 Commands** for quick actions when you need them
+<!-- BEGIN GENERATED: TOOLKIT_WHATS_INSIDE -->
+- **6 Skill Packs**
+- **4 Core Agents**
+- **5 Canonical Commands**
 - **5 Workflows** that guide you step by step
+<!-- END GENERATED: TOOLKIT_WHATS_INSIDE -->
+
 
 One install. Your AI becomes a CrewAI expert.
+
+### Toolkit Index (Generated)
+
+<!-- BEGIN GENERATED: TOOLKIT_INDEX -->
+- **Canonical commands (5):** `/crew init`, `/crew inspect`, `/crew fix`, `/crew evolve`, `/crew docs`
+- **Canonical agents (4):** `builder`, `runtime`, `flow`, `docs`
+- **Canonical skill packs (6):** `core-build`, `flows`, `runtime`, `tools`, `migration`, `governance`
+- **Workflows (5):** `create-crew`, `debug-crew`, `optimize-crew`, `migrate-project`, `create-flow`
+<!-- END GENERATED: TOOLKIT_INDEX -->
+
+
+Maintainer sync:
+
+- Source manifest: `toolkit/manifest.json`
+- Regenerate generated assets: `python3 scripts/sync_toolkit_manifest.py`
+- Validate manifest + generated assets: `python3 scripts/validate_toolkit_manifest.py`
+
 
 ---
 
@@ -115,17 +135,16 @@ irm https://raw.githubusercontent.com/victorgrein/cli-agents-config/main/install
 
 ### What the installer does
 
-The interactive installer will ask you:
-1. **Platform** - Claude Code or OpenCode?
-2. **Location** - Current folder or custom path?
-3. **Confirm** - Review before installing
+The interactive installer will ask for your **platform** (Claude Code or OpenCode), **installation location**, and confirmation before installing:
 
-Then it downloads and installs:
-- 16 Skills
-- 10 Agents  
+<!-- BEGIN GENERATED: TOOLKIT_INSTALLER_COUNTS -->
+- 6 Skills
+- 4 Agents
 - 5 Workflows
-- 8 Commands
-- System prompt (Claude Code only)
+- 5 Commands
+<!-- END GENERATED: TOOLKIT_INSTALLER_COUNTS -->
+
+Also installs the system prompt for Claude Code.
 
 ---
 
@@ -135,14 +154,11 @@ Quick actions when you need them:
 
 | Command | What it does |
 |---------|--------------|
-| `/crew create` | Start a new crew from scratch |
-| `/crew analyze` | Understand your crew's architecture |
-| `/crew debug` | Find and fix issues |
-| `/crew diagram` | Generate visual diagrams |
+| `/crew init` | Set up project context or create from natural language spec |
+| `/crew inspect` | Inspect architecture and performance |
+| `/crew fix` | Debug failures and optimize runtime behavior |
+| `/crew evolve` | Migrate or refactor project structure |
 | `/crew docs` | Create documentation |
-| `/crew migrate` | Move to a better structure |
-| `/crew optimise` | Make it faster and cheaper |
-| `/crew review` | Get feedback on your code |
 
 Just type the command. The AI handles the rest.
 
@@ -150,20 +166,14 @@ Just type the command. The AI handles the rest.
 
 ## Agents
 
-Your specialist team. Each one knows their craft:
+Canonical specialists:
 
 | Agent | What they do |
 |-------|--------------|
-| **crew-architect** | Designs how your crew fits together |
-| **agent-designer** | Creates agents with proper roles and goals |
-| **task-designer** | Builds tasks that get results |
-| **flow-engineer** | Handles flows and state management |
-| **tool-specialist** | Creates custom tools that work |
-| **debugger** | Finds problems and fixes them |
-| **llm-optimizer** | Picks the right model, saves you money |
-| **migration-specialist** | Moves projects to better patterns |
-| **performance-analyst** | Makes everything run faster |
-| **crewai-documenter** | Writes docs that make sense |
+| **builder** | Builds crews, agents, tasks, and tools |
+| **runtime** | Debugs issues and optimizes runtime behavior |
+| **flow** | Designs flows and handles migration/refactoring |
+| **docs** | Produces docs, diagrams, and standards summaries |
 
 You don't call them directly. The orchestrator brings in whoever you need.
 
@@ -173,26 +183,13 @@ You don't call them directly. The orchestrator brings in whoever you need.
 
 Knowledge the AI loads when it needs it:
 
-**Core Concepts**
-- `crewai-agents` - How to build agents properly
-- `crewai-tasks` - Task configuration that works
-- `crewai-crews` - Putting it all together
-- `crewai-flows` - State management and routing
-- `crewai-tools` - Custom and built-in tools
-- `crewai-llms` - Model selection and setup
-- `crewai-memory` - Memory systems
-- `crewai-processes` - Sequential vs hierarchical
-- `crewai-cli` - Command line reference
-
-**Process Skills**
-- `crewai-debugging` - Troubleshooting crews
-- `crewai-optimisation` - Cost and speed improvements
-- `crewai-migration` - Moving to better patterns
-- `crewai-crew-creation` - Step by step guidance
-
-**Standards**
-- `crewai-code-quality` - Writing clean code
-- `crewai-project-structure` - Organising your project
+**Canonical Skill Packs**
+- `core-build` - Crews, agents, tasks, and process design
+- `flows` - Flow orchestration, state, and routing
+- `runtime` - Debugging, optimization, LLM, and memory tuning
+- `tools` - Tool creation and integration patterns
+- `migration` - Migration and refactor execution strategy
+- `governance` - Standards, structure, CLI policy, and task tracking
 
 ---
 
@@ -200,32 +197,55 @@ Knowledge the AI loads when it needs it:
 
 Here's how I use it:
 
-**1. Start with create**
+**1. Start with init**
 ```
-/crew create
+/crew init --spec="A research crew that analyses AI trends and writes reports"
 ```
 The AI walks you through everything. Agent roles. Task structure. The lot.
 
 **2. Build iteratively**  
 Don't try to do everything at once. Start simple. Add complexity as you need it.
 
-**3. Debug when stuck**
+**3. Inspect before changing**
 ```
-/crew debug
+/crew inspect ./my_crew --focus="full"
 ```
-Something not working? The debugger agent finds the issue.
+Get architecture and runtime findings before making edits.
 
-**4. Optimise when ready**
+**4. Fix what matters most**
 ```
-/crew optimise
+/crew fix ./my_crew --target="stability"
 ```
-Once it works, make it efficient. Better models. Faster execution. Lower costs.
+Resolve failures first, then target cost, latency, or quality.
 
-**5. Document before you forget**
+**5. Evolve and document**
 ```
+/crew evolve ./my_crew --to="flow"
 /crew docs
 ```
 Future you will thank present you.
+
+---
+
+## Project Structure
+
+```
+crewai/
+├── README.md              # This documentation
+├── install.sh             # Installation script
+├── scripts/               # Toolkit validation & sync scripts
+├── templates/             # Agent, skill, and workflow prompts
+│   ├── shared/            # Core prompts (commands, agents, skills, workflows)
+│   ├── claude/            # Claude Code-specific configuration
+│   └── opencode/          # OpenCode-specific configuration
+└── toolkit/               # Toolkit metadata & validation data
+    ├── manifest.json      # Source of truth for all toolkit assets
+    ├── registry.json      # Runtime registry (generated)
+    └── cases/             # Validation test cases
+        ├── agent-routing.json
+        ├── command-smoke.json
+        └── e2e-scenarios.json
+```
 
 ---
 
