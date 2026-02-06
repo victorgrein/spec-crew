@@ -1,0 +1,113 @@
+{
+  "schema_version": "1.0",
+  "canonical_agents": [
+    "builder",
+    "runtime",
+    "flow",
+    "docs"
+  ],
+  "keyword_map": {
+    "builder": [
+      "create crew",
+      "new agent",
+      "task design",
+      "custom tool",
+      "bootstrap",
+      "scaffold",
+      "init",
+      "setup"
+    ],
+    "runtime": [
+      "debug",
+      "trace",
+      "error",
+      "inspect",
+      "fix",
+      "optimize",
+      "latency",
+      "cost",
+      "token",
+      "bottleneck",
+      "performance"
+    ],
+    "flow": [
+      "flow",
+      "router",
+      "state",
+      "migrate",
+      "migration",
+      "refactor",
+      "evolve",
+      "orchestrate",
+      "@start",
+      "@listen"
+    ],
+    "docs": [
+      "readme",
+      "documentation",
+      "diagram",
+      "docs",
+      "guide",
+      "standards summary"
+    ]
+  },
+  "command_expectations": {
+    "init": "builder",
+    "inspect": "runtime",
+    "fix": "runtime",
+    "evolve": "flow",
+    "docs": "docs"
+  },
+  "cases": [
+    {
+      "id": "build-01",
+      "query": "Create crew scaffolding from a natural-language spec and generate a custom tool.",
+      "expected_primary": "builder"
+    },
+    {
+      "id": "build-02",
+      "query": "Bootstrap AGENTS.md setup and task design for a new project.",
+      "expected_primary": "builder"
+    },
+    {
+      "id": "runtime-01",
+      "query": "Inspect token usage and performance bottlenecks in this crew run.",
+      "expected_primary": "runtime"
+    },
+    {
+      "id": "runtime-02",
+      "query": "Debug this trace error and fix the failing execution path.",
+      "expected_primary": "runtime"
+    },
+    {
+      "id": "runtime-03",
+      "query": "Optimize model settings for lower latency and cost.",
+      "expected_primary": "runtime"
+    },
+    {
+      "id": "flow-01",
+      "query": "Migrate this monolithic crew to a flow architecture with state and router steps.",
+      "expected_primary": "flow"
+    },
+    {
+      "id": "flow-02",
+      "query": "Refactor orchestration to use @start and @listen handlers.",
+      "expected_primary": "flow"
+    },
+    {
+      "id": "flow-03",
+      "query": "Evolve project structure and orchestrate multiple crews in one flow.",
+      "expected_primary": "flow"
+    },
+    {
+      "id": "docs-01",
+      "query": "Generate README documentation and architecture diagram for this crew.",
+      "expected_primary": "docs"
+    },
+    {
+      "id": "docs-02",
+      "query": "Write a docs guide with standards summary for onboarding.",
+      "expected_primary": "docs"
+    }
+  ]
+}

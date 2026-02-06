@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "minimum_pass_rate": 0.95,
+  "canonical_cases": [
+    {
+      "id": "init.default",
+      "invocation": "/crew init",
+      "expected_command": "init",
+      "expected_owner": "builder"
+    },
+    {
+      "id": "inspect.full",
+      "invocation": "/crew inspect ./my_crew --focus=\"full\"",
+      "expected_command": "inspect",
+      "expected_owner": "runtime"
+    },
+    {
+      "id": "fix.stability",
+      "invocation": "/crew fix ./my_crew --target=\"stability\"",
+      "expected_command": "fix",
+      "expected_owner": "runtime"
+    },
+    {
+      "id": "evolve.flow",
+      "invocation": "/crew evolve ./my_crew --to=\"flow\"",
+      "expected_command": "evolve",
+      "expected_owner": "flow"
+    },
+    {
+      "id": "docs.architecture",
+      "invocation": "/crew docs ./my_crew --include-diagram=\"architecture\"",
+      "expected_command": "docs",
+      "expected_owner": "docs"
+    }
+  ]
+}

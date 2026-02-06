@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/crewai/toolkit/manifest.schema.json",
+  "title": "CrewAI Toolkit Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "phase",
+    "commands",
+    "agents",
+    "skills",
+    "workflows",
+    "installation"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "phase": {
+      "type": "string"
+    },
+    "commands": {
+      "$ref": "#/$defs/canonicalSection"
+    },
+    "agents": {
+      "$ref": "#/$defs/canonicalSection"
+    },
+    "skills": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canonical",
+        "command_policy"
+      ],
+      "properties": {
+        "canonical": {
+          "type": "object"
+        },
+        "command_policy": {
+          "type": "object"
+        }
+      }
+    },
+    "workflows": {
+      "$ref": "#/$defs/canonicalSection"
+    },
+    "installation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "system_files"
+      ],
+      "properties": {
+        "system_files": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "claude",
+            "opencode"
+          ],
+          "properties": {
+            "claude": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "opencode": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "canonicalSection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canonical"
+      ],
+      "properties": {
+        "canonical": {
+          "type": "object"
+        }
+      }
+    }
+  }
+}

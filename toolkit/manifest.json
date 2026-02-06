@@ -1,0 +1,211 @@
+{
+  "schema_version": "1.0",
+  "phase": "phase-8-canonical-surface",
+  "commands": {
+    "canonical": {
+      "init": {
+        "owner": "builder",
+        "description": "Set up project context or create from a natural-language specification.",
+        "template": "templates/shared/commands/crew/init.md"
+      },
+      "inspect": {
+        "owner": "runtime",
+        "description": "Inspect architecture and runtime performance.",
+        "template": "templates/shared/commands/crew/inspect.md"
+      },
+      "fix": {
+        "owner": "runtime",
+        "description": "Debug failures and apply runtime optimizations.",
+        "template": "templates/shared/commands/crew/fix.md"
+      },
+      "evolve": {
+        "owner": "flow",
+        "description": "Migrate or refactor project structure and flow orchestration.",
+        "template": "templates/shared/commands/crew/evolve.md"
+      },
+      "docs": {
+        "owner": "docs",
+        "description": "Generate technical documentation and diagrams.",
+        "template": "templates/shared/commands/crew/docs.md"
+      }
+    }
+  },
+  "agents": {
+    "canonical": {
+      "builder": {
+        "description": "Builds crews, agents, tasks, and tools.",
+        "template": "templates/shared/agents/crewai/builder.md"
+      },
+      "runtime": {
+        "description": "Diagnoses failures and optimizes runtime behavior.",
+        "template": "templates/shared/agents/crewai/runtime.md"
+      },
+      "flow": {
+        "description": "Handles flow orchestration, migration, and structural refactors.",
+        "template": "templates/shared/agents/crewai/flow.md"
+      },
+      "docs": {
+        "description": "Produces docs, diagrams, and standards summaries.",
+        "template": "templates/shared/agents/crewai/docs.md"
+      }
+    }
+  },
+  "skills": {
+    "canonical": {
+      "core-build": {
+        "description": "Crews, agents, tasks, and process design.",
+        "owners": [
+          "builder"
+        ],
+        "triggers": [
+          "create crew",
+          "create agent",
+          "define task",
+          "configure process",
+          "bootstrap project"
+        ],
+        "template": "templates/shared/skills/core-build/SKILL.md"
+      },
+      "flows": {
+        "description": "Flow orchestration, state, listeners, and routing.",
+        "owners": [
+          "flow"
+        ],
+        "triggers": [
+          "create flow",
+          "flow routing",
+          "flow state",
+          "listen router decorators",
+          "event driven orchestration"
+        ],
+        "template": "templates/shared/skills/flows/SKILL.md"
+      },
+      "runtime": {
+        "description": "Debugging, optimization, LLM tuning, and memory behavior.",
+        "owners": [
+          "runtime"
+        ],
+        "triggers": [
+          "debug crew",
+          "trace failure",
+          "optimize latency",
+          "optimize token cost",
+          "llm tuning",
+          "memory stability"
+        ],
+        "template": "templates/shared/skills/runtime/SKILL.md"
+      },
+      "tools": {
+        "description": "Tool creation, integration, reliability, and async patterns.",
+        "owners": [
+          "builder",
+          "runtime"
+        ],
+        "triggers": [
+          "create custom tool",
+          "tool integration",
+          "tool timeout",
+          "tool caching",
+          "tool schema",
+          "async tool"
+        ],
+        "template": "templates/shared/skills/tools/SKILL.md"
+      },
+      "migration": {
+        "description": "Migration and refactor strategies with rollback safeguards.",
+        "owners": [
+          "flow"
+        ],
+        "triggers": [
+          "migrate crew",
+          "crew to flow migration",
+          "refactor project structure",
+          "modularize package layout",
+          "rollback plan"
+        ],
+        "template": "templates/shared/skills/migration/SKILL.md"
+      },
+      "governance": {
+        "description": "Code quality, project structure, CLI policy, and task governance.",
+        "owners": [
+          "builder",
+          "flow",
+          "docs"
+        ],
+        "triggers": [
+          "project standards",
+          "code quality rules",
+          "project structure guide",
+          "task dependency tracking",
+          "cli workflow policy"
+        ],
+        "template": "templates/shared/skills/governance/SKILL.md"
+      }
+    },
+    "command_policy": {
+      "init": {
+        "primary": "core-build",
+        "optional": [
+          "tools",
+          "governance"
+        ]
+      },
+      "inspect": {
+        "primary": "runtime",
+        "optional": []
+      },
+      "fix": {
+        "primary": "runtime",
+        "optional": [
+          "tools"
+        ]
+      },
+      "evolve": {
+        "primary": "flows",
+        "optional": [
+          "migration",
+          "governance"
+        ]
+      },
+      "docs": {
+        "primary": "governance",
+        "optional": []
+      }
+    }
+  },
+  "workflows": {
+    "canonical": {
+      "create-crew": {
+        "description": "Create a complete CrewAI crew from natural-language specification.",
+        "template": "templates/shared/workflows/create-crew/SKILL.md"
+      },
+      "debug-crew": {
+        "description": "Diagnose CrewAI execution issues and propose targeted fixes.",
+        "template": "templates/shared/workflows/debug-crew/SKILL.md"
+      },
+      "optimize-crew": {
+        "description": "Optimize CrewAI runtime for cost, latency, and quality.",
+        "template": "templates/shared/workflows/optimize-crew/SKILL.md"
+      },
+      "migrate-project": {
+        "description": "Migrate or refactor CrewAI projects to updated structures.",
+        "template": "templates/shared/workflows/migrate-project/SKILL.md"
+      },
+      "create-flow": {
+        "description": "Create CrewAI flows with state management and event routing.",
+        "template": "templates/shared/workflows/create-flow/SKILL.md"
+      }
+    }
+  },
+  "installation": {
+    "system_files": {
+      "claude": [
+        "templates/claude/CLAUDE.md",
+        "templates/claude/settings.json"
+      ],
+      "opencode": [
+        "templates/opencode/crewai-orchestrator.md"
+      ]
+    }
+  }
+}

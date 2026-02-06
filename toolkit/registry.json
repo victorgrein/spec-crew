@@ -1,0 +1,150 @@
+{
+  "schema_version": "1.0",
+  "phase": "phase-8-canonical-surface",
+  "commands": {
+    "canonical": {
+      "init": {
+        "owner": "builder"
+      },
+      "inspect": {
+        "owner": "runtime"
+      },
+      "fix": {
+        "owner": "runtime"
+      },
+      "evolve": {
+        "owner": "flow"
+      },
+      "docs": {
+        "owner": "docs"
+      }
+    }
+  },
+  "agents": {
+    "canonical": {
+      "builder": {
+        "description": "Builds crews, agents, tasks, and tools."
+      },
+      "runtime": {
+        "description": "Diagnoses failures and optimizes runtime behavior."
+      },
+      "flow": {
+        "description": "Handles flow orchestration, migration, and structural refactors."
+      },
+      "docs": {
+        "description": "Produces docs, diagrams, and standards summaries."
+      }
+    }
+  },
+  "skills": {
+    "canonical": {
+      "core-build": {
+        "owners": [
+          "builder"
+        ],
+        "triggers": [
+          "create crew",
+          "create agent",
+          "define task",
+          "configure process",
+          "bootstrap project"
+        ]
+      },
+      "flows": {
+        "owners": [
+          "flow"
+        ],
+        "triggers": [
+          "create flow",
+          "flow routing",
+          "flow state",
+          "listen router decorators",
+          "event driven orchestration"
+        ]
+      },
+      "runtime": {
+        "owners": [
+          "runtime"
+        ],
+        "triggers": [
+          "debug crew",
+          "trace failure",
+          "optimize latency",
+          "optimize token cost",
+          "llm tuning",
+          "memory stability"
+        ]
+      },
+      "tools": {
+        "owners": [
+          "builder",
+          "runtime"
+        ],
+        "triggers": [
+          "create custom tool",
+          "tool integration",
+          "tool timeout",
+          "tool caching",
+          "tool schema",
+          "async tool"
+        ]
+      },
+      "migration": {
+        "owners": [
+          "flow"
+        ],
+        "triggers": [
+          "migrate crew",
+          "crew to flow migration",
+          "refactor project structure",
+          "modularize package layout",
+          "rollback plan"
+        ]
+      },
+      "governance": {
+        "owners": [
+          "builder",
+          "flow",
+          "docs"
+        ],
+        "triggers": [
+          "project standards",
+          "code quality rules",
+          "project structure guide",
+          "task dependency tracking",
+          "cli workflow policy"
+        ]
+      }
+    },
+    "command_policy": {
+      "init": {
+        "primary": "core-build",
+        "optional": [
+          "tools",
+          "governance"
+        ]
+      },
+      "inspect": {
+        "primary": "runtime",
+        "optional": []
+      },
+      "fix": {
+        "primary": "runtime",
+        "optional": [
+          "tools"
+        ]
+      },
+      "evolve": {
+        "primary": "flows",
+        "optional": [
+          "migration",
+          "governance"
+        ]
+      },
+      "docs": {
+        "primary": "governance",
+        "optional": []
+      }
+    }
+  }
+}
