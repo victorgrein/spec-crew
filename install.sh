@@ -23,27 +23,44 @@ PLATFORM=""
 NON_INTERACTIVE=false
 
 # Package contents
+# BEGIN GENERATED: TOOLKIT_PACKAGE_LISTS
 PKG_SKILLS=(
-    "crewai-agents" "crewai-tasks" "crewai-crews" "crewai-flows"
-    "crewai-tools" "crewai-llms" "crewai-memory" "crewai-processes"
-    "crewai-cli" "crewai-debugging" "crewai-optimization" "crewai-migration"
-    "crewai-crew-creation" "crewai-code-quality" "crewai-project-structure"
-    "task-management"
+    "core-build"
+    "flows"
+    "runtime"
+    "tools"
+    "migration"
+    "governance"
 )
 
 PKG_AGENTS=(
-    "crewai/crew-architect" "crewai/agent-designer" "crewai/task-designer"
-    "crewai/flow-engineer" "crewai/tool-specialist" "crewai/debugger"
-    "crewai/llm-optimizer" "crewai/migration-specialist"
-    "crewai/performance-analyst" "crewai/crewai-documenter"
+    "crewai/builder"
+    "crewai/runtime"
+    "crewai/flow"
+    "crewai/docs"
 )
 
-PKG_WORKFLOWS=("create-crew" "debug-crew" "optimize-crew" "migrate-project" "create-flow")
+PKG_WORKFLOWS=(
+    "create-crew"
+    "debug-crew"
+    "optimize-crew"
+    "migrate-project"
+    "create-flow"
+)
 
 PKG_COMMANDS=(
-    "crew/create" "crew/analyze" "crew/debug" "crew/diagram"
-    "crew/docs" "crew/migrate" "crew/optimize" "crew/review"
+    "crew/init"
+    "crew/inspect"
+    "crew/fix"
+    "crew/evolve"
+    "crew/docs"
 )
+# END GENERATED: TOOLKIT_PACKAGE_LISTS
+
+
+
+
+
 
 #############################################################################
 # Utility Functions
@@ -249,7 +266,7 @@ transform_agent_for_opencode() {
         }
     ' "$input_file")
     
-    # Create OpenCode compatible frontmatter (only valid fields per OpenCode docs)
+    # Create OpenCode frontmatter (only valid fields per OpenCode docs)
     cat > "$output_file" << EOF
 ---
 description: $desc
@@ -443,10 +460,10 @@ perform_installation() {
     echo -e "  ${CYAN}Next steps:${NC}"
     if [ "$PLATFORM" = "claude" ]; then
         echo "    1. Open Claude Code in your project"
-        echo "    2. Run /crew create"
+        echo "    2. Run /crew init"
     else
         echo "    1. Open OpenCode in your project"
-        echo "    2. Run @crewai-orchestrator or /crew create"
+        echo "    2. Run @crewai-orchestrator or /crew init"
     fi
     echo ""
 }
