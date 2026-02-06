@@ -1,6 +1,6 @@
-# CrewAI Development Toolkit
+# Spec Crew
 
-### Build AI crews that actually work. Pre-built skills, agents, and workflows for Claude Code & OpenCode.
+### Spec-driven CrewAI development toolkit for Claude Code & OpenCode.
 
 [![Connect with me on LinkedIn](https://img.shields.io/badge/Let's_Connect-LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/victorgrein/)
 
@@ -46,7 +46,7 @@ Everything you need to build crews properly:
 <!-- END GENERATED: TOOLKIT_WHATS_INSIDE -->
 
 
-One install. Your AI becomes a CrewAI expert.
+One install. Your AI becomes a Spec Crew expert.
 
 ### Toolkit Index (Generated)
 
@@ -230,7 +230,7 @@ Future you will thank present you.
 ## Project Structure
 
 ```
-crewai/
+spec-crew/
 ├── README.md              # This documentation
 ├── install.sh             # Installation script
 ├── scripts/               # Toolkit validation & sync scripts
@@ -251,7 +251,7 @@ crewai/
 
 ## Questions?
 
-Connect with me on [LinkedIn](https://www.linkedin.com/in/victorgrein/). Always happy to chat about CrewAI.
+Connect with me on [LinkedIn](https://www.linkedin.com/in/victorgrein/). Always happy to chat about CrewAI and Spec Crew.
 
 ---
 

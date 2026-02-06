@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #############################################################################
-# CrewAI Skills Installer
+# Spec Crew Installer
 # Interactive installer for Claude Code and OpenCode
 #############################################################################
 
@@ -70,7 +70,7 @@ print_header() {
     echo -e "${CYAN}${BOLD}"
     echo "╔══════════════════════════════════════════════════════════╗"
     echo "║                                                          ║"
-    echo "║            CrewAI Skills Installer                       ║"
+    echo "║                Spec Crew Installer                       ║"
     echo "║                                                          ║"
     echo "╚══════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
