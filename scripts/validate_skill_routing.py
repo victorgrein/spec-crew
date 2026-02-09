@@ -106,7 +106,9 @@ def validate_command_policy(registry: dict) -> list[str]:
             continue
 
         if len(optional) != len(set(optional)):
-            errors.append(f"command `{command_name}` optional skills contain duplicates")
+            errors.append(
+                f"command `{command_name}` optional skills contain duplicates"
+            )
 
         for skill_name in optional:
             if skill_name not in canonical_skills:
@@ -129,7 +131,9 @@ def validate_command_policy(registry: dict) -> list[str]:
 
     uncovered = sorted(canonical_skills - covered)
     if uncovered:
-        errors.append("canonical skills not used by any command policy: " + ", ".join(uncovered))
+        errors.append(
+            "canonical skills not used by any command policy: " + ", ".join(uncovered)
+        )
 
     return errors
 
@@ -139,7 +143,8 @@ def validate_agent_alignment(repo_root: Path, registry: dict) -> list[str]:
 
     agents_dir = repo_root / "templates" / "shared" / "agents" / "crewai"
     command_owners = {
-        command: data["owner"] for command, data in registry["commands"]["canonical"].items()
+        command: data["owner"]
+        for command, data in registry["commands"]["canonical"].items()
     }
     command_policy = registry["skills"]["command_policy"]
     canonical_agents = set(registry["agents"]["canonical"].keys())
@@ -149,7 +154,9 @@ def validate_agent_alignment(repo_root: Path, registry: dict) -> list[str]:
     for agent_name in canonical_agents:
         agent_file = agents_dir / f"{agent_name}.md"
         if not agent_file.exists():
-            errors.append(f"missing canonical agent file: {agent_file.relative_to(repo_root)}")
+            errors.append(
+                f"missing canonical agent file: {agent_file.relative_to(repo_root)}"
+            )
             continue
 
         metadata = parse_frontmatter_lists(agent_file)
@@ -214,6 +221,47 @@ def validate_orchestrator_mentions(repo_root: Path, registry: dict) -> list[str]
     return errors
 
 
+def validate_opencode_skill_loading_policy(repo_root: Path) -> list[str]:
+    errors: list[str] = []
+
+    orchestrator_path = repo_root / "templates" / "opencode" / "crewai-orchestrator.md"
+    orchestrator_text = orchestrator_path.read_text(encoding="utf-8")
+
+    if "\n  skill: true" not in orchestrator_text:
+        errors.append(
+            "OpenCode orchestrator must enable the `skill` tool in templates/opencode/crewai-orchestrator.md"
+        )
+
+    required_snippets = [
+        "Never read skill files directly from `.opencode/skills/**`.",
+        "Selected specialist: load its own allowed skills via `skill` as the first execution step.",
+        "Load only `governance` via `skill`.",
+    ]
+    for snippet in required_snippets:
+        if snippet not in orchestrator_text:
+            errors.append(
+                "OpenCode orchestrator missing skill-loading policy snippet: "
+                f"`{snippet}`"
+            )
+
+    installer_path = repo_root / "install.sh"
+    installer_text = installer_path.read_text(encoding="utf-8")
+    function_start = installer_text.find("transform_agent_for_opencode() {")
+    function_end = installer_text.find("\ninstall_agents() {", function_start)
+    if function_start == -1 or function_end == -1:
+        errors.append(
+            "unable to locate transform_agent_for_opencode() function in install.sh"
+        )
+    else:
+        transform_block = installer_text[function_start:function_end]
+        if "\n  skill: true" not in transform_block:
+            errors.append(
+                "OpenCode subagent transform must enable the `skill` tool in install.sh"
+            )
+
+    return errors
+
+
 def main() -> int:
     repo_root = Path(__file__).resolve().parents[1]
     registry_path = repo_root / "toolkit" / "registry.json"
@@ -229,6 +277,7 @@ def main() -> int:
     errors.extend(validate_command_policy(registry))
     errors.extend(validate_agent_alignment(repo_root, registry))
     errors.extend(validate_orchestrator_mentions(repo_root, registry))
+    errors.extend(validate_opencode_skill_loading_policy(repo_root))
 
     if errors:
         print("Skill routing validation failed:")

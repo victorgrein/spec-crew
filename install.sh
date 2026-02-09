@@ -280,6 +280,7 @@ tools:
   glob: true
   bash: true
   task: true
+  skill: true
 permission:
   skill:
 $skill_permissions
