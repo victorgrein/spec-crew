@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "canonical_agents": [
     "builder",
-    "runtime",
+    "auditor",
     "flow",
     "docs"
   ],
@@ -17,12 +17,15 @@
       "init",
       "setup"
     ],
-    "runtime": [
+    "auditor": [
       "debug",
       "trace",
       "error",
       "inspect",
       "fix",
+      "audit",
+      "investigate",
+      "validate",
       "optimize",
       "latency",
       "cost",
@@ -53,8 +56,8 @@
   },
   "command_expectations": {
     "init": "builder",
-    "inspect": "runtime",
-    "fix": "runtime",
+    "inspect": "auditor",
+    "fix": "auditor",
     "evolve": "flow",
     "docs": "docs"
   },
@@ -70,19 +73,19 @@
       "expected_primary": "builder"
     },
     {
-      "id": "runtime-01",
+      "id": "auditor-01",
       "query": "Inspect token usage and performance bottlenecks in this crew run.",
-      "expected_primary": "runtime"
+      "expected_primary": "auditor"
     },
     {
-      "id": "runtime-02",
+      "id": "auditor-02",
       "query": "Debug this trace error and fix the failing execution path.",
-      "expected_primary": "runtime"
+      "expected_primary": "auditor"
     },
     {
-      "id": "runtime-03",
+      "id": "auditor-03",
       "query": "Optimize model settings for lower latency and cost.",
-      "expected_primary": "runtime"
+      "expected_primary": "auditor"
     },
     {
       "id": "flow-01",

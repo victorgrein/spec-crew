@@ -10,7 +10,6 @@
     "commands",
     "agents",
     "skills",
-    "workflows",
     "installation"
   ],
   "properties": {
@@ -41,9 +40,6 @@
           "type": "object"
         }
       }
-    },
-    "workflows": {
-      "$ref": "#/$defs/canonicalSection"
     },
     "installation": {
       "type": "object",

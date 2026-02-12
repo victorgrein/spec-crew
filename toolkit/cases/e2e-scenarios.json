@@ -9,26 +9,29 @@
       "expected_owner": "builder",
       "expected_primary_skill": "core-build",
       "required_optional_skills": [
-        "tools",
-        "governance"
+        "tools-expert"
       ]
     },
     {
       "id": "canonical.inspect.architecture",
       "invocation": "/crew inspect ./my_crew --focus=\"architecture\"",
       "expected_command": "inspect",
-      "expected_owner": "runtime",
-      "expected_primary_skill": "runtime",
-      "required_optional_skills": []
+      "expected_owner": "auditor",
+      "expected_primary_skill": "core-build",
+      "required_optional_skills": [
+        "flows",
+        "tools-expert"
+      ]
     },
     {
       "id": "canonical.fix.latency",
       "invocation": "/crew fix ./my_crew --target=\"latency\"",
       "expected_command": "fix",
-      "expected_owner": "runtime",
-      "expected_primary_skill": "runtime",
+      "expected_owner": "auditor",
+      "expected_primary_skill": "core-build",
       "required_optional_skills": [
-        "tools"
+        "flows",
+        "tools-expert"
       ]
     },
     {
@@ -37,18 +40,17 @@
       "expected_command": "evolve",
       "expected_owner": "flow",
       "expected_primary_skill": "flows",
-      "required_optional_skills": [
-        "migration",
-        "governance"
-      ]
+      "required_optional_skills": []
     },
     {
       "id": "canonical.docs.diagram",
       "invocation": "/crew docs ./my_crew --include-diagram=\"architecture\"",
       "expected_command": "docs",
       "expected_owner": "docs",
-      "expected_primary_skill": "governance",
-      "required_optional_skills": []
+      "expected_primary_skill": "core-build",
+      "required_optional_skills": [
+        "flows"
+      ]
     }
   ]
 }

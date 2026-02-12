@@ -7,10 +7,10 @@
         "owner": "builder"
       },
       "inspect": {
-        "owner": "runtime"
+        "owner": "auditor"
       },
       "fix": {
-        "owner": "runtime"
+        "owner": "auditor"
       },
       "evolve": {
         "owner": "flow"
@@ -25,14 +25,14 @@
       "builder": {
         "description": "Builds crews, agents, tasks, and tools."
       },
-      "runtime": {
-        "description": "Diagnoses failures and optimizes runtime behavior."
+      "auditor": {
+        "description": "Runs read-only investigations, audits, and runtime validation."
       },
       "flow": {
-        "description": "Handles flow orchestration, migration, and structural refactors."
+        "description": "Handles flow orchestration, state management, routing, and structural refactors."
       },
       "docs": {
-        "description": "Produces docs, diagrams, and standards summaries."
+        "description": "Produces markdown docs, diagrams, and standards summaries."
       }
     }
   },
@@ -40,7 +40,9 @@
     "canonical": {
       "core-build": {
         "owners": [
-          "builder"
+          "builder",
+          "auditor",
+          "docs"
         ],
         "triggers": [
           "create crew",
@@ -52,7 +54,9 @@
       },
       "flows": {
         "owners": [
-          "flow"
+          "flow",
+          "auditor",
+          "docs"
         ],
         "triggers": [
           "create flow",
@@ -62,48 +66,23 @@
           "event driven orchestration"
         ]
       },
-      "runtime": {
-        "owners": [
-          "runtime"
-        ],
-        "triggers": [
-          "debug crew",
-          "trace failure",
-          "optimize latency",
-          "optimize token cost",
-          "llm tuning",
-          "memory stability"
-        ]
-      },
-      "tools": {
+      "tools-expert": {
         "owners": [
           "builder",
-          "runtime"
+          "auditor"
         ],
         "triggers": [
-          "create custom tool",
-          "tool integration",
-          "tool timeout",
-          "tool caching",
+          "tool selection",
+          "custom tool",
           "tool schema",
-          "async tool"
+          "tool integration",
+          "tooling safety"
         ]
       },
-      "migration": {
-        "owners": [
-          "flow"
-        ],
-        "triggers": [
-          "migrate crew",
-          "crew to flow migration",
-          "refactor project structure",
-          "modularize package layout",
-          "rollback plan"
-        ]
-      },
-      "governance": {
+      "orchestration-governance": {
         "owners": [
           "builder",
+          "auditor",
           "flow",
           "docs"
         ],
@@ -120,30 +99,32 @@
       "init": {
         "primary": "core-build",
         "optional": [
-          "tools",
-          "governance"
+          "tools-expert"
         ]
       },
       "inspect": {
-        "primary": "runtime",
-        "optional": []
+        "primary": "core-build",
+        "optional": [
+          "flows",
+          "tools-expert"
+        ]
       },
       "fix": {
-        "primary": "runtime",
+        "primary": "core-build",
         "optional": [
-          "tools"
+          "flows",
+          "tools-expert"
         ]
       },
       "evolve": {
         "primary": "flows",
-        "optional": [
-          "migration",
-          "governance"
-        ]
+        "optional": []
       },
       "docs": {
-        "primary": "governance",
-        "optional": []
+        "primary": "core-build",
+        "optional": [
+          "flows"
+        ]
       }
     }
   }

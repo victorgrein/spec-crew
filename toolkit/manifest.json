@@ -9,13 +9,13 @@
         "template": "templates/shared/commands/crew/init.md"
       },
       "inspect": {
-        "owner": "runtime",
-        "description": "Inspect architecture and runtime performance.",
+        "owner": "auditor",
+        "description": "Inspect architecture and runtime behaviour via read-only audit.",
         "template": "templates/shared/commands/crew/inspect.md"
       },
       "fix": {
-        "owner": "runtime",
-        "description": "Debug failures and apply runtime optimizations.",
+        "owner": "auditor",
+        "description": "Diagnose failures and coordinate targeted implementation fixes.",
         "template": "templates/shared/commands/crew/fix.md"
       },
       "evolve": {
@@ -36,16 +36,16 @@
         "description": "Builds crews, agents, tasks, and tools.",
         "template": "templates/shared/agents/crewai/builder.md"
       },
-      "runtime": {
-        "description": "Diagnoses failures and optimizes runtime behavior.",
-        "template": "templates/shared/agents/crewai/runtime.md"
+      "auditor": {
+        "description": "Runs read-only investigations, audits, and runtime validation.",
+        "template": "templates/shared/agents/crewai/auditor.md"
       },
       "flow": {
-        "description": "Handles flow orchestration, migration, and structural refactors.",
+        "description": "Handles flow orchestration, state management, routing, and structural refactors.",
         "template": "templates/shared/agents/crewai/flow.md"
       },
       "docs": {
-        "description": "Produces docs, diagrams, and standards summaries.",
+        "description": "Produces markdown docs, diagrams, and standards summaries.",
         "template": "templates/shared/agents/crewai/docs.md"
       }
     }
@@ -55,7 +55,9 @@
       "core-build": {
         "description": "Crews, agents, tasks, and process design.",
         "owners": [
-          "builder"
+          "builder",
+          "auditor",
+          "docs"
         ],
         "triggers": [
           "create crew",
@@ -69,7 +71,9 @@
       "flows": {
         "description": "Flow orchestration, state, listeners, and routing.",
         "owners": [
-          "flow"
+          "flow",
+          "auditor",
+          "docs"
         ],
         "triggers": [
           "create flow",
@@ -80,55 +84,26 @@
         ],
         "template": "templates/shared/skills/flows/SKILL.md"
       },
-      "runtime": {
-        "description": "Debugging, optimization, LLM tuning, and memory behavior.",
-        "owners": [
-          "runtime"
-        ],
-        "triggers": [
-          "debug crew",
-          "trace failure",
-          "optimize latency",
-          "optimize token cost",
-          "llm tuning",
-          "memory stability"
-        ],
-        "template": "templates/shared/skills/runtime/SKILL.md"
-      },
-      "tools": {
-        "description": "Tool creation, integration, reliability, and async patterns.",
+      "tools-expert": {
+        "description": "Tool selection, custom tool design, and tooling safety reviews.",
         "owners": [
           "builder",
-          "runtime"
+          "auditor"
         ],
         "triggers": [
-          "create custom tool",
-          "tool integration",
-          "tool timeout",
-          "tool caching",
+          "tool selection",
+          "custom tool",
           "tool schema",
-          "async tool"
+          "tool integration",
+          "tooling safety"
         ],
-        "template": "templates/shared/skills/tools/SKILL.md"
+        "template": "templates/shared/skills/tools-expert/SKILL.md"
       },
-      "migration": {
-        "description": "Migration and refactor strategies with rollback safeguards.",
-        "owners": [
-          "flow"
-        ],
-        "triggers": [
-          "migrate crew",
-          "crew to flow migration",
-          "refactor project structure",
-          "modularize package layout",
-          "rollback plan"
-        ],
-        "template": "templates/shared/skills/migration/SKILL.md"
-      },
-      "governance": {
-        "description": "Code quality, project structure, CLI policy, and task governance.",
+      "orchestration-governance": {
+        "description": "Natural language orchestration skill for coordinating multi-subagent workflows.",
         "owners": [
           "builder",
+          "auditor",
           "flow",
           "docs"
         ],
@@ -139,61 +114,39 @@
           "task dependency tracking",
           "cli workflow policy"
         ],
-        "template": "templates/shared/skills/governance/SKILL.md"
+        "template": "templates/shared/skills/orchestration-governance/SKILL.md"
       }
     },
     "command_policy": {
       "init": {
         "primary": "core-build",
         "optional": [
-          "tools",
-          "governance"
+          "tools-expert"
         ]
       },
       "inspect": {
-        "primary": "runtime",
-        "optional": []
+        "primary": "core-build",
+        "optional": [
+          "flows",
+          "tools-expert"
+        ]
       },
       "fix": {
-        "primary": "runtime",
+        "primary": "core-build",
         "optional": [
-          "tools"
+          "flows",
+          "tools-expert"
         ]
       },
       "evolve": {
         "primary": "flows",
-        "optional": [
-          "migration",
-          "governance"
-        ]
+        "optional": []
       },
       "docs": {
-        "primary": "governance",
-        "optional": []
-      }
-    }
-  },
-  "workflows": {
-    "canonical": {
-      "create-crew": {
-        "description": "Create a complete CrewAI crew from natural-language specification.",
-        "template": "templates/shared/workflows/create-crew/SKILL.md"
-      },
-      "debug-crew": {
-        "description": "Diagnose CrewAI execution issues and propose targeted fixes.",
-        "template": "templates/shared/workflows/debug-crew/SKILL.md"
-      },
-      "optimize-crew": {
-        "description": "Optimize CrewAI runtime for cost, latency, and quality.",
-        "template": "templates/shared/workflows/optimize-crew/SKILL.md"
-      },
-      "migrate-project": {
-        "description": "Migrate or refactor CrewAI projects to updated structures.",
-        "template": "templates/shared/workflows/migrate-project/SKILL.md"
-      },
-      "create-flow": {
-        "description": "Create CrewAI flows with state management and event routing.",
-        "template": "templates/shared/workflows/create-flow/SKILL.md"
+        "primary": "core-build",
+        "optional": [
+          "flows"
+        ]
       }
     }
   },

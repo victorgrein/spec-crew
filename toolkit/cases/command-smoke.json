@@ -12,13 +12,13 @@
       "id": "inspect.full",
       "invocation": "/crew inspect ./my_crew --focus=\"full\"",
       "expected_command": "inspect",
-      "expected_owner": "runtime"
+      "expected_owner": "auditor"
     },
     {
       "id": "fix.stability",
       "invocation": "/crew fix ./my_crew --target=\"stability\"",
       "expected_command": "fix",
-      "expected_owner": "runtime"
+      "expected_owner": "auditor"
     },
     {
       "id": "evolve.flow",
