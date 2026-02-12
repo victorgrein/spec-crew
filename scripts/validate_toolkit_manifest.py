@@ -29,7 +29,9 @@ def main() -> int:
         print("Toolkit manifest validation failed:")
         for error in errors:
             print(f"- {error}")
-        print("Hint: run `python3 scripts/sync_toolkit_manifest.py` after manifest edits.")
+        print(
+            "Hint: run `python3 scripts/sync_toolkit_manifest.py` after manifest edits."
+        )
         return 1
 
     counts = manifest_counts(manifest)
@@ -38,8 +40,7 @@ def main() -> int:
         "Validated assets: "
         f"skills={counts['skills']}, "
         f"agents={counts['agents']}, "
-        f"commands={counts['commands']}, "
-        f"workflows={counts['workflows']}"
+        f"commands={counts['commands']}"
     )
     return 0
 

@@ -129,7 +129,8 @@ def validate_command_policy(registry: dict) -> list[str]:
         if isinstance(policy, dict):
             covered.update(policy.get("optional", []))
 
-    uncovered = sorted(canonical_skills - covered)
+    exempt_from_command_coverage = {"orchestration-governance"}
+    uncovered = sorted((canonical_skills - covered) - exempt_from_command_coverage)
     if uncovered:
         errors.append(
             "canonical skills not used by any command policy: " + ", ".join(uncovered)
@@ -233,9 +234,9 @@ def validate_opencode_skill_loading_policy(repo_root: Path) -> list[str]:
         )
 
     required_snippets = [
-        "Never read skill files directly from `.opencode/skills/**`.",
-        "Selected specialist: load its own allowed skills via `skill` as the first execution step.",
-        "Load only `governance` via `skill`.",
+        "Load `orchestration-governance` first via the `skill` tool",
+        "Specialist execution skills: `core-build`, `flows`, `tools-expert` according to each contract above",
+        "No subagent-to-subagent delegation",
     ]
     for snippet in required_snippets:
         if snippet not in orchestrator_text:

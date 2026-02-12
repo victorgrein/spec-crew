@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 EXPECTED_CANONICAL_COMMANDS = {"init", "inspect", "fix", "evolve", "docs"}
-VALID_OWNERS = {"builder", "runtime", "flow", "docs"}
+VALID_OWNERS = {"builder", "auditor", "flow", "docs"}
 REQUIRED_CONTRACT_TOKENS = [
     "1. `findings`",
     "2. `plan`",
@@ -86,7 +86,9 @@ def validate_command_templates(repo_root: Path, registry: dict) -> list[str]:
 
     commands_dir = repo_root / "templates" / "shared" / "commands" / "crew"
     if not commands_dir.exists():
-        return [f"command template directory missing: {commands_dir.relative_to(repo_root)}"]
+        return [
+            f"command template directory missing: {commands_dir.relative_to(repo_root)}"
+        ]
 
     canonical_data = registry["commands"]["canonical"]
 
@@ -99,7 +101,9 @@ def validate_command_templates(repo_root: Path, registry: dict) -> list[str]:
     if missing_templates:
         errors.append("missing command templates: " + ", ".join(missing_templates))
     if unexpected_templates:
-        errors.append("unexpected command templates: " + ", ".join(unexpected_templates))
+        errors.append(
+            "unexpected command templates: " + ", ".join(unexpected_templates)
+        )
 
     for command_name in canonical_data:
         command_path = commands_dir / f"{command_name}.md"
@@ -124,7 +128,9 @@ def validate_command_templates(repo_root: Path, registry: dict) -> list[str]:
                 f"{command_path.relative_to(repo_root)} missing canonical heading `# /crew {command_name}`"
             )
         if "## Syntax" not in body:
-            errors.append(f"{command_path.relative_to(repo_root)} missing `## Syntax` section")
+            errors.append(
+                f"{command_path.relative_to(repo_root)} missing `## Syntax` section"
+            )
         if "## Response Contract (Required)" not in body:
             errors.append(
                 f"{command_path.relative_to(repo_root)} missing `## Response Contract (Required)` section"
@@ -139,7 +145,9 @@ def validate_command_templates(repo_root: Path, registry: dict) -> list[str]:
     return errors
 
 
-def validate_smoke_cases(repo_root: Path, registry: dict, smoke_cases: dict) -> list[str]:
+def validate_smoke_cases(
+    repo_root: Path, registry: dict, smoke_cases: dict
+) -> list[str]:
     errors: list[str] = []
 
     canonical_data = registry["commands"]["canonical"]
@@ -171,7 +179,9 @@ def validate_smoke_cases(repo_root: Path, registry: dict, smoke_cases: dict) -> 
         invocation = case.get("invocation", "")
         command_name = parse_invocation_command(invocation)
         if not command_name:
-            errors.append(f"smoke case `{case_id}` has invalid invocation: {invocation!r}")
+            errors.append(
+                f"smoke case `{case_id}` has invalid invocation: {invocation!r}"
+            )
             continue
 
         if command_name not in canonical_commands:
@@ -197,7 +207,12 @@ def validate_smoke_cases(repo_root: Path, registry: dict, smoke_cases: dict) -> 
                 )
 
         template_path = (
-            repo_root / "templates" / "shared" / "commands" / "crew" / f"{command_name}.md"
+            repo_root
+            / "templates"
+            / "shared"
+            / "commands"
+            / "crew"
+            / f"{command_name}.md"
         )
         if not template_path.exists():
             errors.append(
@@ -207,7 +222,8 @@ def validate_smoke_cases(repo_root: Path, registry: dict, smoke_cases: dict) -> 
     missing_canonical = sorted(canonical_commands - covered_canonical)
     if missing_canonical:
         errors.append(
-            "canonical commands not covered by smoke cases: " + ", ".join(missing_canonical)
+            "canonical commands not covered by smoke cases: "
+            + ", ".join(missing_canonical)
         )
 
     return errors

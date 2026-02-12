@@ -12,10 +12,8 @@ from pathlib import Path
 EXPECTED_CANONICAL_SKILLS = [
     "core-build",
     "flows",
-    "governance",
-    "migration",
-    "runtime",
-    "tools",
+    "orchestration-governance",
+    "tools-expert",
 ]
 
 MAX_CANONICAL_LINES = 70
@@ -71,7 +69,9 @@ def validate_canonical_skills(repo_root: Path, registry: dict) -> tuple[list[str
     for skill_name, config in canonical.items():
         skill_path = skills_dir / skill_name / "SKILL.md"
         if not skill_path.exists():
-            errors.append(f"missing canonical skill file: {skill_path.relative_to(repo_root)}")
+            errors.append(
+                f"missing canonical skill file: {skill_path.relative_to(repo_root)}"
+            )
             continue
 
         fm = parse_frontmatter(skill_path)
@@ -121,7 +121,9 @@ def validate_installer_skills(repo_root: Path, registry: dict) -> list[str]:
     if missing:
         errors.append("install.sh missing skill package entries: " + ", ".join(missing))
     if unexpected:
-        errors.append("install.sh has unexpected skill package entries: " + ", ".join(unexpected))
+        errors.append(
+            "install.sh has unexpected skill package entries: " + ", ".join(unexpected)
+        )
 
     return errors
 

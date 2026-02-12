@@ -65,8 +65,7 @@ def main() -> int:
         "- Counts: "
         f"skills={counts['skills']}, "
         f"agents={counts['agents']}, "
-        f"commands={counts['commands']}, "
-        f"workflows={counts['workflows']}"
+        f"commands={counts['commands']}"
     )
     return 0
 

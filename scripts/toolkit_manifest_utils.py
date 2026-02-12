@@ -53,34 +53,26 @@ def skill_canonical_names(manifest: dict[str, Any]) -> list[str]:
     return keys_in_order(manifest["skills"]["canonical"])
 
 
-def workflow_names(manifest: dict[str, Any]) -> list[str]:
-    return keys_in_order(manifest["workflows"]["canonical"])
-
-
 def manifest_counts(manifest: dict[str, Any]) -> dict[str, int]:
     skills = len(skill_canonical_names(manifest))
     agents = len(agent_canonical_names(manifest))
     commands = len(command_canonical_names(manifest))
-    workflows = len(workflow_names(manifest))
 
     return {
         "skills": skills,
         "agents": agents,
         "commands": commands,
-        "workflows": workflows,
     }
 
 
 def build_package_lists(manifest: dict[str, Any]) -> dict[str, list[str]]:
     skill_packages = skill_canonical_names(manifest)
     agent_packages = [f"crewai/{name}" for name in agent_canonical_names(manifest)]
-    workflow_packages = workflow_names(manifest)
     command_packages = [f"crew/{name}" for name in command_canonical_names(manifest)]
 
     return {
         "PKG_SKILLS": skill_packages,
         "PKG_AGENTS": agent_packages,
-        "PKG_WORKFLOWS": workflow_packages,
         "PKG_COMMANDS": command_packages,
     }
 
@@ -135,8 +127,6 @@ def render_install_block(manifest: dict[str, Any]) -> str:
         "",
         render_bash_array("PKG_AGENTS", package_lists["PKG_AGENTS"]),
         "",
-        render_bash_array("PKG_WORKFLOWS", package_lists["PKG_WORKFLOWS"]),
-        "",
         render_bash_array("PKG_COMMANDS", package_lists["PKG_COMMANDS"]),
         INSTALL_BLOCK_END,
     ]
@@ -154,7 +144,6 @@ def render_readme_whats_inside_block(manifest: dict[str, Any]) -> str:
         f"- **{counts['skills']} Skill Packs**",
         f"- **{counts['agents']} Core Agents**",
         f"- **{counts['commands']} Canonical Commands**",
-        f"- **{counts['workflows']} Workflows** that guide you step by step",
         README_WHATS_INSIDE_END,
     ]
     return "\n".join(lines)
@@ -166,7 +155,6 @@ def render_readme_installer_counts_block(manifest: dict[str, Any]) -> str:
         README_INSTALLER_COUNTS_BEGIN,
         f"- {counts['skills']} Skills",
         f"- {counts['agents']} Agents",
-        f"- {counts['workflows']} Workflows",
         f"- {counts['commands']} Commands",
         README_INSTALLER_COUNTS_END,
     ]
@@ -177,14 +165,12 @@ def render_readme_index_block(manifest: dict[str, Any]) -> str:
     canonical_commands = command_canonical_names(manifest)
     canonical_agents = agent_canonical_names(manifest)
     canonical_skills = skill_canonical_names(manifest)
-    workflows = workflow_names(manifest)
 
     lines = [
         README_INDEX_BEGIN,
         f"- **Canonical commands ({len(canonical_commands)}):** {format_code_list(canonical_commands, '/crew ')}",
         f"- **Canonical agents ({len(canonical_agents)}):** {format_code_list(canonical_agents)}",
         f"- **Canonical skill packs ({len(canonical_skills)}):** {format_code_list(canonical_skills)}",
-        f"- **Workflows ({len(workflows)}):** {format_code_list(workflows)}",
         README_INDEX_END,
     ]
     return "\n".join(lines)
@@ -263,7 +249,6 @@ def validate_manifest_structure(manifest: dict[str, Any]) -> list[str]:
         "commands",
         "agents",
         "skills",
-        "workflows",
         "installation",
     ]
     for key in required_top:
@@ -281,13 +266,11 @@ def validate_manifest_structure(manifest: dict[str, Any]) -> list[str]:
     commands = manifest["commands"]
     agents = manifest["agents"]
     skills = manifest["skills"]
-    workflows = manifest["workflows"]
     installation = manifest["installation"]
 
     for section_name, section in [
         ("commands", commands),
         ("agents", agents),
-        ("workflows", workflows),
     ]:
         if not isinstance(section, dict):
             errors.append(f"manifest `{section_name}` must be an object")
@@ -354,7 +337,9 @@ def validate_manifest_structure(manifest: dict[str, Any]) -> list[str]:
                 f"command policy `{command_name}` references unknown primary skill `{primary}`"
             )
         if not check_string_list(optional):
-            errors.append(f"command policy `{command_name}` optional must be string list")
+            errors.append(
+                f"command policy `{command_name}` optional must be string list"
+            )
             continue
         for skill_name in optional:
             if skill_name not in canonical_skills:
@@ -377,7 +362,9 @@ def validate_manifest_structure(manifest: dict[str, Any]) -> list[str]:
     return errors
 
 
-def validate_template_references(repo_root: Path, manifest: dict[str, Any]) -> list[str]:
+def validate_template_references(
+    repo_root: Path, manifest: dict[str, Any]
+) -> list[str]:
     errors: list[str] = []
 
     def verify_entry(name: str, configured_path: Any, expected_path: str) -> None:
@@ -411,13 +398,6 @@ def validate_template_references(repo_root: Path, manifest: dict[str, Any]) -> l
             f"templates/shared/skills/{skill_name}/SKILL.md",
         )
 
-    for workflow_name, config in manifest["workflows"]["canonical"].items():
-        verify_entry(
-            f"workflows.canonical.{workflow_name}",
-            config.get("template"),
-            f"templates/shared/workflows/{workflow_name}/SKILL.md",
-        )
-
     for platform, entries in manifest["installation"]["system_files"].items():
         for entry in entries:
             path = repo_root / entry
@@ -429,7 +409,9 @@ def validate_template_references(repo_root: Path, manifest: dict[str, Any]) -> l
     return errors
 
 
-def validate_generated_artifacts(repo_root: Path, manifest: dict[str, Any]) -> list[str]:
+def validate_generated_artifacts(
+    repo_root: Path, manifest: dict[str, Any]
+) -> list[str]:
     errors: list[str] = []
 
     schema_path = repo_root / MANIFEST_SCHEMA_FILE

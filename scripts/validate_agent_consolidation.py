@@ -27,7 +27,7 @@ def main() -> int:
     registry = load_registry(repo_root)
 
     canonical_agents = sorted(registry["agents"]["canonical"].keys())
-    expected_canonical = ["builder", "docs", "flow", "runtime"]
+    expected_canonical = ["auditor", "builder", "docs", "flow"]
 
     errors: list[str] = []
 
@@ -42,7 +42,9 @@ def main() -> int:
     for name in canonical_agents:
         path = agents_dir / f"{name}.md"
         if not path.exists():
-            errors.append(f"missing canonical agent file: {path.relative_to(repo_root)}")
+            errors.append(
+                f"missing canonical agent file: {path.relative_to(repo_root)}"
+            )
             continue
 
         lines = line_count(path)
@@ -53,7 +55,7 @@ def main() -> int:
             )
 
         content = path.read_text(encoding="utf-8")
-        for required_tag in ["<ownership>", "<scope>", "<handoff_rules>", "<output_contract>"]:
+        for required_tag in ["<ownership>", "<scope>", "<output_contract>"]:
             if required_tag not in content:
                 errors.append(
                     f"canonical agent missing {required_tag}: {path.relative_to(repo_root)}"
