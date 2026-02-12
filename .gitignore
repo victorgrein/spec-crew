@@ -29,3 +29,5 @@ htmlcov/
 .hypothesis/
 .crewai-skills-backup/
 .installed-hashes.json
+.opencode
+.claude
