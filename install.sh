@@ -53,9 +53,6 @@ PKG_COMMANDS=(
 
 SKILL_ASSET_FILES=(
     "SKILL.md"
-    "examples/reference.md"
-    "examples/templates.md"
-    "examples/index.md"
 )
 
 
@@ -76,7 +73,7 @@ print_header() {
 }
 
 print_success() { echo -e "  ${GREEN}✓${NC} $1"; }
-print_error() { echo -e "  ${RED}✗${NC} $1"; }
+print_error() { echo -e "  ${RED}✗${NC} $1" >&2; }
 print_info() { echo -e "  ${BLUE}ℹ${NC} $1"; }
 print_warning() { echo -e "  ${YELLOW}⚠${NC} $1"; }
 print_step() { echo -e "\n${CYAN}${BOLD}▶${NC} $1\n"; }
@@ -497,8 +494,8 @@ perform_installation() {
     
     # Install system files
     local system_results=$(install_system)
-    local system_installed=$(echo "$system_results" | awk '{print $1}')
-    local system_failed=$(echo "$system_results" | awk '{print $2}')
+    local system_installed=$(echo "$system_results" | awk 'END {print $1}')
+    local system_failed=$(echo "$system_results" | awk 'END {print $2}')
     if [ "$PLATFORM" = "claude" ]; then
         print_success "System files ($system_installed installed, $system_failed failed)"
     else
@@ -507,20 +504,20 @@ perform_installation() {
     
     # Install skills
     local skills_results=$(install_skills)
-    local skills_installed=$(echo "$skills_results" | awk '{print $1}')
-    local skills_failed=$(echo "$skills_results" | awk '{print $2}')
+    local skills_installed=$(echo "$skills_results" | awk 'END {print $1}')
+    local skills_failed=$(echo "$skills_results" | awk 'END {print $2}')
     print_success "Skills ($skills_installed/${#PKG_SKILLS[@]} installed, $skills_failed failed)"
     
     # Install agents
     local agents_results=$(install_agents)
-    local agents_installed=$(echo "$agents_results" | awk '{print $1}')
-    local agents_failed=$(echo "$agents_results" | awk '{print $2}')
+    local agents_installed=$(echo "$agents_results" | awk 'END {print $1}')
+    local agents_failed=$(echo "$agents_results" | awk 'END {print $2}')
     print_success "Agents ($agents_installed/${#PKG_AGENTS[@]} installed, $agents_failed failed)"
     
     # Install commands
     local commands_results=$(install_commands)
-    local commands_installed=$(echo "$commands_results" | awk '{print $1}')
-    local commands_failed=$(echo "$commands_results" | awk '{print $2}')
+    local commands_installed=$(echo "$commands_results" | awk 'END {print $1}')
+    local commands_failed=$(echo "$commands_results" | awk 'END {print $2}')
     print_success "Commands ($commands_installed/${#PKG_COMMANDS[@]} installed, $commands_failed failed)"
     
     local config_dir=$(get_config_dir)
