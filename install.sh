@@ -21,6 +21,7 @@ REPO_URL="https://raw.githubusercontent.com/victorgrein/cli-agents-config/main"
 INSTALL_DIR=""
 PLATFORM=""
 NON_INTERACTIVE=false
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Package contents
 # BEGIN GENERATED: TOOLKIT_PACKAGE_LISTS
@@ -53,6 +54,26 @@ PKG_COMMANDS=(
 
 SKILL_ASSET_FILES=(
     "SKILL.md"
+)
+
+# Legacy skill directories from pre-consolidation releases.
+# These are removed on install so OpenCode does not keep routing to stale packs.
+LEGACY_SKILLS=(
+    "crewai-agents"
+    "crewai-tasks"
+    "crewai-flows"
+    "crewai-crews"
+    "crewai-tools"
+    "crewai-llms"
+    "crewai-memory"
+    "crewai-processes"
+    "crewai-cli"
+    "crewai-debugging"
+    "crewai-optimization"
+    "crewai-migration"
+    "crewai-crew-creation"
+    "crewai-code-quality"
+    "crewai-project-structure"
 )
 
 
@@ -140,6 +161,20 @@ download_file() {
     return 1
 }
 
+install_template_file() {
+    local rel_path="$1"
+    local dest="$2"
+    local local_source="$SCRIPT_DIR/$rel_path"
+
+    if [ -f "$local_source" ]; then
+        if cp "$local_source" "$dest" 2>/dev/null && [ -f "$dest" ] && [ -s "$dest" ]; then
+            return 0
+        fi
+    fi
+
+    download_file "$REPO_URL/$rel_path" "$dest"
+}
+
 ensure_dir() {
     mkdir -p "$1" || {
         print_error "Failed to create directory: $1"
@@ -152,11 +187,28 @@ install_skill_assets() {
     local skills_dir="$2"
     local failed_asset=0
     local rel
+    local local_skill_dir="$SCRIPT_DIR/templates/shared/skills/$skill"
+    local dest_skill_dir="$skills_dir/$skill"
+
+    if [ -d "$local_skill_dir" ]; then
+        if [ -d "$dest_skill_dir" ] && ! rm -rf "$dest_skill_dir"; then
+            print_error "Failed to reset skill directory: $skill"
+            return 1
+        fi
+
+        ensure_dir "$dest_skill_dir"
+        if cp -R "$local_skill_dir/." "$dest_skill_dir/"; then
+            return 0
+        fi
+
+        print_error "Failed to copy local skill package: $skill"
+        return 1
+    fi
 
     for rel in "${SKILL_ASSET_FILES[@]}"; do
         local dest="$skills_dir/$skill/$rel"
         ensure_dir "$(dirname "$dest")"
-        if ! download_file "$REPO_URL/templates/shared/skills/$skill/$rel" "$dest"; then
+        if ! install_template_file "templates/shared/skills/$skill/$rel" "$dest"; then
             print_error "Failed to install skill asset: $skill/$rel"
             failed_asset=1
         fi
@@ -165,11 +217,34 @@ install_skill_assets() {
     return $failed_asset
 }
 
+cleanup_legacy_skills() {
+    local skills_dir="$1"
+    local removed=0
+    local skill
+
+    for skill in "${LEGACY_SKILLS[@]}"; do
+        if [ -d "$skills_dir/$skill" ]; then
+            if rm -rf "$skills_dir/$skill"; then
+                removed=$((removed + 1))
+            else
+                print_error "Failed to remove legacy skill directory: $skill"
+            fi
+        fi
+    done
+
+    if [ "$removed" -gt 0 ]; then
+        print_warning "Removed $removed legacy skill directories" >&2
+    fi
+}
+
 install_skills() {
     local config_dir=$(get_config_dir)
     local skills_dir="$INSTALL_DIR/$config_dir/skills"
     local installed=0
     local failed=0
+
+    ensure_dir "$skills_dir"
+    cleanup_legacy_skills "$skills_dir"
     
     for skill in "${PKG_SKILLS[@]}"; do
         if install_skill_assets "$skill" "$skills_dir"; then
@@ -400,7 +475,7 @@ install_agents() {
         if [ "$PLATFORM" = "claude" ]; then
             dest="$agents_dir/$agent_name.md"
             ensure_dir "$(dirname "$dest")"
-            if download_file "$REPO_URL/templates/shared/agents/$agent_path.md" "$dest"; then
+            if install_template_file "templates/shared/agents/$agent_path.md" "$dest"; then
                 installed=$((installed + 1))
             else
                 print_error "Failed to install agent: $agent_name"
@@ -411,7 +486,7 @@ install_agents() {
             dest="$agents_dir/$agent_name.md"
             ensure_dir "$agents_dir"
             # Download to temp, transform, then save
-            if download_file "$REPO_URL/templates/shared/agents/$agent_path.md" "$temp_file"; then
+            if install_template_file "templates/shared/agents/$agent_path.md" "$temp_file"; then
                 if transform_agent_for_opencode "$temp_file" "$dest" "$agent_name"; then
                     installed=$((installed + 1))
                 else
@@ -444,7 +519,7 @@ install_commands() {
     for cmd in "${PKG_COMMANDS[@]}"; do
         local dest="$commands_dir/$cmd.md"
         ensure_dir "$(dirname "$dest")"
-        if download_file "$REPO_URL/templates/shared/commands/$cmd.md" "$dest"; then
+        if install_template_file "templates/shared/commands/$cmd.md" "$dest"; then
             installed=$((installed + 1))
         else
             print_error "Failed to install command: $cmd"
@@ -462,13 +537,13 @@ install_system() {
     if [ "$PLATFORM" = "claude" ]; then
         local config_dir="$INSTALL_DIR/.claude"
         ensure_dir "$config_dir"
-        if download_file "$REPO_URL/templates/claude/CLAUDE.md" "$config_dir/CLAUDE.md"; then
+        if install_template_file "templates/claude/CLAUDE.md" "$config_dir/CLAUDE.md"; then
             installed=$((installed + 1))
         else
             print_error "Failed to install CLAUDE.md"
             failed=$((failed + 1))
         fi
-        if download_file "$REPO_URL/templates/claude/settings.json" "$config_dir/settings.json"; then
+        if install_template_file "templates/claude/settings.json" "$config_dir/settings.json"; then
             installed=$((installed + 1))
         else
             print_error "Failed to install settings.json"
@@ -478,7 +553,7 @@ install_system() {
         # OpenCode: Install primary orchestrator agent to .opencode/agents/
         local agents_dir="$INSTALL_DIR/.opencode/agents"
         ensure_dir "$agents_dir"
-        if download_file "$REPO_URL/templates/opencode/crewai-orchestrator.md" "$agents_dir/crewai-orchestrator.md"; then
+        if install_template_file "templates/opencode/crewai-orchestrator.md" "$agents_dir/crewai-orchestrator.md"; then
             installed=$((installed + 1))
         else
             print_error "Failed to install orchestrator agent"
