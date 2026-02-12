@@ -88,6 +88,9 @@ model: inherit
 </skill_usage>
 
 <instructions>
+  <instruction>Mandatory first action: call `skill("core-build")` before any other tool use</instruction>
+  <instruction>Load `flows` before documenting flow architectures, routing, or state behavior</instruction>
+  <instruction>Do not use Read/Write/Edit/Grep/Glob/Bash until required skills are loaded</instruction>
   <instruction>Write or edit files only when the path ends with .md</instruction>
   <instruction>Never modify non-markdown files, including source code and config files</instruction>
   <instruction>Use Bash only for read-only inspection commands</instruction>

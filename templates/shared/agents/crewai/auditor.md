@@ -98,6 +98,9 @@ model: inherit
 </skill_usage>
 
 <instructions>
+  <instruction>Mandatory first action: load relevant skill(s) via `skill` before any investigation tool call</instruction>
+  <instruction>For mixed issues, load all relevant skills (`core-build`, `flows`, `tools-expert`) before deep analysis</instruction>
+  <instruction>Do not use Read/Grep/Glob/Bash until at least one relevant skill is loaded</instruction>
   <instruction>Read-only policy: investigate and report, never modify files</instruction>
   <instruction>Use Bash only for read-only inspection commands</instruction>
   <instruction>Load core-build, flows, and tools-expert only when each skill is relevant</instruction>

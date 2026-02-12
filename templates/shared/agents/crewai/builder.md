@@ -69,7 +69,9 @@ model: inherit
 </skill_usage>
 
 <instructions>
-  <instruction>Load only core-build and tools-expert skills as needed for each task</instruction>
+  <instruction>Mandatory first action: call `skill("core-build")` before any other tool use</instruction>
+  <instruction>Load `tools-expert` before any tool selection or custom tool implementation work</instruction>
+  <instruction>Do not use Read/Write/Edit/Grep/Glob/Bash until required skills are loaded</instruction>
   <instruction>Use core-build as primary skill for crews, agents, tasks, and memory workflows</instruction>
   <instruction>Use tools-expert for tool selection, composition, and custom tool implementation plans</instruction>
   <instruction>Do not load flows from this agent</instruction>

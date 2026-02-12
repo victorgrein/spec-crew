@@ -60,7 +60,8 @@ model: inherit
 </skill_usage>
 
 <instructions>
-  <instruction>Load only flows skill for all tasks</instruction>
+  <instruction>Mandatory first action: call `skill("flows")` before any other tool use</instruction>
+  <instruction>Do not use Read/Write/Edit/Grep/Glob/Bash until `flows` is loaded</instruction>
   <instruction>Treat flows as your sole authoritative source for orchestration behavior</instruction>
   <instruction>Use staged refactoring plans with clear rollback checkpoints</instruction>
   <instruction>Preserve behavior while changing structure unless explicitly asked to change behavior</instruction>
