@@ -27,25 +27,15 @@ NON_INTERACTIVE=false
 PKG_SKILLS=(
     "core-build"
     "flows"
-    "runtime"
-    "tools"
-    "migration"
-    "governance"
+    "tools-expert"
+    "orchestration-governance"
 )
 
 PKG_AGENTS=(
     "crewai/builder"
-    "crewai/runtime"
+    "crewai/auditor"
     "crewai/flow"
     "crewai/docs"
-)
-
-PKG_WORKFLOWS=(
-    "create-crew"
-    "debug-crew"
-    "optimize-crew"
-    "migrate-project"
-    "create-flow"
 )
 
 PKG_COMMANDS=(
@@ -58,6 +48,15 @@ PKG_COMMANDS=(
 # END GENERATED: TOOLKIT_PACKAGE_LISTS
 
 
+
+
+
+SKILL_ASSET_FILES=(
+    "SKILL.md"
+    "examples/reference.md"
+    "examples/templates.md"
+    "examples/index.md"
+)
 
 
 
@@ -151,6 +150,24 @@ ensure_dir() {
     }
 }
 
+install_skill_assets() {
+    local skill="$1"
+    local skills_dir="$2"
+    local failed_asset=0
+    local rel
+
+    for rel in "${SKILL_ASSET_FILES[@]}"; do
+        local dest="$skills_dir/$skill/$rel"
+        ensure_dir "$(dirname "$dest")"
+        if ! download_file "$REPO_URL/templates/shared/skills/$skill/$rel" "$dest"; then
+            print_error "Failed to install skill asset: $skill/$rel"
+            failed_asset=1
+        fi
+    done
+
+    return $failed_asset
+}
+
 install_skills() {
     local config_dir=$(get_config_dir)
     local skills_dir="$INSTALL_DIR/$config_dir/skills"
@@ -158,32 +175,10 @@ install_skills() {
     local failed=0
     
     for skill in "${PKG_SKILLS[@]}"; do
-        local dest="$skills_dir/$skill/SKILL.md"
-        ensure_dir "$(dirname "$dest")"
-        if download_file "$REPO_URL/templates/shared/skills/$skill/SKILL.md" "$dest"; then
+        if install_skill_assets "$skill" "$skills_dir"; then
             installed=$((installed + 1))
         else
-            print_error "Failed to install skill: $skill"
-            failed=$((failed + 1))
-        fi
-    done
-    
-    echo "$installed $failed"
-}
-
-install_workflows() {
-    local config_dir=$(get_config_dir)
-    local skills_dir="$INSTALL_DIR/$config_dir/skills"
-    local installed=0
-    local failed=0
-    
-    for workflow in "${PKG_WORKFLOWS[@]}"; do
-        local dest="$skills_dir/$workflow/SKILL.md"
-        ensure_dir "$(dirname "$dest")"
-        if download_file "$REPO_URL/templates/shared/workflows/$workflow/SKILL.md" "$dest"; then
-            installed=$((installed + 1))
-        else
-            print_error "Failed to install workflow: $workflow"
+            print_error "Failed to install skill package: $skill"
             failed=$((failed + 1))
         fi
     done
@@ -197,7 +192,16 @@ transform_agent_for_opencode() {
     local agent_id="$3"
     local content
     local desc
+    local tools_list
+    local tool_name
+    local read_enabled="false"
+    local write_enabled="false"
+    local edit_enabled="false"
+    local grep_enabled="false"
+    local glob_enabled="false"
+    local bash_enabled="false"
     local skill_permissions
+    local extra_permissions=""
 
     # Extract content after frontmatter
     content=$(awk '
@@ -234,6 +238,50 @@ transform_agent_for_opencode() {
         desc="$agent_id specialist agent"
     fi
 
+    # Extract tools from original frontmatter and map to OpenCode tool toggles
+    tools_list=$(awk '
+        BEGIN { in_frontmatter = 0; in_tools = 0 }
+        /^---$/ {
+            if (in_frontmatter == 0) {
+                in_frontmatter = 1
+                next
+            }
+            exit
+        }
+        in_frontmatter {
+            if ($0 ~ /^tools:[[:space:]]*$/) {
+                in_tools = 1
+                next
+            }
+            if (in_tools == 1) {
+                if ($0 ~ /^[[:space:]]*-[[:space:]]+/) {
+                    tool = $0
+                    sub(/^[[:space:]]*-[[:space:]]*/, "", tool)
+                    gsub(/"/, "", tool)
+                    if (length(tool) > 0) {
+                        print tool
+                    }
+                    next
+                }
+                if ($0 ~ /^[A-Za-z0-9_-]+:/) {
+                    in_tools = 0
+                }
+            }
+        }
+    ' "$input_file")
+
+    while IFS= read -r tool_name; do
+        case "$tool_name" in
+            Read) read_enabled="true" ;;
+            Write) write_enabled="true" ;;
+            Edit) edit_enabled="true" ;;
+            Grep) grep_enabled="true" ;;
+            Glob) glob_enabled="true" ;;
+            Bash) bash_enabled="true" ;;
+            Skill) ;;
+        esac
+    done <<< "$tools_list"
+
     # Extract skills from original frontmatter and convert to OpenCode permission map
     skill_permissions=$(awk '
         BEGIN { in_frontmatter = 0; in_skills = 0 }
@@ -265,6 +313,49 @@ transform_agent_for_opencode() {
             }
         }
     ' "$input_file")
+
+    case "$agent_id" in
+        auditor)
+            extra_permissions=$(cat <<'EOF'
+  write:
+    "*": deny
+  edit:
+    "*": deny
+  bash:
+    "ls *": allow
+    "cat *": allow
+    "grep *": allow
+    "find *": allow
+    "tree *": allow
+    "git status*": allow
+    "git diff*": allow
+    "git log*": allow
+    "*": deny
+EOF
+)
+            ;;
+        docs)
+            extra_permissions=$(cat <<'EOF'
+  write:
+    "**/*.md": allow
+    "*": deny
+  edit:
+    "**/*.md": allow
+    "*": deny
+  bash:
+    "ls *": allow
+    "cat *": allow
+    "grep *": allow
+    "find *": allow
+    "tree *": allow
+    "git status*": allow
+    "git diff*": allow
+    "git log*": allow
+    "*": deny
+EOF
+)
+            ;;
+    esac
     
     # Create OpenCode frontmatter (only valid fields per OpenCode docs)
     cat > "$output_file" << EOF
@@ -273,15 +364,16 @@ description: $desc
 mode: subagent
 temperature: 0.7
 tools:
-  read: true
-  edit: true
-  write: true
-  grep: true
-  glob: true
-  bash: true
-  task: true
+  read: $read_enabled
+  edit: $edit_enabled
+  write: $write_enabled
+  grep: $grep_enabled
+  glob: $glob_enabled
+  bash: $bash_enabled
+  task: false
   skill: true
 permission:
+$extra_permissions
   skill:
 $skill_permissions
     "*": deny
@@ -419,12 +511,6 @@ perform_installation() {
     local skills_failed=$(echo "$skills_results" | awk '{print $2}')
     print_success "Skills ($skills_installed/${#PKG_SKILLS[@]} installed, $skills_failed failed)"
     
-    # Install workflows
-    local workflows_results=$(install_workflows)
-    local workflows_installed=$(echo "$workflows_results" | awk '{print $1}')
-    local workflows_failed=$(echo "$workflows_results" | awk '{print $2}')
-    print_success "Workflows ($workflows_installed/${#PKG_WORKFLOWS[@]} installed, $workflows_failed failed)"
-    
     # Install agents
     local agents_results=$(install_agents)
     local agents_installed=$(echo "$agents_results" | awk '{print $1}')
@@ -440,8 +526,8 @@ perform_installation() {
     local config_dir=$(get_config_dir)
     
     # Calculate totals
-    local total_failed=$((system_failed + skills_failed + workflows_failed + agents_failed + commands_failed))
-    local total_installed=$((system_installed + skills_installed + workflows_installed + agents_installed + commands_installed))
+    local total_failed=$((system_failed + skills_failed + agents_failed + commands_failed))
+    local total_installed=$((system_installed + skills_installed + agents_installed + commands_installed))
     
     echo ""
     if [ $total_failed -gt 0 ]; then
@@ -528,7 +614,6 @@ show_confirm_menu() {
     echo "  Components:"
     echo "    • Skills (${#PKG_SKILLS[@]})"
     echo "    • Agents (${#PKG_AGENTS[@]})"
-    echo "    • Workflows (${#PKG_WORKFLOWS[@]})"
     echo "    • Commands (${#PKG_COMMANDS[@]})"
     if [ "$PLATFORM" = "claude" ]; then
         echo "    • System prompt (CLAUDE.md)"

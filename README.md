@@ -28,7 +28,7 @@ The AI simply didn't understand CrewAI. Not the patterns. Not the pitfalls. Not 
 
 That's why I built this.
 
-A toolkit that gives your AI assistant real knowledge about CrewAI. The skills. The workflows. The proper way to build things.
+A toolkit that gives your AI assistant real knowledge about CrewAI. The skills. The proper way to build things.
 
 So when you ask for help, you finally get answers that work.
 
@@ -39,11 +39,14 @@ So when you ask for help, you finally get answers that work.
 Everything you need to build crews properly:
 
 <!-- BEGIN GENERATED: TOOLKIT_WHATS_INSIDE -->
-- **6 Skill Packs**
+- **4 Skill Packs**
 - **4 Core Agents**
 - **5 Canonical Commands**
-- **5 Workflows** that guide you step by step
 <!-- END GENERATED: TOOLKIT_WHATS_INSIDE -->
+
+
+
+
 
 
 One install. Your AI becomes a Spec Crew expert.
@@ -52,10 +55,13 @@ One install. Your AI becomes a Spec Crew expert.
 
 <!-- BEGIN GENERATED: TOOLKIT_INDEX -->
 - **Canonical commands (5):** `/crew init`, `/crew inspect`, `/crew fix`, `/crew evolve`, `/crew docs`
-- **Canonical agents (4):** `builder`, `runtime`, `flow`, `docs`
-- **Canonical skill packs (6):** `core-build`, `flows`, `runtime`, `tools`, `migration`, `governance`
-- **Workflows (5):** `create-crew`, `debug-crew`, `optimize-crew`, `migrate-project`, `create-flow`
+- **Canonical agents (4):** `builder`, `auditor`, `flow`, `docs`
+- **Canonical skill packs (4):** `core-build`, `flows`, `tools-expert`, `orchestration-governance`
 <!-- END GENERATED: TOOLKIT_INDEX -->
+
+
+
+
 
 
 Maintainer sync:
@@ -138,11 +144,14 @@ irm https://raw.githubusercontent.com/victorgrein/cli-agents-config/main/install
 The interactive installer will ask for your **platform** (Claude Code or OpenCode), **installation location**, and confirmation before installing:
 
 <!-- BEGIN GENERATED: TOOLKIT_INSTALLER_COUNTS -->
-- 6 Skills
+- 4 Skills
 - 4 Agents
-- 5 Workflows
 - 5 Commands
 <!-- END GENERATED: TOOLKIT_INSTALLER_COUNTS -->
+
+
+
+
 
 Also installs the system prompt for Claude Code.
 
@@ -171,7 +180,7 @@ Canonical specialists:
 | Agent | What they do |
 |-------|--------------|
 | **builder** | Builds crews, agents, tasks, and tools |
-| **runtime** | Debugs issues and optimizes runtime behavior |
+| **auditor** | Runs read-only investigations, audits, and validation |
 | **flow** | Designs flows and handles migration/refactoring |
 | **docs** | Produces docs, diagrams, and standards summaries |
 
@@ -186,10 +195,8 @@ Knowledge the AI loads when it needs it:
 **Canonical Skill Packs**
 - `core-build` - Crews, agents, tasks, and process design
 - `flows` - Flow orchestration, state, and routing
-- `runtime` - Debugging, optimization, LLM, and memory tuning
-- `tools` - Tool creation and integration patterns
-- `migration` - Migration and refactor execution strategy
-- `governance` - Standards, structure, CLI policy, and task tracking
+- `tools-expert` - Tool selection, custom tooling, and integration patterns
+- `orchestration-governance` - Routing, delegation contracts, and validation policy
 
 ---
 
@@ -235,7 +242,7 @@ spec-crew/
 ├── install.sh             # Installation script
 ├── scripts/               # Toolkit validation & sync scripts
 ├── templates/             # Agent, skill, and workflow prompts
-│   ├── shared/            # Core prompts (commands, agents, skills, workflows)
+│   ├── shared/            # Core prompts (commands, agents, skills)
 │   ├── claude/            # Claude Code-specific configuration
 │   └── opencode/          # OpenCode-specific configuration
 └── toolkit/               # Toolkit metadata & validation data
