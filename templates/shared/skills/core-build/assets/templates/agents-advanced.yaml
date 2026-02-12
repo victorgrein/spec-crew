@@ -1,0 +1,103 @@
+# Advanced Agent Configuration Template
+# Demonstrates all available agent parameters with comments
+
+# Basic agent with minimal configuration
+minimal_agent:
+  role: Simple Data Processor
+  goal: Process data efficiently
+  backstory: A straightforward agent focused on data processing
+
+# Fully configured agent with all parameters
+advanced_agent:
+  # Core attributes (required)
+  role: >
+    Senior Data Scientist and Machine Learning Engineer
+    specializing in {domain}
+  goal: >
+    Build and optimize ML models for {task}
+    with 95%+ accuracy while maintaining explainability
+  backstory: >
+    You are an expert data scientist with 10+ years of experience.
+    You have a PhD in Computer Science and have worked at top tech companies.
+    You excel at building production-ready ML pipelines and communicating
+    results to non-technical stakeholders.
+  
+  # LLM configuration
+  llm: gpt-4
+  # llm: anthropic/claude-3-opus
+  # llm: azure/gpt-4
+  # llm: ollama/llama2
+  
+  # Execution control
+  verbose: true
+  max_iterations: 25
+  max_retry_limit: 3
+  
+  # Tool configuration
+  tools:
+    - search_tool
+    - code_interpreter
+    - file_reader
+  
+  # Memory and context
+  memory: true
+  
+  # Delegation behavior
+  allow_delegation: false
+  
+  # Step callback for monitoring
+  # step_callback: custom_callback_function
+
+# Agent with custom system prompt override
+system_override_agent:
+  role: Specialized Assistant
+  goal: Provide expert assistance in a specific domain
+  backstory: Expert in the field
+  system_template: |
+    You are an AI assistant specialized in {specialty}.
+    Always provide responses in {format}.
+    Include citations for all factual claims.
+    If uncertain, explicitly state your confidence level.
+
+# Agent with guardrails
+protected_agent:
+  role: Customer Support Representative
+  goal: Help customers with product inquiries
+  backstory: Friendly support agent with deep product knowledge
+  guardrails:
+    - Do not share internal pricing information
+    - Never provide medical or legal advice
+    - Escalate technical issues to engineering team
+  
+# Multi-agent team member
+team_lead:
+  role: Project Manager and Team Lead
+  goal: Coordinate team activities and ensure project success
+  backstory: Experienced project manager with technical background
+  allow_delegation: true
+  tools:
+    - task_manager
+    - document_reader
+    - calendar_tool
+  llm: gpt-4
+  verbose: true
+
+# Async agent configuration
+async_agent:
+  role: Async Data Processor
+  goal: Process large datasets asynchronously
+  backstory: Optimized for high-throughput async operations
+  async_mode: true
+  max_concurrent: 5
+  timeout: 300
+
+# Hierarchical process agent
+hierarchical_manager:
+  role: Task Manager
+  goal: Coordinate multiple agents and review their work
+  backstory: Senior manager who delegates effectively
+  allow_delegation: true
+  tools:
+    - delegation_tool
+    - review_tool
+  process: hierarchical

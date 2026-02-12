@@ -1,0 +1,141 @@
+# Advanced Task Configuration Template
+# Demonstrates all available task parameters with comments
+
+# Basic task with minimal configuration
+simple_task:
+  description: Complete the assigned work
+  expected_output: Completed work results
+  agent: default_agent
+
+# Fully configured task with all parameters
+comprehensive_task:
+  # Core attributes
+  description: >
+    Analyze the provided {dataset} to identify key patterns and trends.
+    Focus on {metric_1}, {metric_2}, and {metric_3}.
+    Consider seasonal variations and outliers.
+    Provide statistical significance tests where applicable.
+  
+  expected_output: >
+    A comprehensive analysis report including:
+    - Executive summary (max 200 words)
+    - Key findings with statistical evidence
+    - Visual recommendations (describe charts/graphs needed)
+    - Actionable insights for business stakeholders
+    - Confidence intervals for predictions
+  
+  agent: data_analyst
+  
+  # Output configuration
+  output_file: output/analysis_report.md
+  markdown: true
+  # output_pydantic: AnalysisReport  # Pydantic model for structured output
+  # output_json: output/result.json  # JSON output file
+  
+  # Context dependencies
+  context:
+    - data_preparation_task
+    - data_validation_task
+  
+  # Execution control
+  async_mode: false
+  timeout: 600
+  
+  # Quality and validation
+  quality_check: true
+  # guardrails:
+  #   - Must include at least 3 data points
+  #   - All percentages must sum to 100%
+  #   - Citations required for external data
+
+# Task with output model
+structured_task:
+  description: Generate a structured report for {entity}
+  expected_output: Valid JSON matching the ReportSchema
+  agent: report_generator
+  output_pydantic: ReportSchema  # Reference to Pydantic model
+  output_file: output/report.json
+
+# Async task configuration
+async_task:
+  description: Process batch of {items}
+  expected_output: Processing results for all items
+  agent: batch_processor
+  async_mode: true
+  max_workers: 5
+  timeout: 1200
+
+# Task with guardrails
+guardrailed_task:
+  description: Generate marketing content for {campaign}
+  expected_output: Marketing copy ready for publication
+  agent: copywriter
+  guardrails:
+    - Tone must be professional and inclusive
+    - No exaggerated claims or false promises
+    - Must comply with brand guidelines
+    - Length between 200-500 words
+
+# Conditional task
+conditional_task:
+  description: Review analysis and decide next steps
+  expected_output: Decision and rationale
+  agent: decision_maker
+  condition: |
+    Only execute if previous analysis shows {threshold}% confidence
+  context:
+    - analysis_task
+
+# Multi-step task with detailed instructions
+complex_task:
+  description: >
+    Perform a comprehensive competitive analysis:
+    
+    Step 1: Identify top 5 competitors in {market}
+    Step 2: For each competitor, analyze:
+      - Pricing strategy
+      - Feature set
+      - Target audience
+      - Marketing channels
+      - Strengths and weaknesses
+    
+    Step 3: Create comparison matrix
+    Step 4: Identify market gaps and opportunities
+    Step 5: Recommend positioning strategy
+    
+    Use publicly available information only.
+    Cite all sources.
+  
+  expected_output: >
+    Competitive analysis document with:
+    - Competitor profiles (one per section)
+    - Comparison matrix table
+    - SWOT analysis
+    - Strategic recommendations
+    - All sources cited
+  
+  agent: market_researcher
+  output_file: output/competitive_analysis.md
+  markdown: true
+  context:
+    - market_definition_task
+
+# Parallel execution task
+parallel_analysis_task:
+  description: Analyze {data} using multiple approaches
+  expected_output: Combined analysis results
+  agent: senior_analyst
+  parallel:
+    - technical_analysis_task
+    - business_analysis_task
+    - risk_analysis_task
+  context:
+    - data_collection_task
+
+# Task with human-in-the-loop review
+review_task:
+  description: Finalize and review {document}
+  expected_output: Approved final document
+  agent: editor
+  human_input: true  # Pause for human review
+  output_file: output/final_document.md

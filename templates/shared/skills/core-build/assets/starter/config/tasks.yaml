@@ -1,0 +1,23 @@
+# Task definitions with context dependencies
+research_task:
+  description: >
+    Conduct thorough research on {topic}.
+    Find at least 5 key findings or developments.
+    Focus on recent and relevant information.
+  expected_output: >
+    A structured list of key findings with sources and brief explanations
+  agent: researcher
+  markdown: true
+
+analysis_task:
+  description: >
+    Analyze the research findings and create a comprehensive summary.
+    Identify main themes, trends, and implications.
+    Provide actionable recommendations.
+  expected_output: >
+    A detailed analysis report with key insights and recommendations
+  agent: analyst
+  context:
+    - research_task
+  markdown: true
+  output_file: output/analysis.md
