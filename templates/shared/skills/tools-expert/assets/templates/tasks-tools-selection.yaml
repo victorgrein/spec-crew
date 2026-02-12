@@ -1,0 +1,19 @@
+tool_gap_analysis_task:
+  description: >
+    Evaluate built-in CrewAI tool coverage for the requested workflow.
+    Identify setup requirements, failure risks, and capability gaps.
+  expected_output: >
+    Capability matrix with tool choices, credential requirements,
+    and explicit custom-tool gaps.
+  agent: research_tools_agent
+
+tool_path_decision_task:
+  description: >
+    Decide built-in only, hybrid, or custom path using the capability matrix.
+    Justify the decision with reliability and maintenance tradeoffs.
+  expected_output: >
+    Decision report with selected path, rejected alternatives,
+    and acceptance criteria for implementation.
+  agent: tool_strategy_agent
+  context:
+    - tool_gap_analysis_task

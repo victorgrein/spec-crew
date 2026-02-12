@@ -1,0 +1,31 @@
+custom_tool_contract_task:
+  description: >
+    Define custom tool contract including input schema fields,
+    output format, error taxonomy, and implementation style decision.
+  expected_output: >
+    Structured custom-tool specification with validation rules
+    and implementation acceptance criteria.
+  agent: tool_architect_agent
+
+custom_tool_implementation_plan_task:
+  description: >
+    Create implementation plan covering env vars,
+    package dependencies, timeout strategy, retry strategy,
+    caching strategy, and async strategy.
+  expected_output: >
+    Ordered implementation checklist and review gates.
+  agent: tool_architect_agent
+  context:
+    - custom_tool_contract_task
+
+custom_tool_validation_matrix_task:
+  description: >
+    Define validation matrix for missing credentials,
+    invalid inputs, provider failures, timeout behavior,
+    and successful response format.
+  expected_output: >
+    Test matrix with scenario, fixture, expected result,
+    and pass/fail criteria.
+  agent: tool_validation_agent
+  context:
+    - custom_tool_implementation_plan_task
