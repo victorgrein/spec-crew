@@ -17,13 +17,16 @@ DIM='\033[2m'
 NC='\033[0m'
 
 # Configuration
-REPO_URL="https://raw.githubusercontent.com/victorgrein/cli-agents-config/main"
-REPO_API_TREE_URL="https://api.github.com/repos/victorgrein/cli-agents-config/git/trees/main?recursive=1"
+REPO_URL="${REPO_URL:-https://raw.githubusercontent.com/victorgrein/spec-crew/main}"
+REPO_API_TREE_URL="${REPO_API_TREE_URL:-https://api.github.com/repos/victorgrein/spec-crew/git/trees/main?recursive=1}"
+REPO_ARCHIVE_URL="${REPO_ARCHIVE_URL:-https://codeload.github.com/victorgrein/spec-crew/tar.gz/refs/heads/main}"
 INSTALL_DIR=""
 PLATFORM=""
 NON_INTERACTIVE=false
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REMOTE_BLOB_PATHS=""
+REMOTE_ARCHIVE_SKILLS_DIR=""
+REMOTE_ARCHIVE_TMP_DIR=""
 
 # Package contents
 # BEGIN GENERATED: TOOLKIT_PACKAGE_LISTS
@@ -179,20 +182,25 @@ install_template_file() {
 
 load_remote_blob_paths() {
     local python_bin=""
+    local tree_json=""
 
     if [ -n "$REMOTE_BLOB_PATHS" ]; then
         return 0
+    fi
+
+    tree_json=$(curl -fsSL "$REPO_API_TREE_URL" 2>/dev/null || true)
+    if [ -z "$tree_json" ]; then
+        return 1
     fi
 
     if command -v python3 >/dev/null 2>&1; then
         python_bin="python3"
     elif command -v python >/dev/null 2>&1; then
         python_bin="python"
-    else
-        return 1
     fi
 
-    REMOTE_BLOB_PATHS=$(curl -fsSL "$REPO_API_TREE_URL" 2>/dev/null | "$python_bin" -c '
+    if [ -n "$python_bin" ]; then
+        REMOTE_BLOB_PATHS=$(printf '%s' "$tree_json" | "$python_bin" -c '
 import json
 import sys
 
@@ -203,6 +211,11 @@ for entry in data.get("tree", []):
         if path:
             print(path)
 ' 2>/dev/null || true)
+    fi
+
+    if [ -z "$REMOTE_BLOB_PATHS" ]; then
+        REMOTE_BLOB_PATHS=$(printf '%s' "$tree_json" | tr '{' '\n' | sed -n 's/.*"path":"\([^"]*\)".*"type":"blob".*/\1/p' || true)
+    fi
 
     [ -n "$REMOTE_BLOB_PATHS" ]
 }
@@ -258,6 +271,83 @@ install_remote_skill_package() {
     return $failed_asset
 }
 
+ensure_remote_archive_skills_dir() {
+    local tmp_dir
+    local archive_file
+    local candidate
+
+    if [ -n "$REMOTE_ARCHIVE_SKILLS_DIR" ] && [ -d "$REMOTE_ARCHIVE_SKILLS_DIR" ]; then
+        return 0
+    fi
+
+    if ! command -v tar >/dev/null 2>&1; then
+        return 1
+    fi
+
+    tmp_dir=$(mktemp -d 2>/dev/null || true)
+    if [ -z "$tmp_dir" ] || [ ! -d "$tmp_dir" ]; then
+        return 1
+    fi
+
+    archive_file="$tmp_dir/repo.tar.gz"
+    if ! download_file "$REPO_ARCHIVE_URL" "$archive_file"; then
+        rm -rf "$tmp_dir"
+        return 1
+    fi
+
+    if ! tar -xzf "$archive_file" -C "$tmp_dir" 2>/dev/null; then
+        rm -rf "$tmp_dir"
+        return 1
+    fi
+
+    for candidate in "$tmp_dir"/*/templates/shared/skills; do
+        if [ -d "$candidate" ]; then
+            REMOTE_ARCHIVE_TMP_DIR="$tmp_dir"
+            REMOTE_ARCHIVE_SKILLS_DIR="$candidate"
+            return 0
+        fi
+    done
+
+    rm -rf "$tmp_dir"
+    return 1
+}
+
+install_remote_skill_package_from_archive() {
+    local skill="$1"
+    local skills_dir="$2"
+    local source_skill_dir
+
+    if ! ensure_remote_archive_skills_dir; then
+        return 1
+    fi
+
+    source_skill_dir="$REMOTE_ARCHIVE_SKILLS_DIR/$skill"
+    if [ ! -d "$source_skill_dir" ]; then
+        return 1
+    fi
+
+    if [ -d "$skills_dir/$skill" ] && ! rm -rf "$skills_dir/$skill"; then
+        print_error "Failed to reset skill directory: $skill"
+        return 1
+    fi
+
+    ensure_dir "$skills_dir/$skill"
+    if cp -R "$source_skill_dir/." "$skills_dir/$skill/"; then
+        return 0
+    fi
+
+    print_error "Failed to copy archived remote skill package: $skill"
+    return 1
+}
+
+cleanup_remote_archive_snapshot() {
+    if [ -n "$REMOTE_ARCHIVE_TMP_DIR" ] && [ -d "$REMOTE_ARCHIVE_TMP_DIR" ]; then
+        rm -rf "$REMOTE_ARCHIVE_TMP_DIR"
+    fi
+    REMOTE_ARCHIVE_TMP_DIR=""
+    REMOTE_ARCHIVE_SKILLS_DIR=""
+}
+
 ensure_dir() {
     mkdir -p "$1" || {
         print_error "Failed to create directory: $1"
@@ -289,6 +379,10 @@ install_skill_assets() {
     fi
 
     if install_remote_skill_package "$skill" "$skills_dir"; then
+        return 0
+    fi
+
+    if install_remote_skill_package_from_archive "$skill" "$skills_dir"; then
         return 0
     fi
 
@@ -878,4 +972,5 @@ main() {
     fi
 }
 
+trap cleanup_remote_archive_snapshot EXIT
 main "$@"
