@@ -18,10 +18,12 @@ NC='\033[0m'
 
 # Configuration
 REPO_URL="https://raw.githubusercontent.com/victorgrein/cli-agents-config/main"
+REPO_API_TREE_URL="https://api.github.com/repos/victorgrein/cli-agents-config/git/trees/main?recursive=1"
 INSTALL_DIR=""
 PLATFORM=""
 NON_INTERACTIVE=false
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REMOTE_BLOB_PATHS=""
 
 # Package contents
 # BEGIN GENERATED: TOOLKIT_PACKAGE_LISTS
@@ -175,6 +177,87 @@ install_template_file() {
     download_file "$REPO_URL/$rel_path" "$dest"
 }
 
+load_remote_blob_paths() {
+    local python_bin=""
+
+    if [ -n "$REMOTE_BLOB_PATHS" ]; then
+        return 0
+    fi
+
+    if command -v python3 >/dev/null 2>&1; then
+        python_bin="python3"
+    elif command -v python >/dev/null 2>&1; then
+        python_bin="python"
+    else
+        return 1
+    fi
+
+    REMOTE_BLOB_PATHS=$(curl -fsSL "$REPO_API_TREE_URL" 2>/dev/null | "$python_bin" -c '
+import json
+import sys
+
+data = json.load(sys.stdin)
+for entry in data.get("tree", []):
+    if entry.get("type") == "blob":
+        path = entry.get("path")
+        if path:
+            print(path)
+' 2>/dev/null || true)
+
+    [ -n "$REMOTE_BLOB_PATHS" ]
+}
+
+get_remote_skill_files() {
+    local skill="$1"
+
+    if ! load_remote_blob_paths; then
+        return 1
+    fi
+
+    awk -v prefix="templates/shared/skills/$skill/" 'index($0, prefix) == 1 { print }' <<< "$REMOTE_BLOB_PATHS"
+}
+
+install_remote_skill_package() {
+    local skill="$1"
+    local skills_dir="$2"
+    local skill_files
+    local rel_path
+    local rel_dest
+    local dest
+    local failed_asset=0
+    local copied_any=0
+
+    skill_files=$(get_remote_skill_files "$skill")
+    if [ -z "$skill_files" ]; then
+        return 1
+    fi
+
+    if [ -d "$skills_dir/$skill" ] && ! rm -rf "$skills_dir/$skill"; then
+        print_error "Failed to reset skill directory: $skill"
+        return 1
+    fi
+
+    ensure_dir "$skills_dir/$skill"
+
+    while IFS= read -r rel_path; do
+        [ -z "$rel_path" ] && continue
+        copied_any=1
+        rel_dest="${rel_path#templates/shared/skills/$skill/}"
+        dest="$skills_dir/$skill/$rel_dest"
+        ensure_dir "$(dirname "$dest")"
+        if ! install_template_file "$rel_path" "$dest"; then
+            print_error "Failed to install skill asset: $skill/$rel_dest"
+            failed_asset=1
+        fi
+    done <<< "$skill_files"
+
+    if [ "$copied_any" -eq 0 ]; then
+        return 1
+    fi
+
+    return $failed_asset
+}
+
 ensure_dir() {
     mkdir -p "$1" || {
         print_error "Failed to create directory: $1"
@@ -203,6 +286,10 @@ install_skill_assets() {
 
         print_error "Failed to copy local skill package: $skill"
         return 1
+    fi
+
+    if install_remote_skill_package "$skill" "$skills_dir"; then
+        return 0
     fi
 
     for rel in "${SKILL_ASSET_FILES[@]}"; do
