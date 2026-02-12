@@ -1,5 +1,5 @@
 ---
-description: Canonical command for migration and structural evolution
+description: Canonical command for structural evolution and refactoring
 agent: crewai-orchestrator
 canonical: true
 command_id: crew.evolve.v1
@@ -7,7 +7,7 @@ command_id: crew.evolve.v1
 
 # /crew evolve
 
-Canonical command for migration, refactoring, and flow-oriented evolution.
+Canonical command for refactoring, restructuring, and flow-oriented evolution.
 
 ## Syntax
 
@@ -24,8 +24,8 @@ Canonical command for migration, refactoring, and flow-oriented evolution.
 
 ## What It Does
 
-1. Assesses current project structure and migration risk
-2. Produces a staged refactor or migration plan
+1. Assesses current project structure and transformation risk
+2. Produces a staged refactor or evolution plan
 3. Applies structural changes with rollback guidance
 4. Validates updated paths and runtime integrity
 
@@ -44,9 +44,3 @@ Every command response must include these sections in order:
 2. `plan` - ordered execution steps
 3. `proposed changes` - concrete file/config changes (or `none`)
 4. `validation steps` - checks to confirm correctness
-
-## Related Commands
-
-- `/crew inspect` - Evaluate architecture before migration
-- `/crew fix` - Stabilize runtime before and after migration
-- `/crew docs` - Regenerate documentation for the evolved structure

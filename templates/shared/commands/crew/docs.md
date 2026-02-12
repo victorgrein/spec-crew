@@ -45,9 +45,3 @@ Every command response must include these sections in order:
 2. `plan` - ordered execution steps
 3. `proposed changes` - concrete file/config changes (or `none`)
 4. `validation steps` - checks to confirm correctness
-
-## Related Commands
-
-- `/crew init` - Initialize standards and project context
-- `/crew inspect` - Review architecture before documentation
-- `/crew evolve` - Regenerate docs after migrations

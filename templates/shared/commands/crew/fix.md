@@ -7,7 +7,7 @@ command_id: crew.fix.v1
 
 # /crew fix
 
-Canonical command for resolving failures and applying runtime optimizations.
+Canonical command for resolving failures through auditor review and targeted implementation.
 
 ## Syntax
 
@@ -25,16 +25,17 @@ Canonical command for resolving failures and applying runtime optimizations.
 
 ## What It Does
 
-1. Diagnoses execution issues and root causes
+1. Diagnoses execution issues and root causes in read-only mode
 2. Reviews configuration for performance and cost opportunities
-3. Proposes or applies targeted fixes with rationale
-4. Returns deterministic validation steps
+3. Produces targeted fix recommendations and implementation plan
+4. Routes implementation to builder or flow when changes are required
+5. Returns deterministic validation steps
 
 ## Output
 
 - Root-cause findings
 - Fix and optimization plan
-- Concrete code/config changes
+- Recommended implementation changes
 - Post-fix verification checklist
 
 ## Response Contract (Required)
@@ -45,9 +46,3 @@ Every command response must include these sections in order:
 2. `plan` - ordered execution steps
 3. `proposed changes` - concrete file/config changes (or `none`)
 4. `validation steps` - checks to confirm correctness
-
-## Related Commands
-
-- `/crew inspect` - Diagnose before changing
-- `/crew evolve` - Perform broader structural refactors
-- `/crew docs` - Document fixes and operational guidance
