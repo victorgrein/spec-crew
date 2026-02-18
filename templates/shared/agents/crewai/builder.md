@@ -12,6 +12,12 @@ tools:
 skills:
 - core-build
 - tools-expert
+permission:
+  skill:
+    "core-build": allow
+    "tools-expert": allow
+    "orchestration-governance": deny
+    "flows": deny
 model: inherit
 ---
 
