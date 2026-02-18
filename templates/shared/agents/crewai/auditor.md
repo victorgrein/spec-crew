@@ -26,6 +26,11 @@ permission:
     "git diff*": allow
     "git log*": allow
     "*": deny
+  skill:
+    "core-build": allow
+    "flows": allow
+    "tools-expert": allow
+    "orchestration-governance": deny
 model: inherit
 ---
 
