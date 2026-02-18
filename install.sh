@@ -567,6 +567,26 @@ transform_agent_for_opencode() {
         }
     ' "$input_file")
 
+    # Define denied skills based on agent_id
+    local denied_skills=""
+    case "$agent_id" in
+        builder)
+            denied_skills='    "orchestration-governance": deny
+    "flows": deny'
+            ;;
+        flow)
+            denied_skills='    "orchestration-governance": deny
+    "core-build": deny
+    "tools-expert": deny'
+            ;;
+        auditor)
+            denied_skills='    "orchestration-governance": deny'
+            ;;
+        docs)
+            denied_skills='    "orchestration-governance": deny'
+            ;;
+    esac
+
     case "$agent_id" in
         auditor)
             extra_permissions=$(cat <<'EOF'
@@ -629,7 +649,7 @@ permission:
 $extra_permissions
   skill:
 $skill_permissions
-    "*": deny
+$denied_skills
 ---
 $content
 EOF
