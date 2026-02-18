@@ -15,7 +15,9 @@ permission:
     "**/*.key": deny
   skill:
     "orchestration-governance": allow
-    "*": deny
+    "core-build": deny
+    "flows": deny
+    "tools-expert": deny
 ---
 
 # CrewAI Orchestrator
