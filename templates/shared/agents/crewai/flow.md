@@ -11,6 +11,12 @@ tools:
 - Skill
 skills:
 - flows
+permission:
+  skill:
+    "flows": allow
+    "orchestration-governance": deny
+    "core-build": deny
+    "tools-expert": deny
 model: inherit
 ---
 
